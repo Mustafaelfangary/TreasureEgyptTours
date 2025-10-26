@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Production domain configuration -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">dahabiyatnilecruise.com</domain>
+        <domain includeSubdomains="true">www.dahabiyatnilecruise.com</domain>
+        <trust-anchors>
+            <!-- Trust system certificates -->
+            <certificates src="system"/>
+            <certificates src="user"/>
+        </trust-anchors>
+    </domain-config>
+    
+    <!-- Development and testing configuration -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Allow localhost for development -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">192.168.1.1</domain>
+    </domain-config>
+    
+    <!-- Debug configuration for testing -->
+    <debug-overrides>
+        <trust-anchors>
+            <!-- Trust user-added certificates for debugging -->
+            <certificates src="user"/>
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

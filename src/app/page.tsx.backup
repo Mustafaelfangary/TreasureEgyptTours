@@ -1,0 +1,1233 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  Star, 
+  LocationOn, 
+  People, 
+  Event,
+  Explore,
+  Flight,
+  Restaurant,
+  Hotel,
+  Camera,
+  Map,
+  TrendingUp,
+  PlayArrow,
+} from '@mui/icons-material';
+import {
+  Box,
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Chip,
+} from '@mui/material';
+import LogoLoader from '@/components/ui/LogoLoader';
+
+export default function HomePage() {
+  const [dahabiyas, setDahabiyas] = useState([]);
+  const [itineraries, setItineraries] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [destinations, setDestinations] = useState([]);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [dahabiyasRes, itinerariesRes, galleryRes] = await Promise.all([
+          fetch('/api/dahabiyas?featured=true&limit=6'),
+          fetch('/api/itineraries?featured=true&limit=3'),
+          fetch('/api/gallery/images?limit=8'),
+        ]);
+
+        if (dahabiyasRes.ok) {
+          const dahabiyasData = await dahabiyasRes.json();
+          setDahabiyas(dahabiyasData?.slice(0, 6) || []);
+        }
+        if (itinerariesRes.ok) {
+          const itinerariesData = await itinerariesRes.json();
+          setItineraries(itinerariesData?.slice(0, 3) || []);
+        }
+        if (galleryRes.ok) {
+          const galleryData = await galleryRes.json();
+          setGallery(galleryData.images?.slice(0, 8) || []);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Continue with static fallbacks
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <LogoLoader />;
+  }
+
+  return (
+    <>
+      {/* Hero Section with Video Background */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: "url('/images/destinations/karnak-temple.jpg')",
+              backgroundAttachment: 'fixed'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50"></div>
+        </div>
+        
+        {/* Hero Content */}
+        <div className="container mx-auto px-4 relative z-10 text-center text-white">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 font-['Montserrat']">
+            Discover Ancient Egypt
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed">
+            Experience the magic of the Nile with luxury dahabiya cruises, exploring timeless temples and ancient wonders
+          </p>
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+            <Link 
+              href="/dahabiyas" 
+              className="btn-travelok-primary px-8 py-4 text-lg inline-flex items-center gap-2 no-underline"
+            >
+              <PlayArrow /> Explore Dahabiyas
+            </Link>
+            <Link 
+              href="/itineraries" 
+              className="btn-travelok-secondary px-8 py-4 text-lg inline-flex items-center gap-2 no-underline"
+            >
+              <Map /> View Itineraries
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* What's New Section - TravelOK Style */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-travelok-blue-dark mb-4">
+              Land <span className="border-b-4 border-travelok-orange px-2">of</span> What's New
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                title: "Ancient Temple Discoveries",
+                image: "/images/destinations/karnak-temple.jpg",
+                location: "Luxor, Egypt",
+                icon: "🏛️"
+              },
+              {
+                title: "Sunset Sailing Experience",
+                image: "/images/experiences/sunset-sailing.jpg",
+                location: "Nile River",
+                icon: "⛵"
+              },
+              {
+                title: "Best Nile Cruise Routes",
+                image: "/images/boats/dahabiya-1.jpg",
+                location: "Aswan to Luxor",
+                icon: "🚢"
+              },
+              {
+                title: "Traditional Egyptian Cuisine",
+                image: "/images/dining/traditional-feast.jpg",
+                location: "Onboard Experience",
+                icon: "🍽️"
+              },
+              {
+                title: "Desert Adventures",
+                image: "/images/adventures/desert-camp.jpg",
+                location: "Sahara Desert",
+                icon: "🐪"
+              },
+              {
+                title: "Cultural Immersion Tours",
+                image: "/images/culture/local-market.jpg",
+                location: "Cairo Bazaar",
+                icon: "🎭"
+              },
+              {
+                title: "Luxury Spa Retreats",
+                image: "/images/wellness/spa-treatment.jpg",
+                location: "Dahabiya Wellness",
+                icon: "🧘‍♀️"
+              },
+              {
+                title: "Stargazing Experiences",
+                image: "/images/experiences/night-sky.jpg",
+                location: "Nile Under Stars",
+                icon: "⭐"
+              }
+            ].map((item, index) => (
+              <div key={index} className="card-travelok group cursor-pointer relative">
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/placeholder-travel.jpg';
+                    }}
+                  />
+                  <div className="absolute top-4 left-4 bg-travelok-orange text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    {item.icon}
+                  </div>
+                  <div className="absolute bottom-4 left-4 bg-black/80 text-white px-3 py-2 rounded">
+                    <div className="text-sm font-semibold">{item.title}</div>
+                    <div className="text-xs opacity-90 flex items-center gap-1">
+                      <LocationOn sx={{ fontSize: '0.75rem' }} /> {item.location}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              href="/blog" 
+              className="btn-travelok-primary px-8 py-4 text-lg inline-flex items-center gap-2 no-underline"
+            >
+              View All Articles
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Dahabiyas Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-travelok-blue-dark mb-4">
+              🛥️ Featured Dahabiyas
+            </h2>
+            <p className="text-xl text-travelok-gray max-w-3xl mx-auto">
+              Experience luxury on the Nile with our carefully selected traditional sailing boats, each offering unique charm and modern comfort
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {dahabiyas.length > 0 ? (
+              dahabiyas.map((dahabiya: any) => (
+                <div key={dahabiya.id} className="card-travelok group">
+                  <div className="relative overflow-hidden">
+                    <img 
+                      src={dahabiya.mainImage || dahabiya.gallery?.[0] || '/images/boats/dahabiya-default.jpg'} 
+                      alt={dahabiya.name}
+                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded flex items-center gap-1">
+                      <Star className="text-yellow-500 text-sm" />
+                      <span className="text-sm font-semibold">4.9</span>
+                    </div>
+                    <div className="absolute bottom-4 left-4 bg-travelok-blue text-white px-3 py-1 rounded">
+                      <span className="text-sm font-semibold">🏺 Traditional</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bold text-travelok-dark mb-2">{dahabiya.name}</h3>
+                    <div className="flex items-center text-travelok-gray mb-4">
+                      <People className="text-sm mr-1" />
+                      <span className="text-sm">Up to {dahabiya.capacity || 12} guests</span>
+                    </div>
+                    <p className="text-travelok-gray mb-4 line-clamp-3">
+                      {dahabiya.description?.substring(0, 120) || 'Experience authentic Nile sailing aboard this beautifully crafted traditional dahabiya with modern luxury amenities.'}...
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm text-travelok-gray">From</span>
+                        <div className="text-2xl font-bold text-travelok-blue">
+                          ${dahabiya.pricePerDay || '450'}/day
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/dahabiyas/${dahabiya.slug || dahabiya.id}`}
+                        className="btn-travelok-primary px-6 py-2 no-underline"
+                      >
+                        Explore
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Static fallback dahabiyas
+              [
+                {
+                  id: 1,
+                  name: "Nubian Queen",
+                  capacity: 12,
+                  pricePerDay: 495,
+                  description: "Experience royal luxury aboard this traditionally crafted dahabiya with panoramic windows, spacious suites, and authentic Egyptian decor.",
+                  image: "/images/boats/nubian-queen.jpg"
+                },
+                {
+                  id: 2,
+                  name: "Pharaoh's Dream",
+                  capacity: 8,
+                  pricePerDay: 625,
+                  description: "Intimate luxury sailing experience with personalized service, gourmet dining, and exclusive access to hidden temples along the Nile.",
+                  image: "/images/boats/pharaohs-dream.jpg"
+                },
+                {
+                  id: 3,
+                  name: "Golden Horizon",
+                  capacity: 16,
+                  pricePerDay: 399,
+                  description: "Spacious family-friendly dahabiya perfect for groups, featuring multiple decks, traditional felucca sails, and modern amenities.",
+                  image: "/images/boats/golden-horizon.jpg"
+                }
+              ].map((dahabiya) => (
+                <div key={dahabiya.id} className="card-travelok group">
+                  <div className="relative overflow-hidden">
+                    <img 
+                      src={dahabiya.image} 
+                      alt={dahabiya.name}
+                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/placeholder-boat.jpg';
+                      }}
+                    />
+                    <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded flex items-center gap-1">
+                      <Star className="text-yellow-500 text-sm" />
+                      <span className="text-sm font-semibold">4.9</span>
+                    </div>
+                    <div className="absolute bottom-4 left-4 bg-travelok-blue text-white px-3 py-1 rounded">
+                      <span className="text-sm font-semibold">🏺 Traditional</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bold text-travelok-dark mb-2">{dahabiya.name}</h3>
+                    <div className="flex items-center text-travelok-gray mb-4">
+                      <People className="text-sm mr-1" />
+                      <span className="text-sm">Up to {dahabiya.capacity} guests</span>
+                    </div>
+                    <p className="text-travelok-gray mb-4">
+                      {dahabiya.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm text-travelok-gray">From</span>
+                        <div className="text-2xl font-bold text-travelok-blue">
+                          ${dahabiya.pricePerDay}/day
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/dahabiyas`}
+                        className="btn-travelok-primary px-6 py-2 no-underline"
+                      >
+                        Explore
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              href="/dahabiyas" 
+              className="btn-travelok-secondary px-8 py-4 text-lg inline-flex items-center gap-2 no-underline"
+            >
+              🛥️ Discover All Dahabiyas
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Photo Gallery Section - TravelOK Style */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-travelok-blue-dark mb-4">
+              📸 Land of a Million Photo Ops
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+            {[
+              "/images/destinations/karnak-temple.jpg",
+              "/images/experiences/sunset-sailing.jpg",
+              "/images/boats/dahabiya-deck.jpg",
+              "/images/culture/traditional-dress.jpg",
+              "/images/dining/rooftop-dinner.jpg",
+              "/images/adventures/hot-air-balloon.jpg",
+              "/images/wellness/spa-relaxation.jpg",
+              "/images/experiences/starlit-dinner.jpg"
+            ].map((image, index) => (
+              <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg">
+                <img 
+                  src={image} 
+                  alt={`Gallery image ${index + 1}`}
+                  className="w-full h-48 md:h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+                  onError={(e) => {
+                    e.currentTarget.src = `/images/gallery-placeholder-${(index % 4) + 1}.jpg`;
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <Camera className="text-white text-4xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              href="/gallery" 
+              className="btn-travelok-primary px-8 py-4 text-lg inline-flex items-center gap-2 no-underline"
+            >
+              <Camera /> View Full Gallery
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="py-20 bg-gradient-to-r from-travelok-blue to-travelok-blue-light text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            ✈️ Ready for Your Egyptian Adventure?
+          </h2>
+          <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed opacity-95">
+            Join thousands of satisfied travelers who've discovered the magic of ancient Egypt aboard our luxury dahabiyas
+          </p>
+          <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+            <Link 
+              href="/itineraries" 
+              className="bg-travelok-orange hover:bg-travelok-orange-dark text-white px-10 py-5 rounded-lg text-xl font-semibold transition-all duration-300 hover:scale-105 no-underline inline-flex items-center gap-3"
+            >
+              🏺 Explore Itineraries
+            </Link>
+            <Link 
+              href="/contact" 
+              className="border-2 border-white text-white hover:bg-white hover:text-travelok-blue px-10 py-5 rounded-lg text-xl font-semibold transition-all duration-300 hover:scale-105 no-underline inline-flex items-center gap-3"
+            >
+              📞 Plan Your Journey
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Destinations Section */}
+      <Box sx={{ bgcolor: '#f8fafc', py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="xl">
+          <Box sx={{ textAlign: 'center', mb: 10 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                fontWeight: 'bold',
+                mb: 4,
+                background: 'linear-gradient(135deg, #0d9488 0%, #10b981 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              🌍 Featured Destinations
+            </Typography>
+            <Typography variant="h5" color="text.secondary" sx={{ maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
+              Discover breathtaking locations around the world with our expertly curated travel experiences
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
+          {destinations.length > 0 ? (
+            destinations.map((destination: any) => (
+              <Grid item xs={12} sm={6} md={4} key={destination.id}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    transition: 'all 0.4s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      transform: 'translateY(-12px) scale(1.02)',
+                      boxShadow: '0 25px 60px rgba(13,148,136,0.15)',
+                      border: '2px solid rgba(13,148,136,0.3)'
+                    }
+                  }}
+                >
+                  <Box sx={{ position: 'relative' }}>
+                    <CardMedia
+                      component="img"
+                      height="300"
+                      image={destination.mainImage || destination.images?.[0] || '/images/destination-placeholder.jpg'}
+                      alt={destination.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        px: 2,
+                        py: 1,
+                        borderRadius: 3,
+                        backdropFilter: 'blur(10px)'
+                      }}
+                    >
+                      <Star sx={{ color: '#f59e0b', fontSize: '1.2rem', mr: 0.5 }} />
+                      <Typography variant="body2" fontWeight="bold">
+                        4.8
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 16,
+                        left: 16,
+                        bgcolor: 'rgba(13,148,136,0.9)',
+                        color: 'white',
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        backdropFilter: 'blur(10px)'
+                      }}
+                    >
+                      <Typography variant="body2" fontWeight="bold">
+                        🏖️ Beach Paradise
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <CardContent sx={{ p: 4 }}>
+                    <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom>
+                      {destination.name}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <LocationOn sx={{ fontSize: '1.2rem', color: 'text.secondary', mr: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {destination.country || 'Beautiful Location'}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8, height: '4.5em', overflow: 'hidden' }}>
+                      {destination.description?.substring(0, 140) || 'Experience breathtaking landscapes, rich culture, and unforgettable adventures in this stunning destination.'}...
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Tours from
+                        </Typography>
+                        <Typography variant="h5" sx={{ color: '#0d9488', fontWeight: 'bold' }}>
+                          ${destination.priceFrom || '899'}
+                        </Typography>
+                      </Box>
+                      <Button
+                        component={Link}
+                        href={`/destinations/${destination.slug || destination.id}`}
+                        variant="contained"
+                        sx={{
+                          textTransform: 'none',
+                          borderRadius: 3,
+                          px: 4,
+                          fontWeight: 'bold',
+                          background: 'linear-gradient(135deg, #0d9488 0%, #10b981 100%)',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
+                            transform: 'scale(1.05)'
+                          }
+                        }}
+                      >
+                        Explore
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          ) : (
+            // Static fallback destinations
+            [
+              {
+                id: 1,
+                name: "Santorini, Greece",
+                country: "Greece",
+                priceFrom: 1299,
+                description: "Experience the magical sunsets, white-washed buildings, and crystal-clear waters of this iconic Greek island paradise.",
+                image: "/images/destinations/santorini.jpg"
+              },
+              {
+                id: 2,
+                name: "Bali, Indonesia",
+                country: "Indonesia", 
+                priceFrom: 899,
+                description: "Discover tropical beaches, ancient temples, lush rice terraces, and vibrant culture in this enchanting island destination.",
+                image: "/images/destinations/bali.jpg"
+              },
+              {
+                id: 3,
+                name: "Swiss Alps",
+                country: "Switzerland",
+                priceFrom: 1599,
+                description: "Adventure through pristine mountain landscapes, charming villages, and world-class ski resorts in the heart of Europe.",
+                image: "/images/destinations/swiss-alps.jpg"
+              },
+              {
+                id: 4,
+                name: "Tokyo, Japan",
+                country: "Japan",
+                priceFrom: 1199,
+                description: "Immerse yourself in the perfect blend of ancient traditions and cutting-edge technology in this fascinating metropolis.",
+                image: "/images/destinations/tokyo.jpg"
+              },
+              {
+                id: 5,
+                name: "Machu Picchu, Peru",
+                country: "Peru",
+                priceFrom: 1099,
+                description: "Journey to the ancient Incan citadel nestled high in the Andes Mountains for an unforgettable archaeological adventure.",
+                image: "/images/destinations/machu-picchu.jpg"
+              },
+              {
+                id: 6,
+                name: "Maldives",
+                country: "Maldives",
+                priceFrom: 1899,
+                description: "Relax in overwater villas surrounded by pristine coral reefs and turquoise lagoons in this tropical paradise.",
+                image: "/images/destinations/maldives.jpg"
+              }
+            ].map((destination) => (
+              <Grid item xs={12} sm={6} md={4} key={destination.id}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    transition: 'all 0.4s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      transform: 'translateY(-12px) scale(1.02)',
+                      boxShadow: '0 25px 60px rgba(13,148,136,0.15)',
+                      border: '2px solid rgba(13,148,136,0.3)'
+                    }
+                  }}
+                >
+                  <Box sx={{ position: 'relative' }}>
+                    <CardMedia
+                      component="img"
+                      height="300"
+                      image={destination.image}
+                      alt={destination.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        px: 2,
+                        py: 1,
+                        borderRadius: 3,
+                        backdropFilter: 'blur(10px)'
+                      }}
+                    >
+                      <Star sx={{ color: '#f59e0b', fontSize: '1.2rem', mr: 0.5 }} />
+                      <Typography variant="body2" fontWeight="bold">
+                        4.8
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <CardContent sx={{ p: 4 }}>
+                    <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom>
+                      {destination.name}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <LocationOn sx={{ fontSize: '1.2rem', color: 'text.secondary', mr: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {destination.country}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8, height: '4.5em', overflow: 'hidden' }}>
+                      {destination.description}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Tours from
+                        </Typography>
+                        <Typography variant="h5" sx={{ color: '#0d9488', fontWeight: 'bold' }}>
+                          ${destination.priceFrom}
+                        </Typography>
+                      </Box>
+                      <Button
+                        component={Link}
+                        href={`/destinations`}
+                        variant="contained"
+                        sx={{
+                          textTransform: 'none',
+                          borderRadius: 3,
+                          px: 4,
+                          fontWeight: 'bold',
+                          background: 'linear-gradient(135deg, #0d9488 0%, #10b981 100%)',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
+                            transform: 'scale(1.05)'
+                          }
+                        }}
+                      >
+                        Explore
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          )}
+        </Grid>
+
+        <Box sx={{ textAlign: 'center', mt: 10 }}>
+          <Button
+            component={Link}
+            href="/destinations"
+            variant="outlined"
+            size="large"
+            sx={{
+              px: 8,
+              py: 2.5,
+              textTransform: 'none',
+              borderRadius: 4,
+              borderWidth: 3,
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              borderColor: '#0d9488',
+              color: '#0d9488',
+              '&:hover': { 
+                borderWidth: 3,
+                background: 'rgba(13,148,136,0.1)',
+                transform: 'scale(1.05)'
+              }
+            }}
+          >
+            🌍 Discover All Destinations
+          </Button>
+        </Box>
+      </Container>
+
+      {/* Featured Services Section */}
+      <Box sx={{ bgcolor: 'rgba(13,148,136,0.02)', py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="xl">
+          <Box sx={{ textAlign: 'center', mb: 10 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                fontWeight: 'bold',
+                mb: 4,
+                background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              ⚡ Our Premium Services
+            </Typography>
+            <Typography variant="h5" color="text.secondary" sx={{ maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
+              From adventure expeditions to luxury wellness retreats, we offer specialized travel services tailored to your unique preferences and interests
+            </Typography>
+          </Box>
+
+          <Grid container spacing={6}>
+            {services.length > 0 ? (
+              services.map((service: any) => (
+                <Grid item xs={12} md={4} key={service.id}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      borderRadius: 4,
+                      overflow: 'hidden',
+                      position: 'relative',
+                      transition: 'all 0.4s ease',
+                      border: '2px solid transparent',
+                      '&:hover': {
+                        transform: 'scale(1.03)',
+                        boxShadow: '0 30px 70px rgba(59,130,246,0.15)',
+                        border: '2px solid rgba(59,130,246,0.3)'
+                      }
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="280"
+                      image={service.mainImage || service.images?.[0] || '/images/service-placeholder.jpg'}
+                      alt={service.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box sx={{ position: 'absolute', top: 20, left: 20 }}>
+                      <Chip
+                        label={`✨ ${service.category || 'Premium'}`}
+                        sx={{
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </Box>
+                    <CardContent sx={{ p: 4 }}>
+                      <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom>
+                        {service.name}
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <People sx={{ fontSize: '1.2rem', color: 'text.secondary', mr: 1 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {service.type || 'Specialized Service'}
+                        </Typography>
+                      </Box>
+
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8, height: '4.8em', overflow: 'hidden' }}>
+                        {service.description?.substring(0, 160) || 'Experience our premium travel service designed with expert planning, personalized attention, and unforgettable moments.'}...
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">
+                            Starting from
+                          </Typography>
+                          <Typography variant="h5" sx={{ color: '#3b82f6', fontWeight: 'bold' }}>
+                            ${service.pricePerDay || '299'}/day
+                          </Typography>
+                        </Box>
+                        <Button
+                          component={Link}
+                          href={`/services/${service.slug || service.id}`}
+                          variant="contained"
+                          sx={{
+                            textTransform: 'none',
+                            borderRadius: 3,
+                            px: 4,
+                            fontWeight: 'bold',
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        >
+                          Learn More
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              // Static fallback services
+              [
+                {
+                  id: 1,
+                  name: "Adventure Expeditions",
+                  category: "ADVENTURE",
+                  type: "Outdoor Adventures",
+                  pricePerDay: 399,
+                  description: "Embark on thrilling adventures with expert guides, premium equipment, and carefully curated routes for unforgettable outdoor experiences.",
+                  image: "/images/services/adventure.jpg"
+                },
+                {
+                  id: 2,
+                  name: "Luxury Wellness Retreats",
+                  category: "LUXURY", 
+                  type: "Wellness & Spa",
+                  pricePerDay: 599,
+                  description: "Rejuvenate your mind and body with premium spa treatments, yoga sessions, and holistic wellness programs in stunning locations.",
+                  image: "/images/services/wellness.jpg"
+                },
+                {
+                  id: 3,
+                  name: "Cultural Immersion Tours",
+                  category: "CULTURAL",
+                  type: "Cultural Experiences", 
+                  pricePerDay: 299,
+                  description: "Discover authentic local cultures through exclusive access, expert local guides, and immersive experiences with local communities.",
+                  image: "/images/services/cultural.jpg"
+                }
+              ].map((service) => (
+                <Grid item xs={12} md={4} key={service.id}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      borderRadius: 4,
+                      overflow: 'hidden',
+                      position: 'relative',
+                      transition: 'all 0.4s ease',
+                      border: '2px solid transparent',
+                      '&:hover': {
+                        transform: 'scale(1.03)',
+                        boxShadow: '0 30px 70px rgba(59,130,246,0.15)',
+                        border: '2px solid rgba(59,130,246,0.3)'
+                      }
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="280"
+                      image={service.image}
+                      alt={service.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box sx={{ position: 'absolute', top: 20, left: 20 }}>
+                      <Chip
+                        label={`✨ ${service.category}`}
+                        sx={{
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </Box>
+                    <CardContent sx={{ p: 4 }}>
+                      <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom>
+                        {service.name}
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <People sx={{ fontSize: '1.2rem', color: 'text.secondary', mr: 1 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {service.type}
+                        </Typography>
+                      </Box>
+
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 4, lineHeight: 1.8, height: '4.8em', overflow: 'hidden' }}>
+                        {service.description}
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">
+                            Starting from
+                          </Typography>
+                          <Typography variant="h5" sx={{ color: '#3b82f6', fontWeight: 'bold' }}>
+                            ${service.pricePerDay}/day
+                          </Typography>
+                        </Box>
+                        <Button
+                          component={Link}
+                          href={`/services`}
+                          variant="contained"
+                          sx={{
+                            textTransform: 'none',
+                            borderRadius: 3,
+                            px: 4,
+                            fontWeight: 'bold',
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        >
+                          Learn More
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))
+            )}
+          </Grid>
+
+          <Box sx={{ textAlign: 'center', mt: 10 }}>
+            <Button
+              component={Link}
+              href="/services"
+              variant="contained"
+              size="large"
+              sx={{
+                px: 8,
+                py: 2.5,
+                textTransform: 'none',
+                borderRadius: 4,
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
+                  transform: 'scale(1.05)'
+                }
+              }}
+            >
+              ⚡ View All Services
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Why Choose Us Section */}
+      <Container maxWidth="xl" sx={{ py: { xs: 8, md: 12 } }}>
+        <Box sx={{ textAlign: 'center', mb: 10 }}>
+          <Typography
+            variant="h2"
+            component="h2"
+            sx={{
+              fontSize: { xs: '2.5rem', md: '3.5rem' },
+              fontWeight: 'bold',
+              mb: 4,
+              background: 'linear-gradient(135deg, #0d9488 0%, #3b82f6 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Why Choose AltaVida Tours
+          </Typography>
+          <Typography variant="h5" color="text.secondary" sx={{ maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
+            Experience the difference with our commitment to excellence, personalized service, and creating memories that last a lifetime
+          </Typography>
+        </Box>
+
+        <Grid container spacing={8}>
+          {[
+            {
+              icon: <Star sx={{ fontSize: '4rem', color: '#f59e0b' }} />,
+              title: "Award-Winning Excellence",
+              description: "Internationally recognized for luxury travel services and exceptional guest satisfaction ratings across all destinations worldwide."
+            },
+            {
+              icon: <Star sx={{ fontSize: '4rem', color: '#3b82f6' }} />,
+              title: "Safety & Security First",
+              description: "Comprehensive safety protocols, experienced guides, and 24/7 monitoring ensuring your complete peace of mind throughout your journey."
+            },
+            {
+              icon: <People sx={{ fontSize: '4rem', color: '#10b981' }} />,
+              title: "Personalized Concierge",
+              description: "Dedicated travel specialists providing customized itineraries and round-the-clock support for seamless luxury experiences."
+            },
+            {
+              icon: <LocationOn sx={{ fontSize: '4rem', color: '#0d9488' }} />,
+              title: "Global Network",
+              description: "Extensive worldwide partnerships with premium hotels, local experts, and exclusive venues for unparalleled access and experiences."
+            },
+            {
+              icon: <Restaurant sx={{ fontSize: '4rem', color: '#10b981' }} />,
+              title: "Culinary Excellence",
+              description: "World-class dining experiences featuring local specialties and international cuisine prepared by expert chefs using finest ingredients."
+            },
+            {
+              icon: <Hotel sx={{ fontSize: '4rem', color: '#f59e0b' }} />,
+              title: "Luxury Comfort",
+              description: "Premium accommodations, spa services, and thoughtful amenities designed for your ultimate relaxation and rejuvenation."
+            }
+          ].map((feature, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Box
+                sx={{
+                  textAlign: 'center',
+                  p: 5,
+                  height: '100%',
+                  transition: 'all 0.4s ease',
+                  borderRadius: 4,
+                  border: '2px solid transparent',
+                  '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 20px 50px rgba(13,148,136,0.1)',
+                    border: '2px solid rgba(13,148,136,0.2)',
+                    background: 'rgba(13,148,136,0.02)'
+                  }
+                }}
+              >
+                <Box sx={{ mb: 4 }}>
+                  {feature.icon}
+                </Box>
+                <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom sx={{ color: '#1f2937', mb: 3 }}>
+                  {feature.title}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8, fontSize: '1.1rem' }}>
+                  {feature.description}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      {/* Testimonials Section */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, #0d9488 0%, #3b82f6 100%)',
+          color: 'white',
+          py: { xs: 8, md: 12 }
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box sx={{ textAlign: 'center', mb: 10 }}>
+            <Typography variant="h2" component="h2" sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, mb: 4, fontWeight: 'bold' }}>
+              💬 What Our Travelers Say
+            </Typography>
+            <Typography variant="h5" sx={{ opacity: 0.9, maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
+              Hear from adventurers who explored the world with us—luxury accommodations, seamless logistics, and life-changing experiences
+            </Typography>
+          </Box>
+
+          <Grid container spacing={6}>
+            {[
+              {
+                name: "Emma & James Wilson",
+                location: "London, United Kingdom",
+                rating: 5,
+                review: "Absolutely extraordinary experience! AltaVida exceeded our expectations with flawless planning, luxurious accommodations, and breathtaking destinations. Our travel specialist made everything seamless. Already planning our next adventure!"
+              },
+              {
+                name: "Sarah & Michael Chen",
+                location: "San Francisco, USA",
+                rating: 5,
+                review: "This was the trip of a lifetime! From the Swiss Alps to Santorini, every detail was perfectly orchestrated. The local guides were phenomenal and the accommodations were beyond luxurious. Highly recommend AltaVida!"
+              },
+              {
+                name: "Dr. Hans & Ingrid Mueller",
+                location: "Munich, Germany",
+                rating: 5,
+                review: "As frequent luxury travelers, we can confidently say AltaVida is exceptional. The perfect blend of authentic culture, modern comfort, and unparalleled service. Their attention to detail is remarkable."
+              }
+            ].map((testimonial, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    bgcolor: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(20px)',
+                    border: '2px solid rgba(255,255,255,0.2)',
+                    borderRadius: 4,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      transform: 'translateY(-5px)'
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 5 }}>
+                    <Box sx={{ display: 'flex', mb: 4 }}>
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} sx={{ color: '#f59e0b', fontSize: '1.5rem' }} />
+                      ))}
+                    </Box>
+                    <Typography variant="body1" sx={{ mb: 5, fontStyle: 'italic', lineHeight: 1.8, color: 'white', fontSize: '1.1rem' }}>
+                      "{testimonial.review}"
+                    </Typography>
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                        {testimonial.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
+                        📍 {testimonial.location}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Call to Action Section */}
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            p: { xs: 6, md: 10 },
+            borderRadius: 5,
+            background: 'linear-gradient(135deg, rgba(13,148,136,0.05) 0%, rgba(59,130,246,0.05) 100%)',
+            border: '3px solid rgba(13,148,136,0.1)'
+          }}
+        >
+          <Typography variant="h2" component="h2" fontWeight="bold" gutterBottom sx={{ 
+            background: 'linear-gradient(135deg, #0d9488 0%, #3b82f6 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent',
+            fontSize: { xs: '2.2rem', md: '3rem' } 
+          }}>
+            ✈️ Ready for Your Dream Adventure?
+          </Typography>
+          <Typography variant="h5" color="text.secondary" sx={{ mb: 8, maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
+            Join thousands of satisfied travelers who discover the world with personalized luxury journeys, expert planning, and unforgettable experiences
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, justifyContent: 'center' }}>
+            <Button
+              component={Link}
+              href="/packages"
+              variant="contained"
+              size="large"
+              sx={{
+                px: 8,
+                py: 3,
+                textTransform: 'none',
+                borderRadius: 4,
+                minWidth: 240,
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #0d9488 0%, #10b981 100%)',
+                boxShadow: '0 8px 32px rgba(13,148,136,0.3)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
+                  transform: 'translateY(-3px) scale(1.05)',
+                  boxShadow: '0 12px 40px rgba(13,148,136,0.4)'
+                }
+              }}
+            >
+              🌟 Explore Packages
+            </Button>
+            <Button
+              component={Link}
+              href="/contact"
+              variant="outlined"
+              size="large"
+              sx={{
+                px: 8,
+                py: 3,
+                textTransform: 'none',
+                borderRadius: 4,
+                borderWidth: 3,
+                minWidth: 240,
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                color: '#3b82f6',
+                borderColor: '#3b82f6',
+                '&:hover': {
+                  borderWidth: 3,
+                  bgcolor: 'rgba(59, 130, 246, 0.1)',
+                  transform: 'translateY(-3px) scale(1.05)'
+                }
+              }}
+            >
+              📞 Plan Your Trip
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </>
+  );
+}

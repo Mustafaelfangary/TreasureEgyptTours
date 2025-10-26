@@ -1,0 +1,2 @@
+# This file ensures the debug/java directory exists for Gradle build
+# Debug-specific Java/Kotlin source files can be placed in this directory

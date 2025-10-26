@@ -1,0 +1,916 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./node_modules/.prisma/client"
+}
+
+// Run 'prisma generate' command to generate the Prisma client after schema changes
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                       String                @id @default(cuid())
+  name                     String?
+  email                    String?               @unique
+  emailVerified            DateTime?
+  image                    String?
+  password                 String?
+  role                     Role                  @default(USER)
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  phone                    String?
+  isEmailVerified          Boolean               @default(false)
+  emailVerificationToken   String?
+  emailVerificationExpires DateTime?
+  resetToken               String?
+  resetTokenExpiry         DateTime?
+  loyaltyPoints            Int                   @default(0)
+  rewardPoints             Int                   @default(0)
+  accounts                 Account[]
+  analyticsEvents          AnalyticsEvent[]      @relation("AnalyticsEvents")
+  bookings                 Booking[]
+  bookingCancellations     BookingCancellation[] @relation("BookingCancellations")
+  bookingModifications     BookingModification[] @relation("BookingModifications")
+  conversionStats          ConversionStats[]     @relation("ConversionStats")
+  errorReports             ErrorReport[]         @relation("ErrorReports")
+  searchStats              SearchStats[]         @relation("SearchStats")
+  sessions                 Session[]
+  preferences              UserPreference?
+  loyaltyActions           LoyaltyAction[]
+  notifications            Notification[]
+  reviews                  Review[]
+  rewardActions            RewardAction[]
+  memories                 UserMemory[]
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  preferredLanguage   String   @default("en")
+  currency            String   @default("USD")
+  newsletterOptIn     Boolean  @default(true)
+  dietaryRestrictions String[]
+  travelPreferences   String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model AvailabilityDate {
+  id         String   @id @default(cuid())
+  date       DateTime
+  available  Boolean  @default(true)
+  price      Decimal  @db.Decimal(10, 2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  dahabiyaId String
+  dahabiya   Dahabiya @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
+
+  @@unique([dahabiyaId, date])
+}
+
+model ItineraryDay {
+  id          String      @id @default(cuid())
+  dayNumber   Int
+  title       String
+  description String
+  location    String?
+  itineraryId String
+  portId      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  activities  String[]
+  meals       MealType[]
+  coordinates Json?
+  images      Image[]
+  itinerary   Itinerary   @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  port        Port?       @relation(fields: [portId], references: [id])
+  excursions  Excursion[] @relation("ItineraryDayExcursions")
+
+  @@map("itinerary_days")
+}
+
+model Image {
+  id             String        @id @default(cuid())
+  url            String
+  alt            String?
+  featured       Boolean       @default(false)
+  order          Int           @default(0)
+  category       ImageCategory
+  itineraryDayId String?
+  itineraryDay   ItineraryDay? @relation(fields: [itineraryDayId], references: [id], onDelete: Cascade)
+  itinerary      Itinerary?
+}
+
+model PageContent {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  content     String
+  contentType String   @default("TEXT")
+  page        String
+  section     String
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([page, section])
+  @@index([page, order])
+}
+
+model Booking {
+  id               String                @id @default(cuid())
+  userId           String
+  startDate        DateTime
+  endDate          DateTime
+  status           Status                @default(PENDING)
+  totalPrice       Decimal               @db.Decimal(10, 2)
+  guests           Int
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  specialRequests  String?
+  dahabiyaId       String?
+  packageId        String?
+  promotionId      String?
+  type             String?
+  bookingReference String?
+  bookedExcursions BookedExcursion[]
+  dahabiya         Dahabiya?             @relation(fields: [dahabiyaId], references: [id])
+  package          Package?              @relation(fields: [packageId], references: [id])
+  promotion        Promotion?            @relation(fields: [promotionId], references: [id])
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cancellation     BookingCancellation?
+  modifications    BookingModification[]
+  guestDetails     GuestDetail[]
+  payment          Payment?
+}
+
+model GuestDetail {
+  id                  String   @id @default(cuid())
+  bookingId           String
+  firstName           String
+  lastName            String
+  dateOfBirth         DateTime
+  passport            String?
+  nationality         String
+  dietaryRequirements String[]
+  booking             Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  amount        Decimal       @db.Decimal(10, 2)
+  currency      String
+  status        PaymentStatus @default(PENDING)
+  provider      String
+  paymentMethod String
+  transactionId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id                 String    @id @default(cuid())
+  rating             Int
+  comment            String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  userId             String
+  helpful            Int       @default(0)
+  photos             String[]
+  response           String?
+  title              String?
+  verified           Boolean   @default(false)
+  status             String    @default("PENDING")
+  adminNotes         String?
+  approvedAt         DateTime?
+  approvedBy         String?
+  location           String?
+  tripDate           DateTime?
+  isHomepageFeatured Boolean   @default(false)
+  homepageOrder      Int?
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model Destination {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ports       Port[]
+}
+
+model Port {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  description   String?
+  destinationId String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  destination   Destination    @relation(fields: [destinationId], references: [id])
+  itineraryDays ItineraryDay[]
+}
+
+model Itinerary {
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String?             @unique
+  description        String
+  shortDescription   String?
+  durationDays       Int
+  mainImageUrl       String?
+  heroImageUrl       String?
+  videoUrl           String?
+  price              Float?
+  maxGuests          Int?
+  highlights         String[]
+  included           String[]
+  notIncluded        String[]
+  childrenPolicy     String?
+  cancellationPolicy String?
+  observations       String?
+  isActive           Boolean             @default(true)
+  featured           Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  imageId            String?             @unique
+  dahabiyat          DahabiyaItinerary[]
+  image              Image?              @relation(fields: [imageId], references: [id])
+  pricingTiers       ItineraryPricing[]
+  days               ItineraryDay[]
+  pdfDocuments       PDFDocument[]
+}
+
+model ItineraryPricing {
+  id               String    @id @default(cuid())
+  itineraryId      String
+  category         String
+  paxRange         String
+  price            Float
+  singleSupplement Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  itinerary        Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+}
+
+model DahabiyaItinerary {
+  id          String    @id @default(cuid())
+  dahabiyaId  String
+  itineraryId String
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  dahabiya    Dahabiya  @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+
+  @@unique([dahabiyaId, itineraryId])
+}
+
+model Blog {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  excerpt        String?
+  content        String
+  mainImageUrl   String?
+  heroImageUrl   String?
+  author         String    @default("Cleopatra Dahabiyat")
+  tags           String[]
+  category       String?
+  isPublished    Boolean   @default(false)
+  featured       Boolean   @default(false)
+  publishedAt    DateTime?
+  readTime       Int?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Excursion {
+  id               String            @id @default(cuid())
+  name             String
+  description      String
+  price            Decimal           @db.Decimal(10, 2)
+  type             ExcursionType
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  bookedExcursions BookedExcursion[]
+  itineraryDays    ItineraryDay[]    @relation("ItineraryDayExcursions")
+}
+
+model BookedExcursion {
+  bookingId   String
+  excursionId String
+  createdAt   DateTime  @default(now())
+  booking     Booking   @relation(fields: [bookingId], references: [id])
+  excursion   Excursion @relation(fields: [excursionId], references: [id])
+
+  @@id([bookingId, excursionId])
+}
+
+model Promotion {
+  id                 String    @id @default(cuid())
+  code               String    @unique
+  description        String?
+  discountPercentage Float
+  startDate          DateTime
+  endDate            DateTime
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  bookings           Booking[]
+}
+
+model Contact {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  status    ContactStatus @default(PENDING)
+}
+
+model TailorMadeRequest {
+  id              String    @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  duration        String?
+  budget          String?
+  interests       String?
+  message         String
+  status          String    @default("PENDING")
+  adminNotes      String?
+  quotedPrice     Decimal?  @db.Decimal(10, 2)
+  responseMessage String?
+  respondedAt     DateTime?
+  respondedBy     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("tailor_made_requests")
+}
+
+model GalleryCategory {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  order       Int            @default(0)
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      GalleryImage[]
+
+  @@map("gallery_categories")
+}
+
+model GalleryImage {
+  id           String          @id @default(cuid())
+  url          String
+  alt          String?
+  title        String?
+  description  String?
+  photographer String?         // Added photographer field
+  location     String?         // Added location field
+  categoryId   String
+  order        Int             @default(0)
+  isActive     Boolean         @default(true)
+  isFeatured   Boolean         @default(false)
+  tags         String[]        @default([])
+  views        Int             @default(0)
+  likes        Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  category     GalleryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("gallery_images")
+}
+
+model UserMemory {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  imageUrl    String
+  location    String?
+  tripDate    DateTime?
+  status      String    @default("PENDING")
+  adminNotes  String?
+  approvedAt  DateTime?
+  approvedBy  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_memories")
+}
+
+model faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model Package {
+  id                   String                @id @default(cuid())
+  name                 String
+  description          String
+  shortDescription     String?
+  price                Decimal               @db.Decimal(10, 2)
+  durationDays         Int
+  mainImageUrl         String?
+  isFeaturedOnHomepage Boolean               @default(false)
+  homepageOrder        Int?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  bookings             Booking[]
+  itineraryDays        PackageItineraryDay[]
+}
+
+model PackageItineraryDay {
+  id          String         @id @default(cuid())
+  dayNumber   Int
+  title       String
+  description String
+  packageId   String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      PackageImage[]
+  package     Package        @relation(fields: [packageId], references: [id], onDelete: Cascade)
+}
+
+model PackageImage {
+  id                    String              @id @default(cuid())
+  url                   String
+  alt                   String?
+  packageItineraryDayId String
+  packageItineraryDay   PackageItineraryDay @relation(fields: [packageItineraryDayId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  group     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model WebsiteContent {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  title       String?
+  content     String?
+  mediaUrl    String?
+  mediaType   MediaType?
+  contentType ContentType @default(TEXT)
+  page        String
+  section     String
+  order       Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("website_content")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model MediaAsset {
+  id           String    @id @default(cuid())
+  filename     String
+  originalName String
+  url          String
+  type         MediaType
+  size         Int
+  mimeType     String
+  alt          String?
+  caption      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("media_assets")
+}
+
+model Dahabiya {
+  id                  String              @id @default(cuid())
+  name                String
+  slug                String              @unique
+  description         String
+  shortDescription    String?
+  pricePerDay         Decimal             @db.Decimal(10, 2)
+  capacity            Int
+  cabins              Int                 @default(0)
+  crew                Int                 @default(0)
+  length              Float?
+  width               Float?
+  yearBuilt           Int?
+  mainImage           String?
+  gallery             String[]
+  specificationsImage String?
+  videoUrl            String?
+  virtualTourUrl      String?
+  features            String[]
+  amenities           String[]
+  activities          String[]
+  diningOptions       String[]
+  services            String[]
+  routes              String[]
+  highlights          String[]
+  rating              Float               @default(0)
+  reviewCount         Int                 @default(0)
+  isActive            Boolean             @default(true)
+  isFeatured          Boolean             @default(false)
+  category            DahabiyaCategory    @default(DELUXE)
+  metaTitle           String?
+  metaDescription     String?
+  tags                String[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  availabilityDates   AvailabilityDate[]
+  bookings            Booking[]
+  itineraries         DahabiyaItinerary[]
+  pdfDocuments        PDFDocument[]
+
+  @@map("dahabiyat")
+}
+
+model BookingModification {
+  id               String   @id @default(cuid())
+  bookingId        String
+  modificationType String
+  oldValues        String
+  newValues        String
+  modifiedBy       String
+  reason           String?
+  createdAt        DateTime @default(now())
+  booking          Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  modifier         User     @relation("BookingModifications", fields: [modifiedBy], references: [id])
+}
+
+model BookingCancellation {
+  id               String    @id @default(cuid())
+  bookingId        String    @unique
+  reason           String
+  cancelledBy      String
+  cancellationFee  Decimal   @default(0) @db.Decimal(10, 2)
+  refundAmount     Decimal   @default(0) @db.Decimal(10, 2)
+  cancellationDate DateTime  @default(now())
+  refundProcessed  Boolean   @default(false)
+  refundDate       DateTime?
+  booking          Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  canceller        User      @relation("BookingCancellations", fields: [cancelledBy], references: [id])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  event     String
+  userId    String?
+  sessionId String?
+  data      String
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+  user      User?    @relation("AnalyticsEvents", fields: [userId], references: [id])
+
+  @@index([event, timestamp])
+  @@index([userId, timestamp])
+  @@index([sessionId, timestamp])
+}
+
+model ErrorReport {
+  id        String   @id @default(cuid())
+  message   String
+  stack     String?
+  context   String?
+  url       String?
+  userAgent String?
+  ipAddress String?
+  userId    String?
+  sessionId String?
+  severity  String   @default("MEDIUM")
+  resolved  Boolean  @default(false)
+  timestamp DateTime @default(now())
+  user      User?    @relation("ErrorReports", fields: [userId], references: [id])
+
+  @@index([severity, resolved])
+  @@index([timestamp])
+}
+
+model PageViewStats {
+  id          String @id @default(cuid())
+  page        String
+  date        String
+  views       Int    @default(0)
+  uniqueViews Int    @default(0)
+
+  @@unique([page, date], name: "page_date")
+  @@index([date])
+}
+
+model ConversionStats {
+  id        String   @id @default(cuid())
+  type      String
+  source    String?
+  value     Decimal  @default(0) @db.Decimal(10, 2)
+  userId    String?
+  metadata  String?
+  timestamp DateTime @default(now())
+  user      User?    @relation("ConversionStats", fields: [userId], references: [id])
+
+  @@index([type, timestamp])
+}
+
+model FormStats {
+  id          String @id @default(cuid())
+  formId      String
+  date        String
+  submissions Int    @default(0)
+
+  @@unique([formId, date], name: "form_date")
+  @@index([date])
+}
+
+model ButtonStats {
+  id       String @id @default(cuid())
+  buttonId String
+  date     String
+  clicks   Int    @default(0)
+
+  @@unique([buttonId, date], name: "button_date")
+  @@index([date])
+}
+
+model SearchStats {
+  id        String   @id @default(cuid())
+  query     String
+  results   Int      @default(0)
+  userId    String?
+  timestamp DateTime @default(now())
+  user      User?    @relation("SearchStats", fields: [userId], references: [id])
+
+  @@index([query])
+  @@index([timestamp])
+}
+
+model LoyaltyAction {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  points      Int
+  description String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("loyalty_actions")
+}
+
+model LoyaltyConfig {
+  id            String   @id @default("default")
+  buttonsConfig String
+  socialLinks   String?
+  pointsConfig  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("loyalty_config")
+}
+
+model RewardAction {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  points      Int
+  description String?
+  metadata    String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("reward_actions")
+}
+
+model RewardConfig {
+  id            String   @id @default("default")
+  buttonsConfig String
+  socialLinks   String?
+  pointsConfig  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("reward_config")
+}
+
+model PDFDocument {
+  id          String     @id @default(cuid())
+  name        String
+  type        PDFType
+  category    String?
+  url         String
+  size        Int
+  dahabiyaId  String?
+  itineraryId String?
+  uploadedAt  DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  dahabiya    Dahabiya?  @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
+  itinerary   Itinerary? @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+
+  @@map("pdf_documents")
+}
+
+model UploadAudit {
+  id        String       @id @default(cuid())
+  userId    String?
+  role      Role?
+  source    UploadSource
+  url       String
+  mimeType  String
+  size      Int
+  ip        String?
+  userAgent String?
+  status    UploadStatus @default(SUCCESS)
+  message   String?
+  createdAt DateTime     @default(now())
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum ContentType {
+  TEXT
+  TEXTAREA
+  IMAGE
+  VIDEO
+  HTML
+  JSON
+  TABLE
+}
+
+enum ImageCategory {
+  INDOOR
+  OUTDOOR
+  BATHROOM
+  RESTAURANT_BAR
+  DECK
+  GENERAL
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+  GUIDE
+}
+
+enum Status {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum DahabiyaCategory {
+  LUXURY
+  DELUXE
+  PREMIUM
+  BOUTIQUE
+}
+
+enum DahabiyaStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  AFTERNOON_TEA
+}
+
+enum ExcursionType {
+  ON_BOARD
+  OFF_BOARD
+}
+
+enum ContactStatus {
+  PENDING
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum PDFType {
+  FACTSHEET
+  ITINERARY
+  BROCHURE
+}
+
+enum UploadSource {
+  LOCAL
+  EXTERNAL
+  ADMIN
+}
+
+enum UploadStatus {
+  SUCCESS
+  ERROR
+}
+
+model Partner {
+  id          String   @id @default(cuid())
+  name        String
+  logoUrl     String
+  websiteUrl  String
+  description String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("partners")
+}

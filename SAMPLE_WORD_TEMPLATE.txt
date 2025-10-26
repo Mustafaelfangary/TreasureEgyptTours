@@ -1,0 +1,114 @@
+# Sample Word Document Template for Itinerary Import
+
+Save this content as a Word document (.docx) to test the import functionality.
+
+---
+
+# Luxor to Aswan Royal Dahabiya Cruise - 5 Days
+
+Experience the timeless beauty of Egypt aboard a traditional dahabiya sailing boat. This exclusive 5-day journey takes you through the heart of ancient Egypt, from the magnificent temples of Luxor to the tranquil waters near Aswan, offering an intimate and authentic Nile cruise experience.
+
+## Highlights:
+• Visit the world-famous Karnak and Luxor Temples
+• Explore the Valley of the Kings and Queens
+• Discover the unique double temple of Kom Ombo
+• Experience authentic Nubian culture
+• Enjoy traditional Egyptian cuisine
+• Sail on a beautifully restored dahabiya
+• Professional Egyptologist guide
+• Small group experience (max 12 guests)
+
+## Included:
+• All meals (breakfast, lunch, dinner)
+• Professional English-speaking guide
+• All entrance fees to monuments
+• Airport transfers in Luxor and Aswan
+• Accommodation on dahabiya (4 nights)
+• All sailing and mooring fees
+• Welcome and farewell drinks
+
+## Not Included:
+• International flights
+• Egypt entry visa
+• Personal expenses and shopping
+• Gratuities for guide and crew
+• Travel insurance
+• Optional excursions
+
+## Day 1: Arrival in Luxor - East Bank Exploration
+Location: Luxor, Egypt
+
+Arrive at Luxor airport where you will be met by our representative and transferred to your elegant dahabiya moored on the Nile. After check-in and a welcome drink, begin your Egyptian adventure with visits to the magnificent Karnak Temple complex and the beautiful Luxor Temple. These monuments showcase the glory of ancient Thebes. Return to your dahabiya for dinner and overnight mooring in Luxor.
+
+Activities:
+• Visit Karnak Temple
+• Explore Luxor Temple
+• Welcome aboard ceremony
+
+Meals: Lunch, Dinner
+
+## Day 2: West Bank Treasures - Sailing to Esna
+Location: Luxor West Bank, Egypt
+
+After breakfast, cross to the West Bank to explore the Valley of the Kings, where pharaohs were laid to rest in elaborately decorated tombs. Visit the mortuary temple of Queen Hatshepsut and the Colossi of Memnon. After lunch on board, begin sailing towards Esna, enjoying the peaceful rhythm of the Nile and the beautiful scenery along the way.
+
+Activities:
+• Valley of the Kings exploration
+• Hatshepsut Temple visit
+• Colossi of Memnon photo stop
+• Afternoon sailing experience
+
+Meals: Breakfast, Lunch, Dinner
+
+## Day 3: Esna to Kom Ombo - Temple of Sobek
+Location: Kom Ombo, Egypt
+
+Early morning sailing towards Kom Ombo. Enjoy breakfast on deck while watching the Nile countryside pass by. Upon arrival in Kom Ombo, visit the unique temple dedicated to two gods: Sobek the crocodile god and Haroeris the falcon god. The temple's perfect symmetry and well-preserved reliefs make it one of Egypt's most photographed monuments.
+
+Activities:
+• Morning sailing experience
+• Kom Ombo Temple visit
+• Crocodile Museum exploration
+• Afternoon relaxation on deck
+
+Meals: Breakfast, Lunch, Dinner
+
+## Day 4: Kom Ombo to Aswan - Nubian Experience
+Location: Aswan, Egypt
+
+Continue sailing towards Aswan, Egypt's southernmost city. Upon arrival, visit the beautiful Philae Temple, dedicated to the goddess Isis, located on Agilkia Island. Experience authentic Nubian culture with a visit to a traditional Nubian village, where you'll enjoy tea with a local family and learn about their colorful traditions and customs.
+
+Activities:
+• Philae Temple visit
+• Traditional Nubian village experience
+• Local family tea ceremony
+• Aswan market exploration
+
+Meals: Breakfast, Lunch, Dinner
+
+## Day 5: Departure from Aswan
+Location: Aswan, Egypt
+
+After breakfast, enjoy some free time for last-minute shopping at Aswan's famous souk, known for its spices, perfumes, and Nubian handicrafts. Check out from your dahabiya and transfer to Aswan airport for your departure, taking with you unforgettable memories of your royal Nile journey.
+
+Activities:
+• Souk shopping experience
+• Final breakfast on board
+
+Meals: Breakfast
+
+## Pricing:
+
+2 pax: $2,800 per person
+4 pax: $2,200 per person  
+6 pax: $1,950 per person
+8 pax: $1,750 per person
+Single supplement: $650
+
+---
+
+To use this template:
+1. Copy the content above
+2. Paste it into a new Word document
+3. Save it as "Sample Egypt Cruise - 5 Days.docx"
+4. Test the import with: npm run import:itineraries "path/to/your/Sample Egypt Cruise - 5 Days.docx"

@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Dahabiyat Nile Cruise",
+    "slug": "dahabiyat-nile-cruise",
+    "version": "3.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/lo.jpeg",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/lo.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dahabiyat.nilecruise",
+      "infoPlist": {
+        "UIStatusBarStyle": "UIStatusBarStyleLightContent",
+        "UIViewControllerBasedStatusBarAppearance": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/lo.jpeg",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.dahabiyat.nilecruise",
+      "versionCode": 1,
+      "statusBar": {
+        "backgroundColor": "#0080ff",
+        "barStyle": "light-content"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "usesCleartextTraffic": false,
+      "allowBackup": true,
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34,
+      "buildToolsVersion": "34.0.0"
+    },
+    "web": {
+      "favicon": "./assets/lo.jpeg"
+    },
+    "scheme": "dahabiyat",
+    "primaryColor": "#0080ff",
+    "backgroundColor": "#f0f8ff",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": "exposdk:51.0.0",
+    "extra": {
+      "apiUrl": "https://dahabiyatnilecruise.com",
+      "websiteUrl": "https://dahabiyatnilecruise.com",
+      "eas": {
+        "projectId": "760bc03c-d780-4dc3-adf7-1169ab6db84e"
+      }
+    },
+    "plugins": []
+  }
+}

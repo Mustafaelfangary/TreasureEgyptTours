@@ -1,0 +1,28 @@
+{
+  "lastUpdated": "2025-08-07T10:45:12.680Z",
+  "apiEndpoint": "https://dahabiyatnilecruise.com",
+  "content": {
+    "developer": {
+      "name": "Just X Development",
+      "company": "Just X",
+      "phone": "+201200958713",
+      "email": "developer@justx.com",
+      "website": "https://justx.com",
+      "brandingText": "Crafted with love in the land of the Pharaohs by Just X",
+      "logo": "/images/logo-white.png"
+    },
+    "itineraries": {
+      "heroTitle": "Discover Ancient Egypt",
+      "heroSubtitle": "Journey Through Time on the Eternal Nile",
+      "heroDescription": "Explore our carefully crafted itineraries that take you through 5000 years of Egyptian history. Each journey is designed to immerse you in the wonders of ancient civilization while enjoying modern luxury aboard our traditional dahabiyas.",
+      "emptyStateTitle": "No Journeys Found",
+      "emptyStateDescription": "We couldn't find any itineraries matching your criteria. Please adjust your filters or contact us to create a custom journey just for you."
+    },
+    "company": {
+      "name": "Cleopatra Dahabiyat",
+      "address": "Luxor, Egypt",
+      "phone": "+20 123 456 789",
+      "email": "info@cleopatradahabiyat.com"
+    }
+  }
+}

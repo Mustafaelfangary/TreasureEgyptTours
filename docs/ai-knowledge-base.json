@@ -1,0 +1,338 @@
+{
+  "knowledge_base": {
+    "version": "1.0",
+    "last_updated": "2025-10-04",
+    "categories": [
+      {
+        "category": "General Website Usage",
+        "questions": [
+          {
+            "q": "How do I browse dahabiyas?",
+            "a": "Click 'Dahabiyat' in the main navigation menu to view all available vessels. Each card shows the vessel name, capacity, cabins, and a brief description. Click 'View Details' to see full specifications, amenities, pricing, and availability."
+          },
+          {
+            "q": "Do I need an account to browse the website?",
+            "a": "No, you can browse all dahabiyas, itineraries, and packages without an account. However, you'll need an account to make bookings, save favorites, leave reviews, and earn loyalty rewards."
+          },
+          {
+            "q": "How do I create an account?",
+            "a": "Click the 'Sign Up' button in the navigation menu, fill in your details (name, email, password), verify your email via the confirmation link, and then log in with your credentials."
+          },
+          {
+            "q": "I forgot my password, what should I do?",
+            "a": "Go to the Sign In page, click 'Forgot Password?', enter your registered email, and check your inbox for a password reset link. Follow the link to create a new password."
+          },
+          {
+            "q": "How do I contact customer support?",
+            "a": "You can contact us through: 1) The blue WhatsApp button at the bottom right for instant messaging, 2) The Contact form on the Contact page, 3) Email or phone (details on Contact page), or 4) Ask me (Cleopatra AI) for instant answers!"
+          }
+        ]
+      },
+      {
+        "category": "Dahabiyas",
+        "questions": [
+          {
+            "q": "What is a dahabiya?",
+            "a": "A dahabiya is a traditional Egyptian sailing boat offering an intimate, luxurious Nile cruise experience. Unlike large cruise ships, dahabiyas carry fewer passengers (typically 8-20 guests), providing a more personalized and authentic journey along the Nile."
+          },
+          {
+            "q": "How many guests can a dahabiya accommodate?",
+            "a": "Capacity varies by vessel, typically ranging from 8 to 20 guests. Each dahabiya's detail page shows exact capacity, number of cabins, and crew size. Check individual vessel specifications for details."
+          },
+          {
+            "q": "What amenities are included on dahabiyas?",
+            "a": "Most dahabiyas include: air-conditioned cabins with private bathrooms, sun deck, dining area, lounge, Wi-Fi (connectivity varies), all meals, guided tours, and entertainment. Specific amenities vary by vessel - check each dahabiya's detail page."
+          },
+          {
+            "q": "Can I see photos of the dahabiyas?",
+            "a": "Yes! Each dahabiya detail page has a full gallery. You can also visit the Gallery section and filter by 'Dahabiyas' to see photos of all vessels, cabins, and onboard facilities."
+          },
+          {
+            "q": "How do I check dahabiya availability?",
+            "a": "On each dahabiya's detail page, you'll find an availability calendar showing open dates, booked dates, and blocked dates. You can also contact us via WhatsApp or the Contact form for real-time availability."
+          }
+        ]
+      },
+      {
+        "category": "Itineraries",
+        "questions": [
+          {
+            "q": "What itineraries are available?",
+            "a": "We offer various itineraries including Luxor to Aswan, Aswan to Luxor, extended routes, and custom itineraries. Visit the Itineraries page to browse all options with durations, highlights, and pricing."
+          },
+          {
+            "q": "How long are the cruises?",
+            "a": "Cruise durations typically range from 3-7 days for standard routes, with extended options up to 14 days. Each itinerary page clearly shows the duration and day-by-day breakdown."
+          },
+          {
+            "q": "What sites will I visit?",
+            "a": "Popular sites include: Valley of the Kings, Karnak Temple, Luxor Temple, Philae Temple, Kom Ombo Temple, Edfu Temple, and Abu Simbel. Specific sites depend on your chosen itinerary - check the itinerary detail page for the complete list."
+          },
+          {
+            "q": "Can I customize an itinerary?",
+            "a": "Yes! We offer tailor-made itineraries. Visit the Tailor-Made page or contact us via WhatsApp to discuss your preferences, interests, and special requests. Our team will create a custom itinerary just for you."
+          },
+          {
+            "q": "Can I download itinerary information?",
+            "a": "Yes, each itinerary detail page has a 'Download PDF' button. This gives you a complete offline copy with all details, maps, and information about the route."
+          }
+        ]
+      },
+      {
+        "category": "Packages & Pricing",
+        "questions": [
+          {
+            "q": "What's included in a package?",
+            "a": "Packages typically include: dahabiya accommodation, all meals (breakfast, lunch, dinner), guided tours and excursions, entrance fees to sites, onboard entertainment, and sometimes airport transfers. Check each package's detail page for specific inclusions."
+          },
+          {
+            "q": "How is pricing structured?",
+            "a": "Pricing can be per person or per cabin, depending on the package. We also offer seasonal pricing (peak/off-peak), group discounts, and early bird specials. All prices are clearly displayed on package pages."
+          },
+          {
+            "q": "Are there discounts available?",
+            "a": "Yes! We offer: early bird discounts for advance bookings, group discounts for larger parties, seasonal promotions, and loyalty rewards for returning customers. Check the Packages page for current offers."
+          },
+          {
+            "q": "What's the best time to book?",
+            "a": "The best weather for Nile cruises is October to April, with peak season December to February. We recommend booking 3-6 months in advance, especially for peak season, to secure the best dates and rates."
+          },
+          {
+            "q": "What payment methods do you accept?",
+            "a": "We accept credit/debit cards (Visa, Mastercard, American Express), PayPal, bank transfers, and installment plans for bookings over a certain amount. All payments are processed securely."
+          }
+        ]
+      },
+      {
+        "category": "Booking Process",
+        "questions": [
+          {
+            "q": "How do I make a booking?",
+            "a": "1) Choose your preferred dahabiya, itinerary, or package, 2) Click 'Book Now', 3) Select travel dates and cabin type, 4) Add guest details, 5) Review booking summary, 6) Proceed to checkout and complete payment. You'll receive immediate confirmation."
+          },
+          {
+            "q": "What information do I need to provide?",
+            "a": "You'll need: personal details (name, email, phone), passport information (for international travelers), special requests or dietary requirements, emergency contact, and payment details."
+          },
+          {
+            "q": "Will I receive a booking confirmation?",
+            "a": "Yes! You'll receive: 1) Immediate on-screen confirmation, 2) Email confirmation with booking reference number, 3) Detailed booking voucher with all information. Save these for your records."
+          },
+          {
+            "q": "Can I modify my booking?",
+            "a": "Yes, contact us via email, phone, or WhatsApp to request changes. Modifications depend on availability and may incur fees. We'll do our best to accommodate your needs."
+          },
+          {
+            "q": "What's your cancellation policy?",
+            "a": "Cancellation policies vary by package and booking date. Generally, earlier cancellations receive higher refunds. Full details are provided during booking and in your confirmation email. Contact us for specific questions."
+          },
+          {
+            "q": "How do I view my booking history?",
+            "a": "Log in to your account, go to Profile → Bookings to view all past and upcoming bookings. You can download confirmations and manage your reservations from there."
+          }
+        ]
+      },
+      {
+        "category": "User Account Features",
+        "questions": [
+          {
+            "q": "What can I do with my account?",
+            "a": "With an account you can: make and manage bookings, save favorites to your wishlist, leave reviews, track loyalty points and rewards, update personal information, view booking history, and manage notification preferences."
+          },
+          {
+            "q": "How do I add items to my wishlist?",
+            "a": "Click the heart icon on any dahabiya or package card. Access your saved items from Profile → Wishlist. This helps you compare options and save favorites for later."
+          },
+          {
+            "q": "How do I leave a review?",
+            "a": "After completing a booking: 1) Log in and go to Profile → Bookings, 2) Find your completed booking, 3) Click 'Write Review', 4) Rate your experience (1-5 stars), 5) Share your feedback, 6) Submit. You'll earn loyalty points!"
+          },
+          {
+            "q": "What are loyalty rewards?",
+            "a": "Earn points for completing bookings, writing reviews, referring friends, and social media engagement. Redeem points for discounts on future bookings, cabin upgrades, and complimentary services. Check your points in your profile."
+          },
+          {
+            "q": "How do I update my profile?",
+            "a": "Log in, go to Profile, click 'Edit Profile', update your information, upload a profile picture if desired, and save changes. Keep your contact information current for booking communications."
+          }
+        ]
+      },
+      {
+        "category": "Travel Information",
+        "questions": [
+          {
+            "q": "What's the best time to visit Egypt?",
+            "a": "October to April offers the most pleasant weather for Nile cruises, with temperatures around 20-30°C (68-86°F). Peak season is December to February. Summer (May-September) is hotter but less crowded with better rates."
+          },
+          {
+            "q": "What should I pack?",
+            "a": "Pack: light, breathable clothing, sun protection (hat, sunglasses, sunscreen), comfortable walking shoes, modest clothing for temple visits, camera and chargers, any necessary medications, and light layers for cooler evenings."
+          },
+          {
+            "q": "Do I need travel insurance?",
+            "a": "We strongly recommend comprehensive travel insurance covering medical emergencies, trip cancellation, lost luggage, and travel delays. It provides peace of mind for your journey."
+          },
+          {
+            "q": "Are children allowed?",
+            "a": "Yes, most dahabiyas welcome families with children. Check individual vessel policies for age restrictions and family-friendly amenities. Some vessels are better suited for families than others."
+          },
+          {
+            "q": "What languages are spoken?",
+            "a": "Most crews speak English and Arabic fluently, with many also speaking French, German, Spanish, or Italian. Guides are multilingual and can accommodate various language preferences."
+          },
+          {
+            "q": "Is Wi-Fi available?",
+            "a": "Most dahabiyas offer Wi-Fi, though connectivity may vary along the river and in remote areas. Check specific vessel amenities for Wi-Fi availability. Consider it a chance to disconnect and enjoy the journey!"
+          },
+          {
+            "q": "Are meals included?",
+            "a": "Yes, most packages include all meals: breakfast, lunch, and dinner. Special dietary requirements (vegetarian, vegan, allergies, religious restrictions) can be accommodated with advance notice."
+          }
+        ]
+      },
+      {
+        "category": "AI Assistant (Cleopatra)",
+        "questions": [
+          {
+            "q": "What is Cleopatra AI?",
+            "a": "I am Cleopatra, your AI-powered virtual assistant! I can answer questions about dahabiyas, itineraries, packages, pricing, booking process, availability, and general travel information. I'm here 24/7 to help you plan your perfect Nile cruise."
+          },
+          {
+            "q": "How do I use the AI assistant?",
+            "a": "Click the 3D Cleopatra button at the bottom right of your screen to open the chat panel. Type your question and press Enter or click Send. I'll respond with helpful information instantly!"
+          },
+          {
+            "q": "What questions can I ask Cleopatra?",
+            "a": "Ask me anything about: available dahabiyas and their features, itineraries and destinations, package details and pricing, booking procedures, availability and schedules, travel tips and recommendations, or general information about Nile cruises."
+          },
+          {
+            "q": "Can Cleopatra make bookings?",
+            "a": "I can guide you through the booking process and answer questions, but actual bookings must be completed through the booking form or by contacting our team directly via WhatsApp, email, or phone."
+          },
+          {
+            "q": "Is the AI assistant available 24/7?",
+            "a": "Yes, I'm available anytime to answer your questions! For complex inquiries or booking assistance, our human support team is available during business hours (check the Contact page for hours)."
+          }
+        ]
+      },
+      {
+        "category": "Mobile Experience",
+        "questions": [
+          {
+            "q": "Is the website mobile-friendly?",
+            "a": "Yes! Our website is fully responsive and optimized for smartphones, tablets, and desktop computers. All features work seamlessly on mobile devices with touch-friendly interfaces."
+          },
+          {
+            "q": "How do I navigate on mobile?",
+            "a": "Tap the hamburger menu icon (three lines) to open navigation. Three floating buttons appear on the right: Cleopatra AI (bottom), WhatsApp (middle), and Home (top). All features are accessible on mobile."
+          },
+          {
+            "q": "Can I book from my phone?",
+            "a": "Absolutely! The entire booking process is mobile-optimized. Browse, select, and complete bookings directly from your smartphone or tablet with ease."
+          },
+          {
+            "q": "Where are the floating buttons on mobile?",
+            "a": "Three buttons appear on the right side of your screen: 1) Cleopatra AI at the bottom (blue 3D model), 2) WhatsApp in the middle (blue button), 3) Home button at the top (blue button). They're positioned to not overlap and are easy to tap."
+          }
+        ]
+      },
+      {
+        "category": "Admin Panel Access (Admin Only)",
+        "questions": [
+          {
+            "q": "How do I access the admin panel?",
+            "a": "Navigate to /admin or click the Admin link (visible only to admin accounts). You must be logged in with an ADMIN role. Regular users cannot access administrative functions."
+          },
+          {
+            "q": "Who can access the admin panel?",
+            "a": "Only users with the ADMIN role can access the admin panel. This is enforced through role-based authentication and middleware that checks user permissions on every admin route."
+          },
+          {
+            "q": "What can I do in the admin panel?",
+            "a": "Admins can: manage website content, add/edit dahabiyas and itineraries, create packages, manage bookings and payments, moderate reviews, manage users, upload media, publish blog posts, configure settings, view analytics, and more."
+          },
+          {
+            "q": "How do I add a new dahabiya?",
+            "a": "Go to Dahabiyat → Add New, fill in details (name, description, specifications, amenities, pricing), upload images, set availability calendar, assign itineraries, and publish. Full instructions in the admin guide."
+          },
+          {
+            "q": "How do I manage bookings?",
+            "a": "Go to Bookings → All Bookings to view all reservations. You can confirm, modify, cancel bookings, process payments, send confirmations, and add internal notes. Filter by status, date, or customer."
+          },
+          {
+            "q": "How do I moderate reviews?",
+            "a": "Go to Reviews → All Reviews to see pending and published reviews. You can approve, reject, edit, reply to, or flag reviews. Featured reviews can be highlighted on the homepage."
+          },
+          {
+            "q": "How do I configure WhatsApp settings?",
+            "a": "Go to Settings → WhatsApp Settings to enable/disable the button, set phone number, customize default message, choose position, set display delay, configure business hours, and set offline message."
+          },
+          {
+            "q": "Can I schedule content to publish later?",
+            "a": "Yes! When creating/editing content (blog posts, packages, etc.), set the Publish Date to a future date and save as 'Scheduled'. Content will automatically go live at that time."
+          },
+          {
+            "q": "How do I export booking data?",
+            "a": "Go to Bookings → Export, select date range and filters, choose format (CSV, Excel, PDF), and click Export. Download the file with all booking information for your records or analysis."
+          },
+          {
+            "q": "How do I promote a user to admin?",
+            "a": "Go to Users → All Users, click on the user, change Role to ADMIN, and save. The user will have admin access on their next login. Use this carefully as admins have full system access."
+          }
+        ]
+      }
+    ],
+    "quick_links": {
+      "user": [
+        {"label": "Browse Dahabiyas", "url": "/dahabiyas"},
+        {"label": "View Itineraries", "url": "/itineraries"},
+        {"label": "Explore Packages", "url": "/packages"},
+        {"label": "Book Now", "url": "/book"},
+        {"label": "Contact Us", "url": "/contact"},
+        {"label": "Gallery", "url": "/gallery"},
+        {"label": "My Profile", "url": "/profile"},
+        {"label": "Sign In", "url": "/auth/signin"},
+        {"label": "Sign Up", "url": "/auth/signup"}
+      ],
+      "admin": [
+        {"label": "Admin Dashboard", "url": "/admin"},
+        {"label": "Manage Dahabiyas", "url": "/admin/dahabiyas"},
+        {"label": "Manage Itineraries", "url": "/admin/itineraries"},
+        {"label": "Manage Packages", "url": "/admin/packages"},
+        {"label": "View Bookings", "url": "/admin/bookings"},
+        {"label": "Manage Users", "url": "/admin/users"},
+        {"label": "Media Library", "url": "/admin/media"},
+        {"label": "Blog Posts", "url": "/admin/blog"},
+        {"label": "Reviews", "url": "/admin/reviews"},
+        {"label": "Settings", "url": "/admin/settings"}
+      ]
+    },
+    "contact_methods": [
+      {
+        "method": "WhatsApp",
+        "description": "Click the blue WhatsApp button at the bottom right for instant messaging",
+        "availability": "24/7 (responses during business hours)"
+      },
+      {
+        "method": "Cleopatra AI",
+        "description": "Click the 3D Cleopatra button for instant AI-powered answers",
+        "availability": "24/7"
+      },
+      {
+        "method": "Contact Form",
+        "description": "Fill out the form on the Contact page",
+        "availability": "Responses within 24 hours"
+      },
+      {
+        "method": "Email",
+        "description": "Send inquiries to the email listed on the Contact page",
+        "availability": "Responses within 24 hours"
+      },
+      {
+        "method": "Phone",
+        "description": "Call during business hours (see Contact page)",
+        "availability": "Business hours only"
+      }
+    ]
+  }
+}

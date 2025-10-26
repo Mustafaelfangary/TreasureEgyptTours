@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Simple stylized Cleopatra silhouette -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,30 C48,30 44,34 44,40 C44,46 48,52 54,54 C60,52 64,46 64,40 C64,34 60,30 54,30 Z" />
+    
+    <!-- Crown/headdress -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M44,40 L40,30 L44,35 L48,25 L52,35 L56,25 L60,35 L64,30 L64,40 Z" />
+    
+    <!-- Necklace/collar -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M44,54 Q54,60 64,54 L64,58 Q54,66 44,58 Z" />
+</vector>
