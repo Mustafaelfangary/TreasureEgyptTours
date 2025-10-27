@@ -2,8 +2,28 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function TravelOKFooter() {
+  const [logoUrl, setLogoUrl] = useState('/icons/altavida-logo-1.png');
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const res = await fetch('/api/logo', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.logoUrl) {
+            const normalized = data.logoUrl.startsWith('/') ? data.logoUrl : `/${data.logoUrl}`;
+            setLogoUrl(normalized);
+          }
+        }
+      } catch (_) {
+        // keep default
+      }
+    };
+    fetchLogo();
+  }, []);
   return (
     <footer className="bg-travelok-blue text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -12,14 +32,16 @@ export default function TravelOKFooter() {
           <div className="md:col-span-1">
             <div className="mb-6">
               <div className="flex items-center mb-4">
-                <img 
-                  src="/images/altavida-logo-1.png" 
+                <Image 
+                  src={logoUrl} 
                   alt="AltaVida Tours" 
-                  className="h-10 w-auto mr-3 filter brightness-0 invert"
+                  width={140}
+                  height={40}
+                  className="h-10 w-auto mr-3 invert"
                 />
                 <div>
-                  <div className="text-white font-bold text-xl">AltaVida</div>
-                  <div className="text-orange-300 font-bold text-lg -mt-1">TOURS</div>
+                  <div className="text-white font-bold text-xl leading-tight">AltaVida</div>
+                  <div className="text-orange-300 font-bold text-base -mt-0.5 tracking-wide">TOURS</div>
                 </div>
               </div>
               <p className="text-sm text-blue-100 leading-relaxed">
@@ -133,3 +155,4 @@ export default function TravelOKFooter() {
     </footer>
   );
 }
+

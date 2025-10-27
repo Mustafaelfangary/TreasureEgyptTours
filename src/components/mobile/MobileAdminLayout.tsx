@@ -63,7 +63,7 @@ export default function MobileAdminLayout({
 
   // Get dynamic logo from database, fallback to static
   const getMobileLogo = () => {
-    return getContent('navbar_logo', '/images/logo.png');
+    return getContent('navbar_logo', '/logos/treasureegypttours.svg');
   };
 
   // Redirect if not admin
@@ -119,7 +119,7 @@ export default function MobileAdminLayout({
                 onError={(e) => {
                   // Fallback to static logo if dynamic fails
                   const target = e.target as HTMLImageElement;
-                  target.src = '/images/logo.png';
+                  target.src = '/logos/treasureegypttours.svg';
                 }}
               />
             </div>
@@ -183,7 +183,7 @@ export default function MobileAdminLayout({
                         onError={(e) => {
                           // Fallback to static logo if dynamic fails
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/logo.png';
+                          target.src = '/logos/treasureegypttours.svg';
                         }}
                       />
                     </div>

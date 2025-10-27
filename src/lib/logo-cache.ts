@@ -73,11 +73,11 @@ export function createLogoCacheManager() {
  * Default logo paths for fallbacks
  */
 export const DEFAULT_LOGOS = {
-  navbar: '/images/logo.png',
-  footer: '/images/logo.png',
-  admin: '/images/logo.png',
-  mobile: '/images/logo.png',
-  site: '/images/logo.png'
+  navbar: '/logos/treasureegypttours.svg',
+  footer: '/logos/treasureegypttours.svg',
+  admin: '/logos/treasureegypttours.svg',
+  mobile: '/logos/treasureegypttours.svg',
+  site: '/logos/treasureegypttours.svg'
 } as const;
 
 /**

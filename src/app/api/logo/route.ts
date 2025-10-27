@@ -8,7 +8,7 @@ export async function GET() {
       console.error('Prisma client not initialized');
       return NextResponse.json(
         {
-          logoUrl: '/images/logo.png',
+          logoUrl: '/logos/treasureegypttours.svg',
           key: 'default',
           timestamp: Date.now(),
           error: 'Database not available',
@@ -38,7 +38,7 @@ export async function GET() {
     // Fallback to default logo if nothing valid found
     const logoUrl = chosen?.content && !chosen.content.startsWith('blob:')
       ? chosen.content
-      : '/images/logo.png';
+      : '/logos/treasureegypttours.svg';
 
     const updatedAt = chosen?.updatedAt ? new Date(chosen.updatedAt).getTime() : Date.now();
 
@@ -62,7 +62,7 @@ export async function GET() {
     // Always return the default logo on error
     return NextResponse.json(
       {
-        logoUrl: '/images/logo.png',
+        logoUrl: '/logos/treasureegypttours.svg',
         key: 'default',
         timestamp: Date.now(),
         error: 'Failed to fetch from database',

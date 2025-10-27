@@ -26,26 +26,25 @@ export default function OptimizedImage({
   quality = 75,
   placeholder = 'empty',
   blurDataURL,
-  fallbackSrc = '/images/default-placeholder.svg'
+  fallbackSrc = '/icons/altavida-logo-1.png'
 }: OptimizedImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // Normalize the image path
+  // Normalize the image path to support new categorized public assets
   const normalizeSrc = (imageSrc: string) => {
-    // If it's already a full path starting with /images/, return as is
+    if (!imageSrc) return '/icons/altavida-logo-1.png';
+    // If path begins with legacy '/images/', strip the prefix to resolve to new root categories
     if (imageSrc.startsWith('/images/')) {
+      return imageSrc.replace(/^\/images\//, '/');
+    }
+    // If it already starts with '/', keep as-is (assumed valid under public/)
+    if (imageSrc.startsWith('/')) {
       return imageSrc;
     }
-    
-    // If it starts with /, assume it's missing the images prefix
-    if (imageSrc.startsWith('/')) {
-      return `/images${imageSrc}`;
-    }
-    
-    // If it doesn't start with /, add the full path
-    return `/images/${imageSrc}`;
+    // Relative path: make it root-relative
+    return `/${imageSrc.replace(/^images\//, '')}`;
   };
 
   const handleError = () => {
@@ -98,10 +97,10 @@ export const getOptimizedImageUrl = (src: string, options?: {
   
   // Normalize the source path
   let normalizedSrc = src;
-  if (src.startsWith('/') && !src.startsWith('/images/')) {
-    normalizedSrc = `/images${src}`;
+  if (src.startsWith('/images/')) {
+    normalizedSrc = src.replace(/^\/images\//, '/');
   } else if (!src.startsWith('/')) {
-    normalizedSrc = `/images/${src}`;
+    normalizedSrc = `/${src.replace(/^images\//, '')}`;
   }
 
   // For now, return the normalized path

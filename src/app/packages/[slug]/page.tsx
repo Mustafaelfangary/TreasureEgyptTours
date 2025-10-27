@@ -22,9 +22,17 @@ export default function PackageDetail({ params }: { params: { slug: string } }) 
 }
 
 export async function generateStaticParams() {
-  const packages = await prisma.package.findMany({ select: { name: true } });
-  return packages
-    .map((p) => p.name?.trim())
-    .filter((n): n is string => Boolean(n && n.length))
-    .map((name) => ({ slug: name.toLowerCase().replace(/\s+/g, '-') }));
+  // Avoid crashing build when DATABASE_URL is not set or DB is unavailable
+  if (!process.env.DATABASE_URL) {
+    return [];
+  }
+  try {
+    const packages = await prisma.package.findMany({ select: { name: true } });
+    return packages
+      .map((p) => p.name?.trim())
+      .filter((n): n is string => Boolean(n && n.length))
+      .map((name) => ({ slug: name.toLowerCase().replace(/\s+/g, '-') }));
+  } catch {
+    return [];
+  }
 }

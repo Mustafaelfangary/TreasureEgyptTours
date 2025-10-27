@@ -50,15 +50,15 @@ interface AdminLogo {
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flagSvg: '/images/flags/us.svg', name: 'English' },
-  { code: 'ar', label: 'العربية', flagSvg: '/images/flags/eg.svg', name: 'العربية' },
-  { code: 'fr', label: 'Français', flagSvg: '/images/flags/fr.svg', name: 'Français' },
-  { code: 'de', label: 'Deutsch', flagSvg: '/images/flags/de.svg', name: 'Deutsch' },
-  { code: 'es', label: 'Español', flagSvg: '/images/flags/es.svg', name: 'Español' },
-  { code: 'it', label: 'Italiano', flagSvg: '/images/flags/it.svg', name: 'Italiano' },
-  { code: 'ru', label: 'Русский', flagSvg: '/images/flags/ru.svg', name: 'Русский' },
-  { code: 'zh', label: '中文', flagSvg: '/images/flags/cn.svg', name: '中文' },
-  { code: 'ja', label: '日本語', flagSvg: '/images/flags/jp.svg', name: '日本語' },
+  { code: 'en', label: 'English', flagSvg: '/flags/us.svg', name: 'English' },
+  { code: 'ar', label: 'العربية', flagSvg: '/flags/eg.svg', name: 'العربية' },
+  { code: 'fr', label: 'Français', flagSvg: '/flags/fr.svg', name: 'Français' },
+  { code: 'de', label: 'Deutsch', flagSvg: '/flags/de.svg', name: 'Deutsch' },
+  { code: 'es', label: 'Español', flagSvg: '/flags/es.svg', name: 'Español' },
+  { code: 'it', label: 'Italiano', flagSvg: '/flags/it.svg', name: 'Italiano' },
+  { code: 'ru', label: 'Русский', flagSvg: '/flags/ru.svg', name: 'Русский' },
+  { code: 'zh', label: '中文', flagSvg: '/flags/cn.svg', name: '中文' },
+  { code: 'ja', label: '日本語', flagSvg: '/flags/jp.svg', name: '日本語' },
 ];
 
 // Import translation files
@@ -89,7 +89,7 @@ const translations: Record<string, any> = {
 export default function Navbar() {
   const { data: session } = useSession();
   const { getContent } = useContent({ page: 'branding_settings' });
-  const [logoUrl, setLogoUrl] = useState('/images/logo.png');
+  const [logoUrl, setLogoUrl] = useState('/logos/treasureegypttours.svg');
   const [logoTimestamp, setLogoTimestamp] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -131,7 +131,7 @@ export default function Navbar() {
         
         if (response.ok) {
           const result = await response.json();
-          const logoToUse = result.logoUrl || '/images/logo.png';
+          const logoToUse = result.logoUrl || '/logos/treasureegypttours.svg';
           setLogoUrl(logoToUse);
           // Use server-provided timestamp to create a stable cache-busting key
           setLogoTimestamp(result.timestamp || Date.now());
@@ -141,12 +141,12 @@ export default function Navbar() {
           }
         } else {
           console.warn('Logo API response not OK:', response.status);
-          setLogoUrl('/images/logo.png');
+          setLogoUrl('/logos/treasureegypttours.svg');
         }
       } catch (error) {
         console.error('Failed to fetch logo:', error);
         // Always fallback to default logo on error
-        setLogoUrl('/images/logo.png');
+        setLogoUrl('/logos/treasureegypttours.svg');
         if (process.env.NODE_ENV === 'development') {
           setLogoTimestamp(Date.now());
         }
@@ -218,7 +218,7 @@ export default function Navbar() {
 
   // Get dynamic logo from database with fallback
   // const getNavbarLogo = () => {
-  //   return getContent('navbar_logo') || '/images/logo.png';
+  //   return getContent('navbar_logo') || '/logos/treasureegypttours.svg';
   // };
 
   // Check if we're on the homepage
@@ -489,7 +489,7 @@ export default function Navbar() {
               suppressHydrationWarning={true}
               onError={(e) => {
                 console.warn('Logo failed to load, falling back to default:', logoUrl);
-                setLogoUrl('/images/logo.png');
+                setLogoUrl('/logos/treasureegypttours.svg');
                 if (isClient) {
                   if (process.env.NODE_ENV === 'development') {
                     setLogoTimestamp(Date.now());
@@ -713,7 +713,7 @@ export default function Navbar() {
                   }}
                 >
                   <Image
-                    src={LANGUAGES.find(l => l.code === language)?.flagSvg || '/images/flags/us.svg'}
+                    src={LANGUAGES.find(l => l.code === language)?.flagSvg || '/flags/us.svg'}
                     alt={LANGUAGES.find(l => l.code === language)?.name || 'Language'}
                     width={24}
                     height={16}

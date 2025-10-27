@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import OptimizedImage from './OptimizedImage';
@@ -32,13 +33,13 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flagSvg: '/images/flags/us.svg', name: 'English' },
-  { code: 'ar', label: 'العربية', flagSvg: '/images/flags/eg.svg', name: 'العربية' },
-  { code: 'fr', label: 'Français', flagSvg: '/images/flags/fr.svg', name: 'Français' },
-  { code: 'de', label: 'Deutsch', flagSvg: '/images/flags/de.svg', name: 'Deutsch' },
-  { code: 'es', label: 'Español', flagSvg: '/images/flags/es.svg', name: 'Español' },
-  { code: 'it', label: 'Italiano', flagSvg: '/images/flags/it.svg', name: 'Italiano' },
-  { code: 'ru', label: 'Русский', flagSvg: '/images/flags/ru.svg', name: 'Русский' },
+  { code: 'en', label: 'English', flagSvg: '/flags/us.svg', name: 'English' },
+  { code: 'ar', label: 'العربية', flagSvg: '/flags/eg.svg', name: 'العربية' },
+  { code: 'fr', label: 'Français', flagSvg: '/flags/fr.svg', name: 'Français' },
+  { code: 'de', label: 'Deutsch', flagSvg: '/flags/de.svg', name: 'Deutsch' },
+  { code: 'es', label: 'Español', flagSvg: '/flags/es.svg', name: 'Español' },
+  { code: 'it', label: 'Italiano', flagSvg: '/flags/it.svg', name: 'Italiano' },
+  { code: 'ru', label: 'Русский', flagSvg: '/flags/ru.svg', name: 'Русский' },
 ];
 
 export default function TravelOKNavbar() {
@@ -46,7 +47,7 @@ export default function TravelOKNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [openViaClick, setOpenViaClick] = useState<string | null>(null);
   const [expandedMobileSections, setExpandedMobileSections] = useState<Record<string, boolean>>({});
-  const [logoUrl, setLogoUrl] = useState('/images/altavida-logo-1.png');
+  const [logoUrl, setLogoUrl] = useState('/icons/altavida-logo-1.png');
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -56,6 +57,8 @@ export default function TravelOKNavbar() {
   const portalRef = useRef<HTMLDivElement | null>(null);
   const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [panelPos, setPanelPos] = useState<Record<string, { top: number; left: number; width: number }>>({});
+  const router = useRouter();
+  const [query, setQuery] = useState("");
 
   // Handle scroll effect
   useEffect(() => {
@@ -312,13 +315,13 @@ export default function TravelOKNavbar() {
   return (
     <>
       {/* Modern Top Bar with Language Selector */}
-      <div className={`bg-gradient-to-r from-blue-600 to-blue-700 text-white hidden lg:block transition-all duration-300 ${scrolled ? 'py-1' : 'py-2'}`}>
+      <div className={`bg-gradient-to-r from-blue-600 to-blue-700 text-white hidden lg:block transition-all duration-300 ${scrolled ? 'py-1' : 'py-1.5'}`}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-6">
               {/* Language Selector */}
               <div className="relative group">
-                <button className="flex items-center space-x-2 text-sm font-medium hover:text-orange-300 transition-colors duration-200">
+                <button className="flex items-center space-x-2 text-[13px] font-medium hover:text-orange-300 transition-colors duration-200">
                   <Image
                     src={LANGUAGES.find(l => l.code === locale)?.flagSvg || '/images/flags/us.svg'}
                     alt="Language"
@@ -334,7 +337,7 @@ export default function TravelOKNavbar() {
                     <button
                       key={lang.code}
                       onClick={() => setLocale(lang.code as any)}
-                      className="w-full px-4 py-2 text-left hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-150"
+                      className="w-full px-4 py-2 text-left hover:bg-blue-50 flex items-center space-x-3 transition-colors duration-150 text-[13px]"
                     >
                       <Image src={lang.flagSvg} alt={lang.name} width={20} height={14} className="rounded-sm" />
                       <span className="text-sm font-medium">{lang.name}</span>
@@ -344,7 +347,7 @@ export default function TravelOKNavbar() {
               </div>
               
               {/* Quick Links */}
-              <div className="flex items-center space-x-6 text-sm">
+              <div className="flex items-center space-x-5 text-[13px]">
                 <Link href="/contact" className="hover:text-orange-300 transition-colors duration-200 font-medium">
                   Contact Us
                 </Link>
@@ -358,7 +361,7 @@ export default function TravelOKNavbar() {
             </div>
             
             {/* Right side info */}
-            <div className="flex items-center space-x-6 text-sm">
+            <div className="flex items-center space-x-5 text-[13px]">
               <div className="flex items-center space-x-2">
                 <Phone size={16} />
                 <span className="font-medium">+20 123 456 7890</span>
@@ -387,7 +390,7 @@ export default function TravelOKNavbar() {
             {/* Home Link */}
             <Link 
               href="/" 
-              className="hidden lg:block px-6 py-4 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200"
+              className="hidden lg:block px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200"
             >
               HOME
             </Link>
@@ -413,7 +416,7 @@ export default function TravelOKNavbar() {
                     aria-controls={`mega-${item.id}`}
                     onClick={() => toggleDropdownClick(item.id)}
                     onKeyDown={(e) => onKeyDownTopItem(e, item.id)}
-                    className={`px-6 py-4 text-sm font-bold transition-all duration-200 border-r border-gray-200 flex items-center space-x-2 ${
+                    className={`px-5 py-3.5 text-[13px] font-bold transition-all duration-200 border-r border-gray-200 flex items-center space-x-2 ${
                       activeDropdown === item.id || isActive(item.mainHref)
                         ? 'bg-blue-600 text-white' 
                         : 'text-blue-600 hover:bg-blue-50'
@@ -442,22 +445,22 @@ export default function TravelOKNavbar() {
                           className="bg-white border border-gray-200 shadow-2xl min-w-[800px] rounded-lg overflow-hidden"
                           style={{ position: 'absolute', top: 10, left: 0 }}
                         >
-                          <div className="p-6">
+                          <div className="p-5">
                             {/* Header */}
                             <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-100">
                               <div className="p-2 bg-blue-100 rounded-lg">
                                 <item.icon size={24} className="text-blue-600" />
                               </div>
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900">{item.label}</h3>
-                                <p className="text-sm text-gray-600">{item.description}</p>
+                                <h3 className="text-[15px] font-bold text-gray-900 leading-tight">{item.label}</h3>
+                                <p className="text-[13px] text-gray-600">{item.description}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-6">
                               {/* Main Items */}
                               <div className="col-span-2">
-                                <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Popular Options</h4>
+                                <h4 className="text-[12px] font-semibold text-gray-900 mb-3 uppercase tracking-wide">Popular Options</h4>
                                 <div className="space-y-2">
                                   {item.items.slice(0, 6).map((subItem, index) => (
                             <Link
@@ -467,10 +470,10 @@ export default function TravelOKNavbar() {
                             >
                                       <span className="text-lg mt-0.5">{subItem.icon}</span>
                                       <div className="flex-1">
-                                        <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                                        <div className="font-medium text-[14px] text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
                               {subItem.label}
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-1">
+                                        <div className="text-[13px] text-gray-600 mt-1">
                                           {subItem.description}
                                         </div>
                                       </div>
@@ -482,7 +485,7 @@ export default function TravelOKNavbar() {
 
                               {/* Featured Links */}
                               <div className="col-span-1">
-                                <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Quick Access</h4>
+                                <h4 className="text-[12px] font-semibold text-gray-900 mb-3 uppercase tracking-wide">Quick Access</h4>
                                 <div className="space-y-2">
                                   {item.featured.map((featured, index) => (
                                     <Link
@@ -491,7 +494,7 @@ export default function TravelOKNavbar() {
                                       className="group flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-all duration-200"
                                     >
                                       <featured.icon size={18} className="text-orange-500" />
-                                      <span className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors duration-200">
+                                      <span className="font-medium text-[14px] text-gray-900 group-hover:text-orange-600 transition-colors duration-200">
                                         {featured.label}
                                       </span>
                             </Link>
@@ -502,7 +505,7 @@ export default function TravelOKNavbar() {
                                 <div className="mt-4 pt-4 border-t border-gray-100">
                                   <Link
                                     href={item.mainHref}
-                                    className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                                    className="flex items-center justify-center space-x-2 w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-[13px]"
                                     onClick={() => {
                                       setActiveDropdown(null);
                                       setOpenViaClick(null);
@@ -522,17 +525,33 @@ export default function TravelOKNavbar() {
                 </div>
               ))}
 
+              {/* Desktop search */}
+              <form
+                onSubmit={(e) => { e.preventDefault(); router.push(`/search?q=${encodeURIComponent(query.trim())}`); }}
+                className="ml-4 mr-2 flex items-center bg-gray-100 rounded-md border border-gray-200 px-3 py-2"
+                role="search"
+                aria-label="Site search"
+              >
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  type="search"
+                  placeholder="Search destinations, tours..."
+                  className="bg-transparent outline-none text-[13px] placeholder:text-gray-400 w-56"
+                />
+              </form>
+
               {/* Additional Links */}
               <Link
                 href="/schedule-and-rates"
-                className="px-6 py-4 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
+                className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
               >
                 <Calendar size={16} />
                 <span>SCHEDULE & RATES</span>
               </Link>
               <Link
                 href="/gallery"
-                className="px-6 py-4 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
+                className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
               >
                 <Camera size={16} />
                 <span>GALLERY</span>
@@ -558,14 +577,14 @@ export default function TravelOKNavbar() {
             <div className="hidden lg:flex items-center">
               <Link
                 href="/blog"
-                className="px-6 py-4 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-l border-gray-200 flex items-center space-x-2"
+                className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-l border-gray-200 flex items-center space-x-2"
               >
                 <BookOpen size={16} />
                 <span>BLOG</span>
               </Link>
               <Link
                 href="/contact"
-                className="px-6 py-4 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                className="px-5 py-3.5 text-[13px] font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
               >
                 <Phone size={16} />
                 <span>CONTACT</span>
@@ -574,23 +593,23 @@ export default function TravelOKNavbar() {
               {/* Auth Section */}
               {session ? (
                 <div className="relative group px-4">
-                  <button className="flex items-center space-x-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200">
+                  <button className="flex items-center space-x-2 text-[13px] font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200">
                     <UserCircle size={20} />
                     <span className="hidden xl:inline">{session.user?.name || 'Account'}</span>
                     <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
                   </button>
                   <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <Link href="/profile" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors duration-150">
+                    <Link href="/profile" className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150">
                       <User size={16} />
                       <span>Profile</span>
                     </Link>
                     {session.user?.role === 'ADMIN' && (
-                      <Link href="/admin" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors duration-150">
+                      <Link href="/admin" className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150">
                         <LayoutDashboard size={16} />
                         <span>Admin Panel</span>
                       </Link>
                     )}
-                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 flex items-center space-x-2 transition-colors duration-150">
+                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-red-50 flex items-center space-x-2 transition-colors duration-150">
                       <LogOut size={16} />
                       <span>Sign Out</span>
                     </button>
@@ -599,7 +618,7 @@ export default function TravelOKNavbar() {
               ) : (
                 <Link
                   href="/auth/signin"
-                  className="px-6 py-4 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-l border-gray-200 flex items-center space-x-2"
+                  className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-l border-gray-200 flex items-center space-x-2"
                 >
                   <User size={18} />
                   <span>SIGN IN</span>
@@ -622,6 +641,22 @@ export default function TravelOKNavbar() {
               </button>
             </div>
             <div className="py-2">
+              <div className="px-4 pt-3 pb-2 border-b">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); setMobileMenuOpen(false); router.push(`/search?q=${encodeURIComponent(query.trim())}`); }}
+                  role="search"
+                  aria-label="Site search"
+                  className="flex items-center bg-gray-100 rounded-md border border-gray-200 px-3 py-2"
+                >
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    type="search"
+                    placeholder="Search destinations, tours..."
+                    className="bg-transparent outline-none text-sm placeholder:text-gray-400 w-full"
+                  />
+                </form>
+              </div>
               <Link href="/" className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200" onClick={() => setMobileMenuOpen(false)}>
                 HOME
               </Link>
