@@ -80,7 +80,8 @@ const nextConfig = {
       { source: '/blog', destination: '/blogs', permanent: true },
       { source: '/blog/:slug', destination: '/blogs/:slug', permanent: true },
       { source: '/gallery-new', destination: '/gallery', permanent: true },
-      { source: '/dahabiyat', destination: '/dahabiyas', permanent: true }
+      { source: '/dahabiyat', destination: '/dahabiyas', permanent: true },
+      { source: '/schedule-and-rates', destination: '/', permanent: true }
     ];
   },
   

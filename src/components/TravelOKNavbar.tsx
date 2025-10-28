@@ -396,7 +396,7 @@ export default function TravelOKNavbar() {
             </Link>
 
             {/* Navigation Items - Desktop */}
-            <div className="hidden lg:flex items-center flex-1" style={{ overflow: 'visible' }}>
+            <div className="hidden lg:flex items-center flex-1 justify-start overflow-x-auto whitespace-nowrap pr-2" style={{ overflow: 'visible' }}>
               {mainNavItems.map((item) => (
                 <div 
                   key={item.id} 
@@ -542,13 +542,6 @@ export default function TravelOKNavbar() {
               </form>
 
               {/* Additional Links */}
-              <Link
-                href="/schedule-and-rates"
-                className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
-              >
-                <Calendar size={16} />
-                <span>SCHEDULE & RATES</span>
-              </Link>
               <Link
                 href="/gallery"
                 className="px-5 py-3.5 text-[13px] font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-r border-gray-200 flex items-center space-x-2"
@@ -705,9 +698,7 @@ export default function TravelOKNavbar() {
               >
                 SIGN IN
               </Link>
-              <Link href="/schedule-and-rates" className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200" onClick={() => setMobileMenuOpen(false)}>
-                SCHEDULE & RATES
-              </Link>
+              
               <Link href="/gallery" className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200" onClick={() => setMobileMenuOpen(false)}>
                 GALLERY
               </Link>
