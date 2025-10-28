@@ -59,6 +59,7 @@ export default function TravelOKNavbar() {
   const [panelPos, setPanelPos] = useState<Record<string, { top: number; left: number; width: number }>>({});
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [navReady, setNavReady] = useState(false);
 
   // Handle scroll effect
   useEffect(() => {
@@ -67,6 +68,12 @@ export default function TravelOKNavbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Mount animation
+  useEffect(() => {
+    const t = setTimeout(() => setNavReady(true), 10);
+    return () => clearTimeout(t);
   }, []);
 
   // Cleanup timeout on unmount
@@ -376,7 +383,7 @@ export default function TravelOKNavbar() {
       </div>
 
       {/* Modern Main Navigation */}
-      <nav className={`bg-white shadow-lg relative z-40 transition-all duration-300 ${scrolled ? 'shadow-xl' : 'shadow-md'}`} ref={containerRef} style={{ overflow: 'visible' }}>
+      <nav className={`bg-white shadow-lg relative z-40 transition-all duration-500 ${scrolled ? 'shadow-xl' : 'shadow-md'} ${navReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`} ref={containerRef} style={{ overflow: 'visible' }}>
         <div className="max-w-7xl mx-auto" style={{ overflow: 'visible' }}>
           <div className="flex items-center justify-start" style={{ overflow: 'visible' }}>
             {/* Mobile Menu Button */}
@@ -416,7 +423,7 @@ export default function TravelOKNavbar() {
                     aria-controls={`mega-${item.id}`}
                     onClick={() => toggleDropdownClick(item.id)}
                     onKeyDown={(e) => onKeyDownTopItem(e, item.id)}
-                    className={`px-3 py-3 text-[13px] font-bold transition-all duration-200 border-r border-gray-200 flex items-center space-x-2 ${
+                    className={`px-3 py-3 text-[13px] font-bold transition-all duration-200 border-r border-gray-200 flex items-center space-x-2 hover:-translate-y-0.5 transition-transform ${
                     activeDropdown === item.id || isActive(item.mainHref)
                       ? 'bg-blue-600 text-white' 
                       : 'text-blue-600 hover:bg-blue-50'

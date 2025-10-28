@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { packages } from '@/data/packages';
 import { destinations } from '@/data/destinations';
 
 export default function TravelOKHomepage() {
+  const [heroReady, setHeroReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setHeroReady(true), 10);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -20,7 +26,7 @@ export default function TravelOKHomepage() {
             priority
           />
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+        <div className={`relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 transition-all duration-700 ${heroReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
             DISCOVER EGYPT
           </h1>
