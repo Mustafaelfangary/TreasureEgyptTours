@@ -13,8 +13,8 @@ export default function TravelOKHomepage() {
       <div className="relative h-screen sm:h-screen lg:h-screen bg-gradient-to-b from-blue-900 to-blue-700" style={{ minHeight: 'calc(100vh - 4rem)' }}>
         <div className="absolute inset-0">
           <Image
-            src="/images/Royal Cleopatra/DSC_8502.jpg"
-            alt="Egyptian Nile Cruise"
+            src="/images/cultural&historical/DSC_8401.JPG"
+            alt="Egyptian Cultural and Historical"
             fill
             className="object-cover opacity-60"
             priority

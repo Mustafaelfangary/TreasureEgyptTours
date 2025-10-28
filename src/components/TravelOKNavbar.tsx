@@ -33,13 +33,13 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flagSvg: '/flags/us.svg', name: 'English' },
-  { code: 'ar', label: 'العربية', flagSvg: '/flags/eg.svg', name: 'العربية' },
-  { code: 'fr', label: 'Français', flagSvg: '/flags/fr.svg', name: 'Français' },
-  { code: 'de', label: 'Deutsch', flagSvg: '/flags/de.svg', name: 'Deutsch' },
-  { code: 'es', label: 'Español', flagSvg: '/flags/es.svg', name: 'Español' },
-  { code: 'it', label: 'Italiano', flagSvg: '/flags/it.svg', name: 'Italiano' },
-  { code: 'ru', label: 'Русский', flagSvg: '/flags/ru.svg', name: 'Русский' },
+  { code: 'en', label: 'English', flagSvg: '/images/flags/us.svg', name: 'English' },
+  { code: 'ar', label: 'العربية', flagSvg: '/images/flags/eg.svg', name: 'العربية' },
+  { code: 'fr', label: 'Français', flagSvg: '/images/flags/fr.svg', name: 'Français' },
+  { code: 'de', label: 'Deutsch', flagSvg: '/images/flags/de.svg', name: 'Deutsch' },
+  { code: 'es', label: 'Español', flagSvg: '/images/flags/es.svg', name: 'Español' },
+  { code: 'it', label: 'Italiano', flagSvg: '/images/flags/it.svg', name: 'Italiano' },
+  { code: 'ru', label: 'Русский', flagSvg: '/images/flags/ru.svg', name: 'Русский' },
 ];
 
 export default function TravelOKNavbar() {
@@ -697,6 +697,14 @@ export default function TravelOKNavbar() {
                   )}
                 </div>
               ))}
+              {/* Mobile Auth Link */}
+              <Link
+                href="/auth/signin"
+                className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                SIGN IN
+              </Link>
               <Link href="/schedule-and-rates" className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200" onClick={() => setMobileMenuOpen(false)}>
                 SCHEDULE & RATES
               </Link>
