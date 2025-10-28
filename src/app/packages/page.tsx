@@ -48,7 +48,7 @@ export default function PackagesPage() {
             price: 2850,
             destination: 'Luxor to Aswan',
             description: 'Comprehensive luxury journey featuring premium dahabiya accommodation, expert Egyptologist guides, and exclusive temple access with gourmet dining throughout.',
-            mainImage: '/images/packages-gallery-1.jpg'
+            mainImage: '/cultural&historical/Saqqara pyramid.jpg'
           },
           {
             id: '2',
@@ -57,7 +57,7 @@ export default function PackagesPage() {
             price: 4250,
             destination: 'Cairo to Aswan',
             description: 'Ultimate Egyptian experience combining luxury Nile cruise, Pyramids of Giza, Valley of Kings, premium hotels, and private cultural immersion experiences.',
-            mainImage: '/images/packages-gallery-2.jpg'
+            mainImage: '/desert&safary/DSC_9908.JPG'
           },
           {
             id: '3',
@@ -66,7 +66,7 @@ export default function PackagesPage() {
             price: 2150,
             destination: 'Aswan Highlights',
             description: 'Perfect couples retreat featuring boutique dahabiya, private dining experiences, spa treatments, sunset felucca rides, and personalized temple tours.',
-            mainImage: '/images/packages-gallery-3.jpg'
+            mainImage: '/Alexandria/IMG_6334.JPG'
           },
           {
             id: '4',
@@ -75,7 +75,7 @@ export default function PackagesPage() {
             price: 5200,
             destination: 'Full Egypt Circuit',
             description: 'Complete Egyptian odyssey from Alexandria to Abu Simbel, including all UNESCO sites, luxury accommodations, and private guided experiences.',
-            mainImage: '/images/Royal Cleopatra/DSC_8627.jpg'
+            mainImage: '/cultural&historical/DSC_8401.JPG'
           },
           {
             id: '5',
@@ -84,7 +84,7 @@ export default function PackagesPage() {
             price: 3400,
             destination: 'Luxor & Surrounds',
             description: 'Active exploration combining traditional Nile cruising with adventure activities, hot air ballooning, and archaeological site visits.',
-            mainImage: '/images/Royal Cleopatra/DSC_8733.jpg'
+            mainImage: '/desert&safary/DSC_9912.JPG'
           },
           {
             id: '6',
@@ -93,7 +93,7 @@ export default function PackagesPage() {
             price: 3950,
             destination: 'Cairo to Luxor',
             description: 'Family-friendly luxury experience with educational activities, spacious accommodations, and specially designed programs for younger travelers.',
-            mainImage: '/images/Royal Cleopatra/DSC_8848.jpg'
+            mainImage: '/Alexandria/IMG_6504.JPG'
           }
         ];
         setPackages(fallbackPackages);
@@ -138,7 +138,7 @@ export default function PackagesPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: 'url(/images/destinations/karnak-temple.jpg)',
+            backgroundImage: 'url(/cultural&historical/Saqqara pyramid.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: { xs: 'center', sm: 'center' },
             opacity: 0.3,
@@ -244,7 +244,7 @@ export default function PackagesPage() {
                   <CardMedia
                     component="img"
                     height="280"
-                    image={pkg.mainImage || pkg.mainImageUrl || '/images/package-placeholder.jpg'}
+                    image={pkg.mainImage || pkg.mainImageUrl || '/cultural&historical/DSCF1165.JPG'}
                     alt={pkg.name}
                     sx={{ objectFit: 'cover' }}
                   />

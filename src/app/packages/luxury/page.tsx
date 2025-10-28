@@ -27,42 +27,42 @@ interface LuxuryPackage {
 
 const luxuryGalleryImages = [
   {
-    src: '/images/Royal Cleopatra/DSC_8502.jpg',
+    src: '/Royal Cleopatra/DSC_8502.jpg',
     alt: 'Luxury Dahabiya Royal Suite',
     title: 'Presidential Suite'
   },
   {
-    src: '/images/Royal Cleopatra/DSC_8568.jpg',
+    src: '/Royal Cleopatra/DSC_8568.jpg',
     alt: 'Premium Dining Experience',
     title: 'Gourmet Dining'
   },
   {
-    src: '/images/Royal Cleopatra/DSC_8628.jpg',
+    src: '/Royal Cleopatra/DSC_8628.jpg',
     alt: 'Luxury Deck Experience',
     title: 'Exclusive Deck'
   },
   {
-    src: '/images/Royal Cleopatra/DSC_8735.jpg',
+    src: '/Royal Cleopatra/DSC_8735.jpg',
     alt: 'Private Spa Services',
     title: 'Spa & Wellness'
   },
   {
-    src: '/images/Royal Cleopatra/DSC_8848.jpg',
+    src: '/Royal Cleopatra/DSC_8848.jpg',
     alt: 'VIP Lounge Area',
     title: 'VIP Experience'
   },
   {
-    src: '/images/packages-gallery-1.jpg',
+    src: '/Royal Cleopatra/DSC_8653.jpg',
     alt: 'Luxury Temple Tour',
     title: 'Private Tours'
   },
   {
-    src: '/images/packages-gallery-2.jpg',
+    src: '/Royal Cleopatra/DSC_8666.jpg',
     alt: 'Premium Excursions',
     title: 'Exclusive Access'
   },
   {
-    src: '/images/packages-gallery-3.jpg',
+    src: '/Royal Cleopatra/DSC_8675.jpg',
     alt: 'Luxury Amenities',
     title: '5-Star Amenities'
   }
@@ -146,7 +146,7 @@ export default function LuxuryPackagesPage() {
     <div className="min-h-screen bg-gradient-to-b from-white via-amber-50 to-yellow-50">
       {/* Hero Section */}
       <UnifiedHero
-        imageSrc="/images/Royal Cleopatra/DSC_8502.jpg"
+        imageSrc="/Royal Cleopatra/DSC_8502.jpg"
         title="Luxury Packages"
         subtitle="Experience Egypt in Ultimate Elegance & Comfort"
         hieroglyphicTitle={false}
@@ -298,7 +298,7 @@ export default function LuxuryPackagesPage() {
                 <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 border-amber-200">
                   <div className="relative h-64">
                     <Image
-                      src={pkg.mainImageUrl || '/images/placeholder-luxury.jpg'}
+                      src={pkg.mainImageUrl || '/Royal Cleopatra/DSC_8507.jpg'}
                       alt={pkg.name}
                       fill
                       className="object-cover"
