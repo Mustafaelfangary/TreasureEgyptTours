@@ -47,7 +47,7 @@ export default function TravelOKNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [openViaClick, setOpenViaClick] = useState<string | null>(null);
   const [expandedMobileSections, setExpandedMobileSections] = useState<Record<string, boolean>>({});
-  const [logoUrl, setLogoUrl] = useState('/icons/altavida-logo-1.png');
+  const [logoUrl, setLogoUrl] = useState('/logos/treasureegypttours.svg');
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -91,9 +91,9 @@ export default function TravelOKNavbar() {
         if (response.ok) {
           const result = await response.json();
           if (result.logoUrl) {
-            // Ensure the logo URL has the correct path
-            const normalizedUrl = result.logoUrl.startsWith('/images/') 
-              ? result.logoUrl 
+            // Accept absolute URLs as-is; prefix relative filenames with /images/
+            const normalizedUrl = result.logoUrl.startsWith('/')
+              ? result.logoUrl
               : `/images/${result.logoUrl}`;
             setLogoUrl(normalizedUrl);
           }
@@ -563,7 +563,7 @@ export default function TravelOKNavbar() {
               <Link href="/" className="flex items-center">
                 <OptimizedImage 
                   src={logoUrl} 
-                  alt="AltaVida Tours" 
+                  alt="Treasure Egypt Tours" 
                   width={140}
                   height={45}
                   className="h-10 lg:h-12 w-auto transition-all duration-300"

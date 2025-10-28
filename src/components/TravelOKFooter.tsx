@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function TravelOKFooter() {
-  const [logoUrl, setLogoUrl] = useState('/icons/altavida-logo-1.png');
+  const [logoUrl, setLogoUrl] = useState('/logos/treasureegypttours.svg');
 
   useEffect(() => {
     const fetchLogo = async () => {
@@ -14,7 +14,7 @@ export default function TravelOKFooter() {
         if (res.ok) {
           const data = await res.json();
           if (data?.logoUrl) {
-            const normalized = data.logoUrl.startsWith('/') ? data.logoUrl : `/${data.logoUrl}`;
+            const normalized = data.logoUrl.startsWith('/') ? data.logoUrl : `/images/${data.logoUrl}`;
             setLogoUrl(normalized);
           }
         }
@@ -34,13 +34,13 @@ export default function TravelOKFooter() {
               <div className="flex items-center mb-4">
                 <Image 
                   src={logoUrl} 
-                  alt="AltaVida Tours" 
+                  alt="Treasure Egypt Tours" 
                   width={140}
                   height={40}
                   className="h-10 w-auto mr-3 invert"
                 />
                 <div>
-                  <div className="text-white font-bold text-xl leading-tight">AltaVida</div>
+                  <div className="text-white font-bold text-xl leading-tight">Treasure Egypt</div>
                   <div className="text-orange-300 font-bold text-base -mt-0.5 tracking-wide">TOURS</div>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function TravelOKFooter() {
               
               <div className="flex items-center space-x-3">
                 <span className="text-orange-300 text-lg">✉️</span>
-                <p className="text-sm text-blue-200">bookings@altavidatours.com</p>
+                <p className="text-sm text-blue-200">bookings@treasureegypttours.com</p>
               </div>
               
               <div className="flex items-center space-x-3">
@@ -141,7 +141,7 @@ export default function TravelOKFooter() {
         <div className="border-t border-blue-400 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-blue-200 mb-4 md:mb-0">
-              © 2024 AltaVida Tours. All rights reserved.
+              © 2024 Treasure Egypt Tours. All rights reserved.
             </div>
             
             <div className="flex items-center space-x-6">

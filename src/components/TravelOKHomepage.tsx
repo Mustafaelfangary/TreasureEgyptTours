@@ -13,7 +13,7 @@ export default function TravelOKHomepage() {
       <div className="relative h-screen sm:h-screen lg:h-screen bg-gradient-to-b from-blue-900 to-blue-700" style={{ minHeight: 'calc(100vh - 4rem)' }}>
         <div className="absolute inset-0">
           <Image
-            src="/Royal Cleopatra/DSC_8502.jpg"
+            src="/images/Royal Cleopatra/DSC_8502.jpg"
             alt="Egyptian Nile Cruise"
             fill
             className="object-cover opacity-60"
@@ -154,30 +154,30 @@ export default function TravelOKHomepage() {
               const getImageForPackage = () => {
                 if (pkg.type === 'luxury' || pkg.type === 'cruise') {
                   const royal = [
-                    '/Royal Cleopatra/DSC_8627.jpg',
-                    '/Royal Cleopatra/DSC_8733.jpg',
-                    '/Royal Cleopatra/DSC_8848.jpg',
-                    '/Royal Cleopatra/DSC_8653.jpg',
-                    '/Royal Cleopatra/DSC_8666.jpg',
-                    '/Royal Cleopatra/DSC_8675.jpg'
+                    '/images/Royal Cleopatra/DSC_8627.jpg',
+                    '/images/Royal Cleopatra/DSC_8733.jpg',
+                    '/images/Royal Cleopatra/DSC_8848.jpg',
+                    '/images/Royal Cleopatra/DSC_8653.jpg',
+                    '/images/Royal Cleopatra/DSC_8666.jpg',
+                    '/images/Royal Cleopatra/DSC_8675.jpg'
                   ];
                   return royal[index % royal.length];
                 }
                 if (pkg.type === 'adventure') {
                   const desert = [
-                    '/desert&safary/DSC_9908.JPG',
-                    '/desert&safary/DSC_9912.JPG',
-                    '/desert&safary/DSC_9895.JPG',
-                    '/desert&safary/DSC_9826.JPG'
+                    '/images/desert&safary/DSC_9908.JPG',
+                    '/images/desert&safary/DSC_9912.JPG',
+                    '/images/desert&safary/DSC_9895.JPG',
+                    '/images/desert&safary/DSC_9826.JPG'
                   ];
                   return desert[index % desert.length];
                 }
                 // classic, cultural, or others
                 const cultural = [
-                  '/cultural&historical/Saqqara pyramid.jpg',
-                  '/cultural&historical/DSC_8401.JPG',
-                  '/cultural&historical/DSCF1165.JPG',
-                  '/cultural&historical/IMG_3143.JPG'
+                  '/images/cultural&historical/Saqqara pyramid.jpg',
+                  '/images/cultural&historical/DSC_8401.JPG',
+                  '/images/cultural&historical/DSCF1165.JPG',
+                  '/images/cultural&historical/IMG_3143.JPG'
                 ];
                 return cultural[index % cultural.length];
               };
@@ -259,7 +259,7 @@ export default function TravelOKHomepage() {
           <div className="md:flex">
             <div className="md:w-1/2">
               <Image
-                src="/Royal Cleopatra/DSC_8568.jpg"
+                src="/images/Royal Cleopatra/DSC_8568.jpg"
                 alt="Luxury Dahabiya Cruise"
                 width={600}
                 height={400}
@@ -300,14 +300,14 @@ export default function TravelOKHomepage() {
             {destinations.slice(0, 8).map((destination, index) => {
               // Use available destination images
               const destinationImages = [
-                '/cultural&historical/Saqqara pyramid.jpg',
-                '/Alexandria/IMG_6334.JPG',
-                '/desert&safary/DSC_9166.JPG',
-                '/desert&safary/DSC_9826.JPG',
-                '/Alexandria/IMG_6504.JPG',
-                '/cultural&historical/DSC_8401.JPG',
-                '/cultural&historical/DSCF1165.JPG',
-                '/desert&safary/DSC_9912.JPG'
+                '/images/cultural&historical/Saqqara pyramid.jpg',
+                '/images/Alexandria/IMG_6334.JPG',
+                '/images/desert&safary/DSC_9166.JPG',
+                '/images/desert&safary/DSC_9826.JPG',
+                '/images/Alexandria/IMG_6504.JPG',
+                '/images/cultural&historical/DSC_8401.JPG',
+                '/images/cultural&historical/DSCF1165.JPG',
+                '/images/desert&safary/DSC_9912.JPG'
               ];
               return (
               <div key={destination.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
@@ -319,7 +319,7 @@ export default function TravelOKHomepage() {
                     height={200}
                     className="w-full h-48 object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = destination.image || '/Royal Cleopatra/DSC_8507.jpg';
+                      e.currentTarget.src = destination.image || '/images/Royal Cleopatra/DSC_8507.jpg';
                     }}
                   />
                   <div className="absolute top-4 left-4 bg-travelok-orange text-white px-3 py-1 rounded-full text-sm font-semibold">
@@ -407,13 +407,13 @@ export default function TravelOKHomepage() {
             </h3>
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
               <Image
-                src="/Royal Cleopatra/DSC_8507.jpg"
+                src="/images/Royal Cleopatra/DSC_8507.jpg"
                 alt="Ancient Egyptian Heritage Sites"
                 width={600}
                 height={300}
                 className="w-full h-64 object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = '/Royal Cleopatra/DSC_8507.jpg';
+                  e.currentTarget.src = '/images/Royal Cleopatra/DSC_8507.jpg';
                 }}
               />
               <div className="p-6">
@@ -431,13 +431,13 @@ export default function TravelOKHomepage() {
             </h3>
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
               <Image
-                src="/Royal Cleopatra/DSC_8628.jpg"
+                src="/images/Royal Cleopatra/DSC_8628.jpg"
                 alt="Nile River Experiences"
                 width={600}
                 height={300}
                 className="w-full h-64 object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = '/Royal Cleopatra/DSC_8628.jpg';
+                  e.currentTarget.src = '/images/Royal Cleopatra/DSC_8628.jpg';
                 }}
               />
               <div className="p-6">

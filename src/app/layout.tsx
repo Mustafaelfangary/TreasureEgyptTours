@@ -57,14 +57,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         {/* Preload site logo to prevent flicker on initial paint */}
-        <link rel="preload" as="image" href="/icons/altavida-logo-1.png" />
+        <link rel="preload" as="image" href="/logos/treasureegypttours.svg" />
 
         {/* PWA meta tags */}
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="AltaVida Tours" />
+        <meta name="apple-mobile-web-app-title" content="Treasure Egypt Tours" />
 
         {/* Favicon and app icons */}
         <link rel="icon" href="/logos/treasureegypttours.ico" sizes="any" />
@@ -86,7 +86,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "AltaVida Tours",
+              "name": "Treasure Egypt Tours",
               "url": process.env.NEXT_PUBLIC_SITE_URL || "https://www.altavidatours.com",
               "potentialAction": {
                 "@type": "SearchAction",
