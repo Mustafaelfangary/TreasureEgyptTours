@@ -29,7 +29,7 @@ export default function LogoLoader({
   fullScreen = true
 }: LogoLoaderProps) {
   const { width, height, containerClass } = sizeMap[size];
-  const [logoUrl, setLogoUrl] = useState<string>('/altavida-logo-1.png');
+  const [logoUrl, setLogoUrl] = useState<string>('/logos/treasureegypttours.svg');
   const [loadedOnce, setLoadedOnce] = useState<boolean>(false);
 
   // Fetch the same logo used by the site/navbar so the loader always matches
@@ -71,8 +71,8 @@ export default function LogoLoader({
         )}
       >
         <Image
-          src={logoUrl || '/altavida-logo-1.png'}
-          alt="Altavida Tours Logo"
+          src={logoUrl || '/logos/treasureegypttours.svg'}
+          alt="Treasure Egypt Tours Logo"
           width={width}
           height={height}
           className={cn(
@@ -85,8 +85,8 @@ export default function LogoLoader({
           onLoad={() => setLoadedOnce(true)}
           onError={() => {
             // fallback to default if the provided URL fails
-            if (logoUrl !== '/altavida-logo-1.png') {
-              setLogoUrl('/altavida-logo-1.png');
+            if (logoUrl !== '/logos/treasureegypttours.svg') {
+              setLogoUrl('/logos/treasureegypttours.svg');
             }
           }}
         />
