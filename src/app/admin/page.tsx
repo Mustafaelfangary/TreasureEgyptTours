@@ -68,7 +68,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-96">
           <CardContent className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3\"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('common.loading')}</h1>
             <p className="text-gray-600">{t('common.loading')}</p>
           </CardContent>
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-3 sm:p-4\">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -350,12 +350,12 @@ export default function AdminDashboard() {
             {/* Availability Management */}
             <Link href="/admin/availability">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-amber-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
                       <Calendar className="w-6 h-6 text-amber-600" />
                     </div>
-<Badge className="bg-amber-100 text-amber-800 text-xs">Schedule</Badge>
+                  <Badge className="bg-amber-100 text-amber-800 text-xs">Schedule</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Availability</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">Manage scheduling and availability calendar</p>
@@ -367,12 +367,12 @@ export default function AdminDashboard() {
             {/* Itineraries Management */}
             <Link href="/admin/itineraries">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-orange-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
                       <MapPin className="w-6 h-6 text-orange-600" />
                     </div>
-<Badge className="bg-orange-100 text-orange-800 text-xs">Routes</Badge>
+                  <Badge className="bg-orange-100 text-orange-800 text-xs">Routes</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Itineraries</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">Manage journey routes and travel itineraries</p>
@@ -384,12 +384,12 @@ export default function AdminDashboard() {
             {/* Reviews Management */}
             <Link href="/admin/reviews">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-yellow-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                       <Star className="w-6 h-6 text-yellow-600" />
                     </div>
-<Badge className="bg-yellow-100 text-yellow-800 text-xs">Feedback</Badge>
+                  <Badge className="bg-yellow-100 text-yellow-800 text-xs">Feedback</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Reviews</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">Manage customer reviews and testimonials</p>
@@ -410,12 +410,12 @@ export default function AdminDashboard() {
             {/* General Settings */}
             <Link href="/admin/settings">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-gray-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                       <Settings className="w-6 h-6 text-gray-600" />
                     </div>
-<Badge className="bg-gray-100 text-gray-800 text-xs">Config</Badge>
+                  <Badge className="bg-gray-100 text-gray-800 text-xs">Config</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Settings</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">System configuration and general settings</p>
@@ -427,12 +427,12 @@ export default function AdminDashboard() {
             {/* Email & Notifications */}
             <Link href="/admin/notification-settings">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-red-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                       <Bell className="w-6 h-6 text-red-600" />
                     </div>
-<Badge className="bg-red-100 text-red-800 text-xs">Alerts</Badge>
+                  <Badge className="bg-red-100 text-red-800 text-xs">Alerts</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Notifications</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">Email templates and notification settings</p>
@@ -444,12 +444,12 @@ export default function AdminDashboard() {
             {/* Developer Tools */}
             <Link href="/admin/developer-settings">
               <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full border-l-4 border-l-slate-500">
-                <CardContent className="p-4\">
-                  <div className="flex items-center justify-between mb-3\">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
                       <Code className="w-6 h-6 text-slate-600" />
                     </div>
-<Badge className="bg-slate-100 text-slate-800 text-xs">Dev</Badge>
+                  <Badge className="bg-slate-100 text-slate-800 text-xs">Dev</Badge>
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">Developer</h3>
                   <p className="text-xs text-gray-600 mb-3 line-clamp-2">Advanced tools and development settings</p>

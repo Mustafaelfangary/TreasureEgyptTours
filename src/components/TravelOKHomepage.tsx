@@ -5,9 +5,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { packages } from '@/data/packages';
 import { destinations } from '@/data/destinations';
+import { useContent } from '@/hooks/useContent';
 
 export default function TravelOKHomepage() {
   const [heroReady, setHeroReady] = useState(false);
+  const { getContent } = useContent({ page: 'homepage' });
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 10);
     return () => clearTimeout(t);
@@ -19,8 +21,8 @@ export default function TravelOKHomepage() {
       <div className="relative h-screen sm:h-screen lg:h-screen bg-gradient-to-b from-blue-900 to-blue-700" style={{ minHeight: 'calc(100vh - 4rem)' }}>
         <div className="absolute inset-0">
           <Image
-            src="/images/cultural&historical/DSC_8401.JPG"
-            alt="Egyptian Cultural and Historical"
+            src={getContent('hero_video_poster', '/images/cultural&historical/DSC_8401.JPG')}
+            alt={getContent('hero_video_title', 'Discover Egypt')}
             fill
             className="object-cover opacity-60"
             priority
@@ -28,27 +30,26 @@ export default function TravelOKHomepage() {
         </div>
         <div className={`relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 transition-all duration-700 ${heroReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-            DISCOVER EGYPT
+            {getContent('hero_video_title', 'DISCOVER EGYPT')}
           </h1>
           <h2 className="text-lg sm:text-xl md:text-2xl lg:text-4xl mb-6 sm:mb-8 font-light leading-relaxed">
-            Land of Pharaohs & Ancient Wonders
+            {getContent('hero_video_subtitle', 'Land of Pharaohs & Ancient Wonders')}
           </h2>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-12 max-w-3xl leading-relaxed px-4 sm:px-0">
-            Journey through 5,000 years of history. From the Great Pyramids to bustling bazaars, 
-            experience the magic and mystery of Egypt with our expertly crafted tours.
+            {getContent('homepage_hero_description', 'Journey through 5,000 years of history. From the Great Pyramids to bustling bazaars, experience the magic and mystery of Egypt with our expertly crafted tours.')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4 sm:px-0">
             <Link 
-              href="/tours"
+              href={getContent('hero_video_cta_link', '/tours')}
               className="bg-travelok-orange hover:bg-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors text-center min-h-[48px] flex items-center justify-center"
             >
-              EXPLORE TOURS
+              {getContent('hero_video_cta_text', 'EXPLORE TOURS')}
             </Link>
             <Link 
-              href="/attractions"
+              href={getContent('hero_video_secondary_cta_link', '/attractions')}
               className="border-2 border-white text-white hover:bg-white hover:text-travelok-blue px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors text-center min-h-[48px] flex items-center justify-center"
             >
-              VIEW ATTRACTIONS
+              {getContent('hero_video_secondary_cta_text', 'VIEW ATTRACTIONS')}
             </Link>
           </div>
         </div>
@@ -58,7 +59,7 @@ export default function TravelOKHomepage() {
       <div className="bg-travelok-blue text-white">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center py-4">
-            <h2 className="text-2xl font-bold tracking-wider">THINGS TO DO</h2>
+            <h2 className="text-2xl font-bold tracking-wider">{getContent('homepage_things_to_do_title', 'THINGS TO DO')}</h2>
           </div>
         </div>
       </div>
@@ -147,10 +148,10 @@ export default function TravelOKHomepage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-travelok-blue mb-4">
-              FEATURED <span className="border-b-4 border-travelok-orange px-2">TOUR</span> PACKAGES
+              {getContent('homepage_featured_packages_title', 'FEATURED ')}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover our most popular Egypt tour packages, carefully crafted to give you the best experience of this magnificent country.
+              {getContent('homepage_featured_packages_subtitle', 'Discover our most popular Egypt tour packages, carefully crafted to give you the best experience of this magnificent country.')}
             </p>
           </div>
           
@@ -245,7 +246,7 @@ export default function TravelOKHomepage() {
               href="/packages"
               className="bg-travelok-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-block"
             >
-              View All Packages
+              {getContent('homepage_view_all_packages_text', 'View All Packages')}
             </Link>
           </div>
         </div>
@@ -255,7 +256,7 @@ export default function TravelOKHomepage() {
       <div className="bg-travelok-orange text-white">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center py-4">
-            <h2 className="text-2xl font-bold tracking-wider">FEATURED EXPERIENCE</h2>
+            <h2 className="text-2xl font-bold tracking-wider">{getContent('homepage_featured_experience_title', 'FEATURED EXPERIENCE')}</h2>
           </div>
         </div>
       </div>
@@ -298,7 +299,7 @@ export default function TravelOKHomepage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-travelok-blue mb-4">
-              DISCOVER <span className="border-b-4 border-travelok-orange px-2">ANCIENT</span> EGYPT
+              {getContent('homepage_discover_egypt_title', 'DISCOVER ANCIENT EGYPT')}
             </h2>
           </div>
 
@@ -348,7 +349,7 @@ export default function TravelOKHomepage() {
               href="/articles" 
               className="inline-block bg-travelok-blue text-white px-8 py-4 text-lg font-semibold rounded hover:bg-travelok-orange transition-colors"
             >
-              View All Articles
+              {getContent('homepage_view_all_articles_text', 'View All Articles')}
             </Link>
           </div>
         </div>

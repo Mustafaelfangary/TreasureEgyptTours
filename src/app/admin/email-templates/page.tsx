@@ -95,7 +95,7 @@ export default function EmailTemplatesPage() {
         const data = await response.json();
         setTemplates(data.templates || []);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching templates:', error);
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ export default function EmailTemplatesPage() {
         const data = await response.json();
         setSettings(data.settings || settings);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching settings:', error);
     }
   };
@@ -129,7 +129,7 @@ export default function EmailTemplatesPage() {
       } else {
         toast.error('Failed to save template');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to save template');
     } finally {
       setSaving(false);
@@ -150,7 +150,7 @@ export default function EmailTemplatesPage() {
       } else {
         toast.error('Failed to save settings');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to save settings');
     } finally {
       setSaving(false);
@@ -174,7 +174,7 @@ export default function EmailTemplatesPage() {
       } else {
         toast.error('Failed to send test email');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to send test email');
     } finally {
       setTesting(false);

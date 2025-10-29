@@ -49,7 +49,11 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'hero_video_poster', title: 'Hero Video Poster', content: '', contentType: 'IMAGE', description: 'Video poster/thumbnail' },
           { key: 'hero_video_title', title: 'Hero Title', content: '', contentType: 'TEXT', description: 'Main hero heading' },
           { key: 'hero_video_subtitle', title: 'Hero Subtitle', content: '', contentType: 'TEXT', description: 'Hero subheading' },
+          { key: 'homepage_hero_description', title: 'Hero Description', content: '', contentType: 'TEXTAREA', description: 'Paragraph under hero title' },
           { key: 'hero_video_cta_text', title: 'Hero CTA Button', content: '', contentType: 'TEXT', description: 'Call-to-action button text' },
+          { key: 'hero_video_cta_link', title: 'Hero CTA Link', content: '', contentType: 'URL', description: 'Call-to-action button link' },
+          { key: 'hero_video_secondary_cta_text', title: 'Secondary CTA Button', content: '', contentType: 'TEXT', description: 'Secondary CTA button text' },
+          { key: 'hero_video_secondary_cta_link', title: 'Secondary CTA Link', content: '', contentType: 'URL', description: 'Secondary CTA button link' },
           { key: 'hero_scroll_text', title: 'Scroll Indicator Text', content: '', contentType: 'TEXT', description: 'Scroll down indicator' }
         ]
       },
@@ -156,7 +160,16 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
         fields: [
           { key: 'loading_text', title: 'Loading Text', content: '', contentType: 'TEXT' },
           { key: 'read_more_text', title: 'Read More Text', content: '', contentType: 'TEXT' },
-          { key: 'read_less_text', title: 'Read Less Text', content: '', contentType: 'TEXT' }
+          { key: 'read_less_text', title: 'Read Less Text', content: '', contentType: 'TEXT' },
+          // Homepage section headings and buttons
+          { key: 'homepage_things_to_do_title', title: 'Things To Do Title', content: '', contentType: 'TEXT' },
+          { key: 'homepage_featured_packages_title', title: 'Featured Packages Title', content: '', contentType: 'TEXT' },
+          { key: 'homepage_featured_packages_subtitle', title: 'Featured Packages Subtitle', content: '', contentType: 'TEXTAREA' },
+          { key: 'homepage_featured_experience_title', title: 'Featured Experience Title', content: '', contentType: 'TEXT' },
+          { key: 'homepage_discover_egypt_title', title: 'Discover Egypt Title', content: '', contentType: 'TEXT' },
+          { key: 'homepage_destinations_title', title: 'Destinations Title', content: '', contentType: 'TEXT' },
+          { key: 'homepage_view_all_packages_text', title: 'View All Packages Button', content: '', contentType: 'TEXT' },
+          { key: 'homepage_view_all_articles_text', title: 'View All Articles Button', content: '', contentType: 'TEXT' }
         ]
       }
     }
@@ -286,17 +299,24 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
       social_media: {
         label: 'Social Media Links',
         fields: [
-          { key: 'contact_facebook', title: 'Facebook URL', content: '', contentType: 'URL' },
-          { key: 'contact_instagram', title: 'Instagram URL', content: '', contentType: 'URL' },
-          { key: 'contact_x', title: 'X (Twitter) URL', content: '', contentType: 'URL' },
-          { key: 'contact_youtube', title: 'YouTube URL', content: '', contentType: 'URL' },
-          { key: 'contact_tiktok', title: 'TikTok URL', content: '', contentType: 'URL' },
-          { key: 'contact_pinterest', title: 'Pinterest URL', content: '', contentType: 'URL' },
-          { key: 'contact_tripadvisor', title: 'TripAdvisor URL', content: '', contentType: 'URL' },
-          { key: 'contact_whatsapp', title: 'WhatsApp URL', content: '', contentType: 'URL' },
-          { key: 'contact_telegram', title: 'Telegram URL', content: '', contentType: 'URL' },
-          { key: 'contact_wechat', title: 'WeChat ID', content: '', contentType: 'TEXT' },
-          { key: 'contact_vk', title: 'VK URL', content: '', contentType: 'URL' }
+          // Keys used by the live Contact page
+          { key: 'whatsapp_link', title: 'WhatsApp URL', content: '', contentType: 'URL' },
+          { key: 'telegram_link', title: 'Telegram URL', content: '', contentType: 'URL' },
+          { key: 'facebook_link', title: 'Facebook URL', content: '', contentType: 'URL' },
+          { key: 'instagram_link', title: 'Instagram URL', content: '', contentType: 'URL' },
+
+          // Backwards-compatible keys (still editable if present)
+          { key: 'contact_facebook', title: 'Facebook URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_instagram', title: 'Instagram URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_x', title: 'X (Twitter) URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_youtube', title: 'YouTube URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_tiktok', title: 'TikTok URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_pinterest', title: 'Pinterest URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_tripadvisor', title: 'TripAdvisor URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_whatsapp', title: 'WhatsApp URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_telegram', title: 'Telegram URL (legacy)', content: '', contentType: 'URL' },
+          { key: 'contact_wechat', title: 'WeChat ID (legacy)', content: '', contentType: 'TEXT' },
+          { key: 'contact_vk', title: 'VK URL (legacy)', content: '', contentType: 'URL' }
         ]
       },
       general: {
@@ -384,8 +404,10 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'itineraries_hero_title', title: 'Hero Title', content: '', contentType: 'TEXT' },
           { key: 'itineraries_hero_subtitle', title: 'Hero Subtitle', content: '', contentType: 'TEXT' },
           { key: 'itineraries_hero_description', title: 'Hero Description', content: '', contentType: 'TEXTAREA' },
-          { key: 'itineraries_hero_background_image', title: 'Hero Background Image', content: '', contentType: 'IMAGE' },
-          { key: 'itineraries_hero_background_video', title: 'Hero Background Video', content: '', contentType: 'VIDEO' }
+          { key: 'itineraries_hero_background_image', title: 'Hero Background Image (legacy)', content: '', contentType: 'IMAGE' },
+          { key: 'itineraries_hero_background_video', title: 'Hero Background Video (legacy)', content: '', contentType: 'VIDEO' },
+          { key: 'itineraries_hero_image', title: 'Hero Image', content: '', contentType: 'IMAGE' },
+          { key: 'itineraries_hero_video', title: 'Hero Video', content: '', contentType: 'VIDEO' }
         ]
       },
       content: {
@@ -395,9 +417,13 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'itineraries_page_subtitle', title: 'Page Subtitle', content: '', contentType: 'TEXT' },
           { key: 'itineraries_page_description', title: 'Page Description', content: '', contentType: 'TEXTAREA' },
           { key: 'itineraries_filter_all_text', title: 'Filter All Text', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_filter_featured_text', title: 'Filter Featured Text', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_filter_short_text', title: 'Filter Short Text', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_filter_long_text', title: 'Filter Long Text', content: '', contentType: 'TEXT' },
           { key: 'itineraries_view_details_text', title: 'View Details Button', content: '', contentType: 'TEXT' },
           { key: 'itineraries_days_label', title: 'Days Label', content: '', contentType: 'TEXT' },
-          { key: 'itineraries_from_label', title: 'From Price Label', content: '', contentType: 'TEXT' }
+          { key: 'itineraries_from_label', title: 'From Price Label', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_loading_text', title: 'Loading Text', content: '', contentType: 'TEXT' }
         ]
       },
       cta: {
@@ -408,7 +434,10 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'itineraries_cta_book_title', title: 'Book Button Title', content: '', contentType: 'TEXT' },
           { key: 'itineraries_cta_book_subtitle', title: 'Book Button Subtitle', content: '', contentType: 'TEXT' },
           { key: 'itineraries_cta_contact_title', title: 'Contact Button Title', content: '', contentType: 'TEXT' },
-          { key: 'itineraries_cta_contact_subtitle', title: 'Contact Button Subtitle', content: '', contentType: 'TEXT' }
+          { key: 'itineraries_cta_contact_subtitle', title: 'Contact Button Subtitle', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_hero_cta_text', title: 'Hero CTA Button Text', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_cta_primary_text', title: 'Primary CTA Button Text', content: '', contentType: 'TEXT' },
+          { key: 'itineraries_cta_secondary_text', title: 'Secondary CTA Button Text', content: '', contentType: 'TEXT' }
         ]
       },
       features: {
@@ -447,7 +476,10 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'footer_quick_links_title', title: 'Quick Links Title', content: '', contentType: 'TEXT' },
           { key: 'footer-link-home', title: 'Home Link', content: '', contentType: 'TEXT' },
           { key: 'footer-link-about', title: 'About Link', content: '', contentType: 'TEXT' },
-          { key: 'footer-link-dahabiyat', title: 'Dahabiyat Link', content: '', contentType: 'TEXT' },
+          { key: 'footer-link-dahabiyat', title: 'Dahabiyat Link (legacy)', content: '', contentType: 'TEXT' },
+          { key: 'footer-link-dahabiyas', title: 'Dahabiyas Link', content: '', contentType: 'TEXT' },
+          { key: 'footer-link-itineraries', title: 'Itineraries Link', content: '', contentType: 'TEXT' },
+          { key: 'footer-link-destinations', title: 'Destinations Link', content: '', contentType: 'TEXT' },
           { key: 'footer-link-packages', title: 'Packages Link', content: '', contentType: 'TEXT' },
           { key: 'footer-link-contact', title: 'Contact Link', content: '', contentType: 'TEXT' }
         ]
@@ -501,6 +533,30 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
           { key: 'navbar_logo', title: 'Navbar Logo', content: '', contentType: 'IMAGE', description: 'Logo in navigation bar' },
           { key: 'footer_logo', title: 'Footer Logo', content: '', contentType: 'IMAGE', description: 'Logo in footer' },
           { key: 'site_favicon', title: 'Favicon', content: '', contentType: 'IMAGE', description: 'Browser tab icon' }
+        ]
+      }
+    }
+  },
+  {
+    id: 'global_media',
+    label: 'Global Media',
+    icon: Image,
+    sections: {
+      hero: {
+        label: 'Hero Fallbacks',
+        fields: [
+          { key: 'hero_fallback_image', title: 'Hero Fallback Image', content: '', contentType: 'IMAGE' }
+        ]
+      },
+      developer: {
+        label: 'Developer Contact',
+        fields: [
+          { key: 'footer_developer_logo', title: 'Developer Logo', content: '', contentType: 'IMAGE' },
+          { key: 'footer_developer_contact_text', title: 'Developer Contact Text', content: '', contentType: 'TEXT' },
+          { key: 'footer_developer_contact_url', title: 'Developer Contact URL', content: '', contentType: 'URL' },
+          { key: 'footer_developer_phone', title: 'Developer Phone', content: '', contentType: 'TEXT' },
+          { key: 'footer_developer_phone_url', title: 'Developer Phone URL', content: '', contentType: 'URL' },
+          { key: 'footer_developer_contact_modal_title', title: 'Developer Contact Modal Title', content: '', contentType: 'TEXT' }
         ]
       }
     }

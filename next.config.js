@@ -81,6 +81,15 @@ const nextConfig = {
       { source: '/blog/:slug', destination: '/blogs/:slug', permanent: true },
       { source: '/gallery-new', destination: '/gallery', permanent: true },
       { source: '/dahabiyat', destination: '/dahabiyas', permanent: true },
+      { source: '/dahabiya', destination: '/dahabiyas', permanent: true },
+      { source: '/itinerary', destination: '/itineraries', permanent: true },
+      { source: '/itinerary/:slug', destination: '/itineraries/:slug', permanent: true },
+      { source: '/package', destination: '/packages', permanent: true },
+      { source: '/package/:slug', destination: '/packages/:slug', permanent: true },
+      { source: '/admin/login', destination: '/admin-login', permanent: true },
+      { source: '/admin/verify', destination: '/admin-verify', permanent: true },
+      { source: '/admin/direct', destination: '/admin-direct', permanent: true },
+      { source: '/admin/dashboard', destination: '/admin', permanent: true },
       { source: '/schedule-and-rates', destination: '/', permanent: true }
     ];
   },
