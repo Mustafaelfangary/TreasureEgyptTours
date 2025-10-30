@@ -49,6 +49,8 @@ export default function TravelOKNavbar() {
   const [expandedMobileSections, setExpandedMobileSections] = useState<Record<string, boolean>>({});
   const [logoUrl, setLogoUrl] = useState('/logos/treasureegypttours.svg');
   const [scrolled, setScrolled] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { data: session } = useSession();
   const { locale, setLocale } = useLanguage();
@@ -84,6 +86,20 @@ export default function TravelOKNavbar() {
       }
     };
   }, []);
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    if (profileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [profileMenuOpen]);
 
   // Fetch logo
   useEffect(() => {
@@ -592,28 +608,66 @@ export default function TravelOKNavbar() {
 
               {/* Auth Section */}
               {session ? (
-                <div className="relative group px-4">
-                  <button className="flex items-center space-x-2 text-[13px] font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200">
+                <div className="relative px-4" ref={profileMenuRef}>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setProfileMenuOpen(!profileMenuOpen);
+                    }}
+                    className="flex items-center space-x-2 text-[13px] font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200 cursor-pointer"
+                    type="button"
+                  >
                     <UserCircle size={20} />
                     <span className="hidden xl:inline">{session.user?.name || 'Account'}</span>
-                    <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                    <ChevronDown size={14} className={`transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <Link href="/profile" className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150">
-                      <User size={16} />
-                      <span>Profile</span>
-                    </Link>
-                    {session.user?.role === 'ADMIN' && (
-                      <Link href="/admin" className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150">
-                        <LayoutDashboard size={16} />
-                        <span>Admin Panel</span>
+                  {profileMenuOpen && (
+                    <div 
+                      data-dropdown="profile-menu"
+                      role="menu"
+                      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 min-w-[200px] z-[9999] pointer-events-auto"
+                      style={{ position: 'absolute' }}
+                    >
+                      <Link 
+                        href="/profile" 
+                        className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150 cursor-pointer no-underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProfileMenuOpen(false);
+                        }}
+                      >
+                        <User size={16} />
+                        <span>Profile</span>
                       </Link>
-                    )}
-                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-red-50 flex items-center space-x-2 transition-colors duration-150">
-                      <LogOut size={16} />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
+                      {session.user?.role === 'ADMIN' && (
+                        <Link 
+                          href="/admin" 
+                          className="flex items-center space-x-2 px-4 py-2 text-[13px] text-gray-700 hover:bg-blue-50 transition-colors duration-150 cursor-pointer no-underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProfileMenuOpen(false);
+                          }}
+                        >
+                          <LayoutDashboard size={16} />
+                          <span>Admin Panel</span>
+                        </Link>
+                      )}
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProfileMenuOpen(false);
+                          handleSignOut();
+                        }} 
+                        className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-red-50 flex items-center space-x-2 transition-colors duration-150 cursor-pointer border-0 bg-transparent"
+                      >
+                        <LogOut size={16} />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Link
@@ -697,14 +751,47 @@ export default function TravelOKNavbar() {
                   )}
                 </div>
               ))}
-              {/* Mobile Auth Link */}
-              <Link
-                href="/auth/signin"
-                className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                SIGN IN
-              </Link>
+              {/* Mobile Auth Section */}
+              {session ? (
+                <>
+                  <Link
+                    href="/profile"
+                    className="flex items-center space-x-2 px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <User size={18} />
+                    <span>MY PROFILE</span>
+                  </Link>
+                  {session.user?.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center space-x-2 px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <LayoutDashboard size={18} />
+                      <span>ADMIN PANEL</span>
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                    className="w-full flex items-center space-x-2 px-6 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors duration-200"
+                  >
+                    <LogOut size={18} />
+                    <span>SIGN OUT</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  SIGN IN
+                </Link>
+              )}
               
               <Link href="/gallery" className="block px-6 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors duration-200" onClick={() => setMobileMenuOpen(false)}>
                 GALLERY

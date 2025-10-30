@@ -47,14 +47,18 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
         fields: [
           { key: 'hero_video_url', title: 'Hero Video URL', content: '', contentType: 'VIDEO', description: 'Main hero video file' },
           { key: 'hero_video_poster', title: 'Hero Video Poster', content: '', contentType: 'IMAGE', description: 'Video poster/thumbnail' },
-          { key: 'hero_video_title', title: 'Hero Title', content: '', contentType: 'TEXT', description: 'Main hero heading' },
-          { key: 'hero_video_subtitle', title: 'Hero Subtitle', content: '', contentType: 'TEXT', description: 'Hero subheading' },
-          { key: 'homepage_hero_description', title: 'Hero Description', content: '', contentType: 'TEXTAREA', description: 'Paragraph under hero title' },
-          { key: 'hero_video_cta_text', title: 'Hero CTA Button', content: '', contentType: 'TEXT', description: 'Call-to-action button text' },
-          { key: 'hero_video_cta_link', title: 'Hero CTA Link', content: '', contentType: 'URL', description: 'Call-to-action button link' },
-          { key: 'hero_video_secondary_cta_text', title: 'Secondary CTA Button', content: '', contentType: 'TEXT', description: 'Secondary CTA button text' },
-          { key: 'hero_video_secondary_cta_link', title: 'Secondary CTA Link', content: '', contentType: 'URL', description: 'Secondary CTA button link' },
-          { key: 'hero_scroll_text', title: 'Scroll Indicator Text', content: '', contentType: 'TEXT', description: 'Scroll down indicator' }
+          { key: 'hero_video_title', title: 'Hero Title', content: 'DISCOVER EGYPT', contentType: 'TEXT', description: 'Main hero heading' },
+          { key: 'hero_video_subtitle', title: 'Hero Subtitle', content: 'Land of Pharaohs & Ancient Wonders', contentType: 'TEXT', description: 'Hero subheading' },
+          { key: 'homepage_hero_description', title: 'Hero Description', 
+            content: 'Journey through 5,000 years of history. From the Great Pyramids to bustling bazaars, experience the magic and mystery of Egypt with our expertly crafted tours.', 
+            contentType: 'TEXTAREA', 
+            description: 'Paragraph under hero title' 
+          },
+          { key: 'hero_video_cta_text', title: 'Primary CTA Text', content: 'EXPLORE TOURS', contentType: 'TEXT', description: 'Call-to-action button text' },
+          { key: 'hero_video_cta_link', title: 'Primary CTA Link', content: '/tours', contentType: 'URL', description: 'Call-to-action button link' },
+          { key: 'hero_video_secondary_cta_text', title: 'Secondary CTA Text', content: 'VIEW DESTINATIONS', contentType: 'TEXT', description: 'Secondary CTA button text' },
+          { key: 'hero_video_secondary_cta_link', title: 'Secondary CTA Link', content: '/destinations', contentType: 'URL', description: 'Secondary CTA button link' },
+          { key: 'hero_scroll_text', title: 'Scroll Indicator Text', content: 'Scroll to explore', contentType: 'TEXT', description: 'Scroll down indicator' }
         ]
       },
       hero_side_boxes: {
@@ -69,44 +73,96 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
       dahabiyas: {
         label: 'Dahabiyas Section',
         fields: [
-          { key: 'dahabiyat_section_title', title: 'Section Title', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyat_section_subtitle', title: 'Section Subtitle', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyat_view_all_text', title: 'View All Button', content: '', contentType: 'TEXT' }
+          { key: 'dahabiyat_section_title', title: 'Section Title', content: 'Our Luxury Dahabiyas', contentType: 'TEXT' },
+          { key: 'dahabiyat_section_subtitle', title: 'Section Subtitle', content: 'Experience the Nile in style with our handpicked fleet of luxury dahabiyas', contentType: 'TEXT' },
+          { key: 'dahabiyat_view_all_text', title: 'View All Button', content: 'View All Dahabiyas', contentType: 'TEXT' }
         ]
       },
       packages: {
         label: 'Packages Section',
         fields: [
-          { key: 'packages_section_title', title: 'Section Title', content: '', contentType: 'TEXT' },
-          { key: 'packages_section_subtitle', title: 'Section Subtitle', content: '', contentType: 'TEXT' },
-          { key: 'packages_view_all_text', title: 'View All Button', content: '', contentType: 'TEXT' },
-          { key: 'days_label', title: 'Days Label', content: '', contentType: 'TEXT' },
-          { key: 'view_details_text', title: 'View Details Button', content: '', contentType: 'TEXT' }
+          { key: 'packages_section_title', title: 'Section Title', content: 'Featured Packages', contentType: 'TEXT' },
+          { key: 'packages_section_subtitle', title: 'Section Subtitle', content: 'Discover our most popular travel packages to Egypt\'s greatest destinations', contentType: 'TEXT' },
+          { key: 'packages_view_all_text', title: 'View All Button', content: 'View All Packages', contentType: 'TEXT' },
+          { key: 'days_label', title: 'Days Label', content: 'Days', contentType: 'TEXT' },
+          { key: 'view_details_text', title: 'View Details Button', content: 'View Details', contentType: 'TEXT' }
         ]
       },
       about_sections: {
         label: 'About Sections',
         fields: [
-          { key: 'what_is_dahabiya_title', title: 'What is Dahabiya Title', content: '', contentType: 'TEXT' },
-          { key: 'what_is_dahabiya_content', title: 'What is Dahabiya Content', content: '', contentType: 'TEXTAREA' },
-          { key: 'what_is_dahabiya_image_1', title: 'Image 1', content: '', contentType: 'IMAGE' },
-          { key: 'what_is_dahabiya_image_2', title: 'Image 2', content: '', contentType: 'IMAGE' },
-          { key: 'what_is_dahabiya_image_3', title: 'Image 3', content: '', contentType: 'IMAGE' },
-          { key: 'why_different_title', title: 'Why Different Title', content: '', contentType: 'TEXT' },
-          { key: 'why_different_content', title: 'Why Different Content', content: '', contentType: 'TEXTAREA' },
-          { key: 'why_different_image_1', title: 'Why Different Image 1', content: '', contentType: 'IMAGE' },
-          { key: 'why_different_image_2', title: 'Why Different Image 2', content: '', contentType: 'IMAGE' },
-          { key: 'why_different_image_3', title: 'Why Different Image 3', content: '', contentType: 'IMAGE' }
+          { key: 'what_is_dahabiya_title', title: 'What is Dahabiya Title', content: 'What is a Dahabiya?', contentType: 'TEXT' },
+          { key: 'what_is_dahabiya_content', title: 'What is Dahabiya Content', content: 'A dahabiya is a traditional Egyptian sailing vessel that offers a more intimate and luxurious way to explore the Nile. Unlike large cruise ships, dahabiyas provide a peaceful and authentic experience with fewer passengers and more personalized service.', contentType: 'TEXTAREA' },
+          { key: 'what_is_dahabiya_image_1', title: 'Image 1', content: '/images/dahabiya-1.jpg', contentType: 'IMAGE' },
+          { key: 'what_is_dahabiya_image_2', title: 'Image 2', content: '/images/dahabiya-2.jpg', contentType: 'IMAGE' },
+          { key: 'what_is_dahabiya_image_3', title: 'Image 3', content: '/images/dahabiya-3.jpg', contentType: 'IMAGE' },
+          { key: 'why_different_title', title: 'Why Different Title', content: 'Why Choose a Dahabiya?', contentType: 'TEXT' },
+          { key: 'why_different_content', title: 'Why Different Content', content: 'Our dahabiyas offer a unique way to experience the Nile, combining the romance of traditional sailing with modern comforts. With spacious cabins, gourmet dining, and expert guides, you\'ll discover Egypt\'s ancient wonders in unparalleled style and comfort.', contentType: 'TEXTAREA' },
+          { key: 'why_different_image_1', title: 'Why Different Image 1', content: '/images/why-1.jpg', contentType: 'IMAGE' },
+          { key: 'why_different_image_2', title: 'Why Different Image 2', content: '/images/why-2.jpg', contentType: 'IMAGE' },
+          { key: 'why_different_image_3', title: 'Why Different Image 3', content: '/images/why-3.jpg', contentType: 'IMAGE' }
         ]
       },
+      // Our Story Section
       story: {
         label: 'Our Story Section',
         fields: [
-          { key: 'our_story_title', title: 'Story Title', content: '', contentType: 'TEXT' },
-          { key: 'our_story_content', title: 'Story Content', content: '', contentType: 'TEXTAREA' },
-          { key: 'our_story_paragraph_2', title: 'Story Paragraph 2', content: '', contentType: 'TEXTAREA' },
-          { key: 'our_story_paragraph_3', title: 'Story Paragraph 3', content: '', contentType: 'TEXTAREA' },
-          { key: 'our_story_paragraph_4', title: 'Story Paragraph 4', content: '', contentType: 'TEXTAREA' },
+          { 
+            key: 'our_story_title', 
+            title: 'Section Title', 
+            content: 'Our Story', 
+            contentType: 'TEXT',
+            description: 'Main heading for the story section'
+          },
+          { 
+            key: 'our_story_subtitle', 
+            title: 'Section Subtitle', 
+            content: 'Discover the journey behind our passion for Egypt', 
+            contentType: 'TEXT',
+            description: 'Subheading that appears below the main title'
+          },
+          { 
+            key: 'our_story_image', 
+            title: 'Story Image', 
+            content: '/images/our-story.jpg', 
+            contentType: 'IMAGE',
+            description: 'Main image for the story section'
+          },
+          { 
+            key: 'our_story_content', 
+            title: 'Main Story Content', 
+            content: 'For over a decade, we have been curating unforgettable journeys through Egypt. Our passion for this ancient land and its rich history drives us to create experiences that go beyond the ordinary.', 
+            contentType: 'TEXTAREA',
+            description: 'Main content of the story section'
+          },
+          { 
+            key: 'our_mission_title', 
+            title: 'Mission Title', 
+            content: 'Our Mission', 
+            contentType: 'TEXT',
+            description: 'Title for the mission section'
+          },
+          { 
+            key: 'our_mission_content', 
+            title: 'Mission Content', 
+            content: 'To provide authentic, immersive, and sustainable travel experiences that showcase the best of Egypt while preserving its cultural heritage and supporting local communities.', 
+            contentType: 'TEXTAREA',
+            description: 'Content describing the company mission'
+          },
+          { 
+            key: 'our_values_title', 
+            title: 'Values Title', 
+            content: 'Our Values', 
+            contentType: 'TEXT',
+            description: 'Title for the values section'
+          },
+          { 
+            key: 'our_values_content', 
+            title: 'Values Content', 
+            content: '• Authenticity: We believe in genuine experiences that connect you with the real Egypt\n• Excellence: We strive for the highest standards in everything we do\n• Sustainability: We\'re committed to responsible tourism practices\n• Passion: Our love for Egypt shines through in every journey we create', 
+            contentType: 'TEXTAREA',
+            description: 'Company values in bullet points (use • for bullets)'
+          },
           { key: 'founder_name', title: 'Founder Name', content: '', contentType: 'TEXT' },
           { key: 'founder_title', title: 'Founder Title', content: '', contentType: 'TEXT' },
           { key: 'founder_quote', title: 'Founder Quote', content: '', contentType: 'TEXTAREA' },
@@ -174,31 +230,130 @@ const WEBSITE_CONTENT_STRUCTURE: PageContent[] = [
       }
     }
   },
+  // Dahabiyas Page Content
   {
     id: 'dahabiyas',
-    label: 'Dahabiyas Page',
+    label: 'Dahabiyas',
     icon: Ship,
     sections: {
       hero: {
         label: 'Hero Section',
         fields: [
-          { key: 'dahabiyas_hero_title', title: 'Hero Title', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_hero_subtitle', title: 'Hero Subtitle', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_hero_description', title: 'Hero Description', content: '', contentType: 'TEXTAREA' },
-          { key: 'dahabiyas_description', title: 'Page Description', content: '', contentType: 'TEXTAREA' },
-          { key: 'dahabiyas_hero_background_image', title: 'Hero Background Image', content: '', contentType: 'IMAGE' },
-          { key: 'dahabiyas_hero_background_video', title: 'Hero Background Video', content: '', contentType: 'VIDEO' }
+          { 
+            key: 'dahabiyas_hero_title', 
+            title: 'Hero Title', 
+            content: 'Our Luxury Dahabiyas', 
+            contentType: 'TEXT',
+            description: 'Main heading for the dahabiyas page'
+          },
+          { 
+            key: 'dahabiyas_hero_subtitle', 
+            title: 'Hero Subtitle', 
+            content: 'Experience the Nile in unparalleled comfort and style', 
+            contentType: 'TEXT',
+            description: 'Subheading that appears below the main title'
+          },
+          { 
+            key: 'dahabiyas_hero_image', 
+            title: 'Hero Background', 
+            content: '/images/dahabiyas-hero.jpg', 
+            contentType: 'IMAGE',
+            description: 'Background image for the hero section'
+          },
+          { 
+            key: 'dahabiyas_intro_title', 
+            title: 'Introduction Title', 
+            content: 'Sailing the Nile in Style', 
+            contentType: 'TEXT',
+            description: 'Title for the introduction section'
+          },
+          { 
+            key: 'dahabiyas_intro_content', 
+            title: 'Introduction Content', 
+            content: 'Our fleet of luxury dahabiyas combines traditional Egyptian craftsmanship with modern comforts. Each vessel is uniquely designed to provide an intimate and authentic Nile experience, with spacious cabins, elegant common areas, and personalized service.', 
+            contentType: 'TEXTAREA',
+            description: 'Introduction content for the dahabiyas page'
+          }
         ]
       },
-      cta: {
-        label: 'Call to Action',
+      features: {
+        label: 'Dahabiya Features',
         fields: [
-          { key: 'dahabiyas_cta_title', title: 'CTA Title', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_cta_description', title: 'CTA Description', content: '', contentType: 'TEXTAREA' },
-          { key: 'dahabiyas_cta_book_title', title: 'Book Button Title', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_cta_book_subtitle', title: 'Book Button Subtitle', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_cta_packages_title', title: 'Packages Button Title', content: '', contentType: 'TEXT' },
-          { key: 'dahabiyas_cta_packages_subtitle', title: 'Packages Button Subtitle', content: '', contentType: 'TEXT' }
+          { 
+            key: 'dahabiya_features_title', 
+            title: 'Features Title', 
+            content: 'Luxury Amenities', 
+            contentType: 'TEXT',
+            description: 'Title for the features section'
+          },
+          { 
+            key: 'dahabiya_features_subtitle', 
+            title: 'Features Subtitle', 
+            content: 'Designed for your comfort and enjoyment', 
+            contentType: 'TEXT',
+            description: 'Subtitle for the features section'
+          },
+          { 
+            key: 'dahabiya_feature_1_title', 
+            title: 'Feature 1 Title', 
+            content: 'Spacious Cabins', 
+            contentType: 'TEXT',
+            description: 'Title for the first feature'
+          },
+          { 
+            key: 'dahabiya_feature_1_description', 
+            title: 'Feature 1 Description', 
+            content: 'Luxuriously appointed cabins with en-suite facilities', 
+            contentType: 'TEXT',
+            description: 'Description for the first feature'
+          },
+          { 
+            key: 'dahabiya_feature_1_icon', 
+            title: 'Feature 1 Icon', 
+            content: 'bed', 
+            contentType: 'TEXT',
+            description: 'Icon name for the first feature (using Lucide icons)'
+          }
+        ]
+      },
+      hero: {
+        label: 'Hero Section',
+        fields: [
+          { 
+            key: 'dahabiyas_hero_title', 
+            title: 'Hero Title', 
+            content: 'Our Luxury Dahabiyas', 
+            contentType: 'TEXT',
+            description: 'Main heading for the dahabiyas page'
+          },
+          { 
+            key: 'dahabiyas_hero_subtitle', 
+            title: 'Hero Subtitle', 
+            content: 'Experience the Nile in unparalleled comfort and style', 
+            contentType: 'TEXT',
+            description: 'Subheading that appears below the main title'
+          },
+          { 
+            key: 'dahabiyas_hero_description', 
+            title: 'Hero Description', 
+            content: 'Discover our fleet of handcrafted dahabiyas, each offering a unique blend of traditional Egyptian charm and modern luxury for an unforgettable Nile journey.', 
+            contentType: 'TEXTAREA',
+            description: 'Brief description that appears in the hero section'
+          },
+          { 
+            key: 'dahabiyas_hero_background_image', 
+            title: 'Hero Background Image', 
+            content: '/images/dahabiyas/hero-bg.jpg', 
+            contentType: 'IMAGE',
+            description: 'Background image for the hero section (recommended size: 1920x1080px)'
+          },
+          { 
+            key: 'dahabiyas_hero_background_video', 
+            title: 'Hero Background Video', 
+            content: '', 
+            contentType: 'VIDEO',
+            description: 'Optional background video (will override the background image if provided)'
+          }
         ]
       },
       features: {
