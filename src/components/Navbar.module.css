@@ -1,0 +1,80 @@
+/* Navbar.module.css */
+
+.navButton {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 128, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  color: #555;
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: hsl(221.2, 83.2%, 53.3%);
+}
+
+.languageItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.languageItem:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: hsl(221.2, 83.2%, 53.3%);
+}
+
+.activeLanguage {
+  background: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+}
+
+.signOutButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  color: #ef4444;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signOutButton:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}

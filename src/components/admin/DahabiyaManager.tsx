@@ -1,78 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Search, Filter, X, Plus, Edit, Trash2, Eye, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Add CSS for spacing utilities
-const styles = `
-  .space-y-6 > * + * {
-    margin-top: 1.5rem;
-  }
-  .grid {
-    display: grid;
-  }
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .gap-4 {
-    gap: 1rem;
-  }
-  .gap-6 {
-    gap: 1.5rem;
-  }
-  @media (min-width: 768px) {
-    .md\\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-`;
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.textContent = styles;
-  document.head.appendChild(styleSheet);
-}
-import {
-  Button,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Switch,
-  FormControlLabel,
-  Alert,
-  CircularProgress,
-  Tabs,
-  Tab,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  useMediaQuery,
-  useTheme,
-  Box,
-  Checkbox,
-  ListItemText,
-  Card,
-  CardContent
-} from '@mui/material';
-import { Edit, Delete, Add, DirectionsBoat, Star } from '@mui/icons-material';
-import DahabiyaMediaPicker from './DahabiyaMediaPicker';
-
+// Dahabiya type definition
 interface Dahabiya {
   id: string;
   name: string;
@@ -117,1020 +57,789 @@ interface PDFDocument {
   size: number;
 }
 
-interface Itinerary {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-}
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(price);
-};
-
-const DahabiyaManager = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
+const DahabiyaManager: React.FC = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  
+  // State for dahabiyas list and pagination
   const [dahabiyas, setDahabiyas] = useState<Dahabiya[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingDahabiya, setEditingDahabiya] = useState<Dahabiya | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formTab, setFormTab] = useState(0);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    shortDescription: '',
-    pricePerDay: 0,
-    capacity: 0,
-    cabins: 0,
-    crew: 0,
-    length: 0,
-    width: 0,
-    yearBuilt: 0,
-    mainImage: '',
-    gallery: [] as string[],
-    specificationsImage: '',
-    videoUrl: '',
-    virtualTourUrl: '',
-    features: '',
-    amenities: '',
-    activities: '',
-    diningOptions: '',
-    services: '',
-    routes: '',
-    highlights: '',
-    category: 'DELUXE' as const,
-    isActive: true,
-    isFeatured: false,
-    metaTitle: '',
-    metaDescription: '',
-    tags: '',
-    documents: [] as PDFDocument[],
-    selectedItineraries: [] as string[],
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    category: '',
+    status: '',
+    featured: ''
   });
-
-  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
-
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+  // State for dialogs
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentDahabiya, setCurrentDahabiya] = useState<Dahabiya | null>(null);
+  
+  // Fetch dahabiyas from API
   useEffect(() => {
-    fetchDahabiyas();
-    fetchItineraries();
-  }, []);
-
-  const fetchItineraries = async () => {
-    try {
-      const response = await fetch('/api/itineraries');
-      if (response.ok) {
+    const fetchDahabiyas = async () => {
+      try {
+        setIsLoading(true);
+        // Build query params
+        const params = new URLSearchParams({
+          page: (page + 1).toString(),
+          limit: rowsPerPage.toString(),
+          search: searchQuery,
+          ...(filters.category && { category: filters.category }),
+          ...(filters.status && { status: filters.status }),
+          ...(filters.featured && { featured: filters.featured })
+        });
+        
+        const response = await fetch(`/api/admin/dahabiyas?${params}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch dahabiyas');
+        }
+        
         const data = await response.json();
-        setItineraries(data);
+        setDahabiyas(data.items || []);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching dahabiyas:', err);
+        setError('Failed to load dahabiyas. Please try again later.');
+        setDahabiyas([]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching itineraries:', err);
-    }
-  };
-
-  const fetchDocumentsForDahabiya = async (dahabiyaId: string) => {
-    try {
-      const res = await fetch('/api/admin/pdf-documents', { cache: 'no-store' });
-      if (!res.ok) return;
-      const docs = (await res.json()) as Array<{ id: string; name: string; type: string; url: string; size: number; dahabiyaId: string | null }>;
-      const filtered = (docs || []).filter((d) => d.dahabiyaId === dahabiyaId);
-
-      setFormData(prev => ({
-        ...prev,
-        documents: filtered.map((d) => ({
-          id: d.id,
-          name: d.name,
-          type: (d.type === 'FACT_SHEET' ? 'FACTSHEET' : (d.type === 'BROCHURE' ? 'BROCHURE' : 'SPECIFICATION')) as 'FACTSHEET' | 'BROCHURE' | 'SPECIFICATION',
-          url: d.url,
-          size: d.size || 0,
-        }))
-      }));
-    } catch (e) {
-      console.error('Error loading documents for dahabiya:', e);
-    }
-  };
-
-  const fetchDahabiyas = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/dahabiyas?limit=100'); // Get more dahabiyas for admin view
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Dahabiyas API error:', errorData); // Debug log
-        throw new Error(errorData.error || `Failed to fetch dahabiyas (${response.status})`);
-      }
-      const data = await response.json();
-      console.log('Dahabiyas API response:', data); // Debug log
-      // The API returns { dahabiyas: [...], total, pages, currentPage }
-      setDahabiyas(data.dahabiyas || data);
-    } catch (err) {
-      console.error('Error fetching dahabiyas:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch dahabiyas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpenDialog = (dahabiya?: Dahabiya) => {
-    if (dahabiya) {
-      setEditingDahabiya(dahabiya);
-      setFormData({
-        name: dahabiya.name,
-        description: dahabiya.description,
-        shortDescription: dahabiya.shortDescription || '',
-        pricePerDay: dahabiya.pricePerDay,
-        capacity: dahabiya.capacity,
-        cabins: dahabiya.cabins || 0,
-        crew: dahabiya.crew || 0,
-        length: dahabiya.length || 0,
-        width: dahabiya.width || 0,
-        yearBuilt: dahabiya.yearBuilt || 0,
-        mainImage: dahabiya.mainImage || '',
-        gallery: dahabiya.gallery || [],
-        specificationsImage: dahabiya.specificationsImage || '',
-        videoUrl: dahabiya.videoUrl || '',
-        virtualTourUrl: dahabiya.virtualTourUrl || '',
-        features: dahabiya.features.join(', '),
-        amenities: dahabiya.amenities?.join(', ') || '',
-        activities: dahabiya.activities?.join(', ') || '',
-        diningOptions: dahabiya.diningOptions?.join(', ') || '',
-        services: dahabiya.services?.join(', ') || '',
-        routes: dahabiya.routes?.join(', ') || '',
-        highlights: dahabiya.highlights?.join(', ') || '',
-        category: dahabiya.category || 'DELUXE',
-        isActive: dahabiya.isActive,
-        isFeatured: dahabiya.isFeatured || false,
-        metaTitle: dahabiya.metaTitle || '',
-        metaDescription: dahabiya.metaDescription || '',
-        tags: dahabiya.tags?.join(', ') || '',
-        selectedItineraries: [],
-      });
-      void fetchDocumentsForDahabiya(dahabiya.id);
-    } else {
-      setEditingDahabiya(null);
-      setFormData({
-        name: '',
-        description: '',
-        shortDescription: '',
-        pricePerDay: 0,
-        capacity: 0,
-        cabins: 0,
-        crew: 0,
-        length: 0,
-        width: 0,
-        yearBuilt: 0,
-        mainImage: '',
-        gallery: [],
-        specificationsImage: '',
-        videoUrl: '',
-        virtualTourUrl: '',
-        features: '',
-        amenities: '',
-        activities: '',
-        diningOptions: '',
-        services: '',
-        routes: '',
-        highlights: '',
-        category: 'DELUXE',
-        isActive: true,
-        isFeatured: false,
-        metaTitle: '',
-        metaDescription: '',
-        tags: '',
-        selectedItineraries: [],
-      });
-    }
-    setDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-    setEditingDahabiya(null);
-    setError(null);
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'FACTSHEET' | 'BROCHURE' | 'SPECIFICATION') => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!editingDahabiya) {
-      setError('Please create/save the dahabiya first before uploading documents.');
-      return;
-    }
-
-    if (file.type !== 'application/pdf') {
-      setError('Only PDF files are allowed');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      setError('File size must be less than 10MB');
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
-      formData.append('dahabiyaId', editingDahabiya.id);
-
-      const response = await fetch('/api/admin/documents/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const result = await response.json();
-
-      const newDocument: PDFDocument = {
-        name: file.name,
-        type: type,
-        url: result.url,
-        size: file.size,
-      };
-
-      setFormData(prev => ({
-        ...prev,
-        documents: [...prev.documents, newDocument]
-      }));
-
-    } catch (error) {
-      console.error('File upload error:', error);
-      setError('Failed to upload file. Please try again.');
-    }
-  };
-
-  const removeDocument = (index: number) => {
-    setFormData(prev => ({
+    };
+    
+    fetchDahabiyas();
+  }, [searchQuery, filters, page, rowsPerPage]);
+  
+  // Handle filter changes
+  const handleFilterChange = (filter: string, value: string) => {
+    setFilters(prev => ({
       ...prev,
-      documents: prev.documents.filter((_, i) => i !== index)
+      [filter]: value
     }));
   };
-
-  const handleSubmit = async () => {
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      category: '',
+      status: '',
+      featured: ''
+    });
+    setSearchQuery('');
+  };
+  
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // The search is already handled by the useEffect with searchQuery as dependency
+  };
+  
+  // Handle page change
+  const handleChangePage = (newPage: number) => {
+    setPage(newPage);
+  };
+  
+  // Handle rows per page change
+  const handleChangeRowsPerPage = (value: string) => {
+    setRowsPerPage(Number(value));
+    setPage(0); // Reset to first page
+  };
+  
+  // Apply client-side filtering for better UX (optional)
+  const filteredDahabiyas = useMemo(() => {
+    return dahabiyas.filter(dahabiya => {
+      const matchesSearch = searchQuery === '' || 
+        dahabiya.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dahabiya.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = !filters.category || dahabiya.category === filters.category;
+      const matchesStatus = !filters.status || 
+        (filters.status === 'active' && dahabiya.isActive) ||
+        (filters.status === 'inactive' && !dahabiya.isActive);
+      const matchesFeatured = !filters.featured || 
+        (filters.featured === 'featured' && dahabiya.isFeatured);
+      
+      return matchesSearch && matchesCategory && matchesStatus && matchesFeatured;
+    });
+  }, [dahabiyas, searchQuery, filters]);
+  
+  // Handle edit dahabiya
+  const handleEditDahabiya = (dahabiya: Dahabiya) => {
+    setCurrentDahabiya(dahabiya);
+    setIsEditDialogOpen(true);
+  };
+  
+  // Handle delete dahabiya
+  const handleDeleteDahabiya = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this dahabiya?')) {
+      return;
+    }
+    
     try {
-      setSubmitting(true);
+      const response = await fetch(`/api/admin/dahabiyas/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete dahabiya');
+      }
+      
+      // Refresh the list
+      setDahabiyas(prev => prev.filter(d => d.id !== id));
       setError(null);
-
-      const payload = {
-        ...formData,
-        features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
-        amenities: formData.amenities.split(',').map(f => f.trim()).filter(Boolean),
-        activities: formData.activities.split(',').map(f => f.trim()).filter(Boolean),
-        diningOptions: formData.diningOptions.split(',').map(f => f.trim()).filter(Boolean),
-        services: formData.services.split(',').map(f => f.trim()).filter(Boolean),
-        routes: formData.routes.split(',').map(f => f.trim()).filter(Boolean),
-        highlights: formData.highlights.split(',').map(f => f.trim()).filter(Boolean),
-        tags: formData.tags.split(',').map(f => f.trim()).filter(Boolean),
-      };
-
-      const url = editingDahabiya ? `/api/dahabiyas/${editingDahabiya.id}` : '/api/dahabiyas';
-      const method = editingDahabiya ? 'PUT' : 'POST';
-
+    } catch (err) {
+      console.error('Error deleting dahabiya:', err);
+      setError('Failed to delete dahabiya. Please try again.');
+    }
+  };
+  
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const method = currentDahabiya ? 'PUT' : 'POST';
+      const url = currentDahabiya 
+        ? `/api/admin/dahabiyas/${currentDahabiya.id}`
+        : '/api/admin/dahabiyas';
+      
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentDahabiya || {}),
       });
-
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save dahabiya');
+        throw new Error('Failed to save dahabiya');
       }
-
-      await fetchDahabiyas();
-      handleCloseDialog();
+      
+      const savedDahabiya = await response.json();
+      
+      if (currentDahabiya) {
+        // Update existing dahabiya
+        setDahabiyas(prev => 
+          prev.map(d => d.id === savedDahabiya.id ? savedDahabiya : d)
+        );
+      } else {
+        // Add new dahabiya
+        setDahabiyas(prev => [savedDahabiya, ...prev]);
+      }
+      
+      // Close dialog and reset form
+      setIsEditDialogOpen(false);
+      setCurrentDahabiya(null);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save dahabiya');
-    } finally {
-      setSubmitting(false);
+      console.error('Error saving dahabiya:', err);
+      setError('Failed to save dahabiya. Please try again.');
     }
   };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this dahabiya?')) return;
-
-    try {
-      const response = await fetch(`/api/dahabiyas/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete dahabiya');
-      await fetchDahabiyas();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete dahabiya');
-    }
+  
+  // Format price
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
   };
-
-  if (loading) {
+  
+  // Check if user is admin
+  const isAdmin = session?.user?.role === 'ADMIN';
+  
+  if (!isAdmin) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <CircularProgress size={60} />
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
+        </div>
       </div>
     );
   }
-
+  
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <Typography variant="h4" component="h1">
-          <DirectionsBoat style={{ marginRight: '8px', color: '#0080ff' }} />
-          Sacred Fleet Management
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => handleOpenDialog()}
-          style={{ backgroundColor: '#0080ff', color: 'white' }}
-        >
-          Add New Dahabiya
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Dahabiya Management</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your fleet of dahabiyas
+          </p>
+        </div>
+        <Button onClick={() => {
+          setCurrentDahabiya(null);
+          setIsEditDialogOpen(true);
+        }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Dahabiya
         </Button>
       </div>
-
-      {error && (
-        <Alert severity="error" style={{ marginBottom: '16px' }}>
-          {error}
-        </Alert>
-      )}
-
-      <TableContainer component={Paper} style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
-        <Table>
-          <TableHead style={{ backgroundColor: '#f5f5f5' }}>
-            <TableRow>
-              <TableCell><strong>Name</strong></TableCell>
-              <TableCell><strong>Category</strong></TableCell>
-              <TableCell><strong>Capacity</strong></TableCell>
-              <TableCell><strong>Price/Day</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Featured</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {dahabiyas.map((dahabiya) => (
-              <TableRow key={dahabiya.id} hover>
-                <TableCell>
-                  <div>
-                    <Typography variant="subtitle2" style={{ fontWeight: 'bold' }}>
-                      {dahabiya.name}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      {dahabiya.shortDescription}
-                    </Typography>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={dahabiya.category}
-                    size="small"
-                    style={{
-                      backgroundColor: dahabiya.category === 'LUXURY' ? '#e3f2fd' : '#e0e7ff',
-                      color: dahabiya.category === 'LUXURY' ? '#1976d2' : '#6366f1'
-                    }}
-                  />
-                </TableCell>
-                <TableCell>{dahabiya.capacity} guests</TableCell>
-                <TableCell>{formatPrice(dahabiya.pricePerDay)}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={dahabiya.isActive ? 'Active' : 'Inactive'}
-                    color={dahabiya.isActive ? 'success' : 'default'}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  {dahabiya.isFeatured && <Star style={{ color: '#3399ff' }} />}
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleOpenDialog(dahabiya)} size="small">
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(dahabiya.id)} size="small" color="error">
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Add/Edit Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-        fullScreen={isMobile}
-        PaperProps={{
-          className: 'admin-dialog-paper',
-          style: {
-            backgroundColor: '#ffffff !important',
-            backgroundImage: 'none !important',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12) !important',
-            zIndex: 1300,
-            opacity: '1 !important',
-            position: 'relative',
-          }
-        }}
-        BackdropProps={{
-          className: 'admin-dialog-backdrop',
-          style: {
-            backgroundColor: 'rgba(0, 0, 0, 0.9) !important',
-            backdropFilter: 'blur(8px) !important',
-            zIndex: 1299,
-          }
-        }}
-      >
-        <DialogTitle
-          className="admin-dialog-title"
-          style={{
-            backgroundColor: '#0080ff !important',
-            color: 'white !important',
-            borderBottom: '1px solid #e0e0e0 !important',
-            opacity: 1,
-            zIndex: 1301,
-          }}
-        >
-          <DirectionsBoat style={{ marginRight: '8px' }} />
-          {editingDahabiya ? 'Edit Dahabiya' : 'Add New Dahabiya'}
-        </DialogTitle>
-        <DialogContent
-          className="admin-dialog-content"
-          style={{
-            backgroundColor: '#ffffff !important',
-            padding: '0 !important',
-            opacity: '1 !important',
-            zIndex: 1301,
-            position: 'relative',
-          }}
-        >
-          <div style={{
-            backgroundColor: '#ffffff',
-            padding: '24px',
-            minHeight: '100%',
-            position: 'relative',
-            zIndex: 1,
-          }}>
-            {error && (
-              <Alert severity="error" style={{ marginBottom: '16px' }}>
-                {error}
-              </Alert>
-            )}
-
-          <Tabs
-            value={formTab}
-            onChange={(_, newValue) => setFormTab(newValue)}
-            variant={isMobile ? "scrollable" : "standard"}
-            scrollButtons="auto"
-            style={{ marginBottom: '16px' }}
-          >
-            <Tab label={isMobile ? "Basic" : "Basic Information"} />
-            <Tab label={isMobile ? "Specs" : "Specifications"} />
-            <Tab label={isMobile ? "Media" : "Media & Content"} />
-            <Tab label={isMobile ? "Files" : "Documents & Files"} />
-            <Tab label={isMobile ? "Features" : "Features & Amenities"} />
-            <Tab label={isMobile ? "Routes" : "Itineraries"} />
-            <Tab label={isMobile ? "SEO" : "SEO & Marketing"} />
-          </Tabs>
-
-          <div style={{ marginTop: '16px' }}>
-            {/* Tab 0: Basic Info */}
-            {formTab === 0 && (
-              <div className="space-y-6">
-                <TextField
-                  label="Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Short Description"
-                  value={formData.shortDescription}
-                  onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                  fullWidth
-                  placeholder="Brief description for cards and previews"
-                />
-
-                <TextField
-                  label="Full Description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={4}
-                  required
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <TextField
-                    label="Price per Day (USD)"
-                    type="number"
-                    value={formData.pricePerDay}
-                    onChange={(e) => setFormData({ ...formData, pricePerDay: Number(e.target.value) })}
-                    fullWidth
-                    required
-                  />
-
-                  <FormControl fullWidth>
-                    <InputLabel>Category</InputLabel>
-                    <Select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value as 'LUXURY' | 'PREMIUM' })}
-                      label="Category"
-                    >
-                      <MenuItem value="PREMIUM">Premium</MenuItem>
-                      <MenuItem value="LUXURY">Luxury</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={formData.isActive}
-                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      />
-                    }
-                    label="Active"
-                  />
-
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={formData.isFeatured}
-                        onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                      />
-                    }
-                    label="Featured"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Tab 1: Specifications */}
-            {formTab === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <TextField
-                  label="Capacity (guests)"
-                  type="number"
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  label="Number of Cabins"
-                  type="number"
-                  value={formData.cabins}
-                  onChange={(e) => setFormData({ ...formData, cabins: Number(e.target.value) })}
-                  fullWidth
-                />
-
-                <TextField
-                  label="Crew Members"
-                  type="number"
-                  value={formData.crew}
-                  onChange={(e) => setFormData({ ...formData, crew: Number(e.target.value) })}
-                  fullWidth
-                />
-
-                <TextField
-                  label="Year Built"
-                  type="number"
-                  value={formData.yearBuilt}
-                  onChange={(e) => setFormData({ ...formData, yearBuilt: Number(e.target.value) })}
-                  fullWidth
-                />
-
-                <TextField
-                  label="Length (meters)"
-                  type="number"
-                  value={formData.length}
-                  onChange={(e) => setFormData({ ...formData, length: Number(e.target.value) })}
-                  fullWidth
-                />
-
-                <TextField
-                  label="Width (meters)"
-                  type="number"
-                  value={formData.width}
-                  onChange={(e) => setFormData({ ...formData, width: Number(e.target.value) })}
-                  fullWidth
+      
+      {/* Search and Filter Bar */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <form onSubmit={handleSearch} className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search dahabiyas..."
+                  className="w-full pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+            </form>
+            <Button
+              variant="outline"
+              onClick={() => setIsFilterDialogOpen(true)}
+              className="shrink-0"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Filters
+            </Button>
+            {(filters.category || filters.status || filters.featured) && (
+              <Button
+                variant="ghost"
+                onClick={clearFilters}
+                className="shrink-0"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Clear filters
+              </Button>
             )}
-
-            {/* Tab 2: Media & Content */}
-            {formTab === 2 && (
-              <div className="space-y-6">
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 1, color: '#0080ff' }}>
-                    Main Image
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Select the primary image that will be displayed as the main photo for this dahabiya
-                  </Typography>
-                </Box>
-                <DahabiyaMediaPicker
-                  label="Main Image"
-                  value={formData.mainImage}
-                  onChange={(value) => {
-                    console.log('🖼️ Main image changed:', value);
-                    setFormData({ ...formData, mainImage: value });
-                  }}
-                  type="single"
-                  accept="image/*"
-                  helperText="Click to select or change the main image"
-                />
-
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 1, color: '#0080ff' }}>
-                    Gallery Images
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Add multiple images to showcase different aspects of the dahabiya
-                  </Typography>
-                </Box>
-                <DahabiyaMediaPicker
-                  label="Gallery Images"
-                  value={formData.gallery}
-                  onChange={(value) => {
-                    console.log('🖼️ Gallery changed:', value);
-                    setFormData({ ...formData, gallery: Array.isArray(value) ? value : [value] });
-                  }}
-                  type="multiple"
-                  accept="image/*"
-                  helperText="Click to add more images to the gallery"
-                  maxItems={15}
-                />
-
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 1, color: '#0080ff' }}>
-                    Specifications & Dimensions Chart
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Upload a detailed specifications chart or floor plan image with pharaonic styling 𓈎𓃭𓇋𓍯𓊪𓄿𓂧𓂋𓄿
-                  </Typography>
-                </Box>
-                <DahabiyaMediaPicker
-                  label="Specifications Chart Image"
-                  value={formData.specificationsImage}
-                  onChange={(value) => {
-                    console.log('📊 Specifications image changed:', value);
-                    setFormData({ ...formData, specificationsImage: value });
-                  }}
-                  type="single"
-                  accept="image/*"
-                  helperText="Upload vessel specifications, floor plan, or dimensions chart"
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <TextField
-                    label="Video URL"
-                    value={formData.videoUrl}
-                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                    fullWidth
-                    placeholder="https://youtube.com/watch?v=..."
-                    helperText="YouTube or Vimeo video URL"
-                  />
-
-                  <TextField
-                    label="Virtual Tour URL"
-                    value={formData.virtualTourUrl}
-                    onChange={(e) => setFormData({ ...formData, virtualTourUrl: e.target.value })}
-                    fullWidth
-                    placeholder="https://virtualtour.example.com"
-                    helperText="360° virtual tour link"
-                  />
-                </div>
-
-                <TextField
-                  label="Routes (comma-separated)"
-                  value={formData.routes}
-                  onChange={(e) => setFormData({ ...formData, routes: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Luxor to Aswan Classic, Extended Nile Journey, Cultural Heritage Route"
-                  helperText="Available cruise routes and itineraries"
-                />
-
-                <TextField
-                  label="Highlights (comma-separated)"
-                  value={formData.highlights}
-                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Valley of the Kings, Karnak Temple, Philae Temple, Abu Simbel"
-                  helperText="Key attractions and destinations visited"
-                />
-              </div>
-            )}
-
-            {/* Tab 3: Documents & Files */}
-            {formTab === 3 && (
-              <div className="space-y-6">
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 1, color: '#0080ff' }}>
-                    Factsheet & Brochures
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Upload PDF documents like factsheets, brochures, and specifications for this dahabiya
-                  </Typography>
-                </Box>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <Typography variant="subtitle2" sx={{ mb: 1, color: '#0080ff' }}>
-                      Factsheet PDF
-                    </Typography>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileUpload(e, 'FACTSHEET')}
-                      style={{ marginBottom: '8px' }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      Upload the main factsheet PDF for this dahabiya
-                    </Typography>
-                  </div>
-
-                  <div>
-                    <Typography variant="subtitle2" sx={{ mb: 1, color: '#0080ff' }}>
-                      Brochure PDF
-                    </Typography>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileUpload(e, 'BROCHURE')}
-                      style={{ marginBottom: '8px' }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      Upload marketing brochure or detailed information PDF
-                    </Typography>
-                  </div>
-
-                  <div>
-                    <Typography variant="subtitle2" sx={{ mb: 1, color: '#0080ff' }}>
-                      Specifications PDF
-                    </Typography>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileUpload(e, 'SPECIFICATION')}
-                      style={{ marginBottom: '8px' }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      Upload technical specifications and deck plans
-                    </Typography>
-                  </div>
-                </div>
-
-                {/* Display uploaded documents */}
-                {formData.documents && formData.documents.length > 0 && (
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="h6" sx={{ mb: 2, color: '#0080ff' }}>
-                      Uploaded Documents
-                    </Typography>
-                    <div className="space-y-2">
-                      {formData.documents.map((doc, index) => (
-                        <div key={index} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px 12px',
-                          border: '1px solid #e0e0e0',
-                          borderRadius: '4px',
-                          backgroundColor: '#f9f9f9'
-                        }}>
-                          <div>
-                            <Typography variant="body2" fontWeight="medium">
-                              {doc.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {doc.type} • {(doc.size / 1024 / 1024).toFixed(2)} MB
-                            </Typography>
-                            {doc.url && (
-                              <div>
-                                <a href={doc.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#0080ff' }}>
-                                  View / Download
-                                </a>
-                              </div>
-                            )}
+          </div>
+          
+          {/* Active filters */}
+          {(filters.category || filters.status || filters.featured) && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {filters.category && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Category: {filters.category}
+                </span>
+              )}
+              {filters.status && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Status: {filters.status}
+                </span>
+              )}
+              {filters.featured && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Featured
+                </span>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Dahabiyas Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Dahabiyas</CardTitle>
+              <CardDescription>
+                {filteredDahabiyas.length} dahabiyas found
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">Rows per page</span>
+              <Select
+                value={rowsPerPage.toString()}
+                onValueChange={handleChangeRowsPerPage}
+              >
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={rowsPerPage} />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 20, 30, 40, 50].map((size) => (
+                    <SelectItem key={size} value={size.toString()}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : error ? (
+          <div className="p-6 text-center text-red-600">{error}</div>
+        ) : filteredDahabiyas.length === 0 ? (
+          <div className="p-6 text-center text-muted-foreground">
+            No dahabiyas found. Try adjusting your search or filters.
+          </div>
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price (per day)</TableHead>
+                  <TableHead>Capacity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDahabiyas.map((dahabiya) => (
+                  <TableRow key={dahabiya.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        {dahabiya.mainImage && (
+                          <img
+                            src={dahabiya.mainImage}
+                            alt={dahabiya.name}
+                            className="h-10 w-10 rounded-md object-cover"
+                          />
+                        )}
+                        <div>
+                          <div>{dahabiya.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {dahabiya.shortDescription?.substring(0, 50)}{dahabiya.shortDescription?.length > 50 ? '...' : ''}
                           </div>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => removeDocument(index)}
-                          >
-                            <Delete />
-                          </IconButton>
                         </div>
-                      ))}
-                    </div>
-                  </Box>
-                )}
-              </div>
-            )}
-
-            {/* Tab 4: Features & Amenities */}
-            {formTab === 4 && (
-              <div className="space-y-6">
-                <TextField
-                  label="Features (comma-separated)"
-                  value={formData.features}
-                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Luxury Suites, Sun Deck, Traditional Sailing"
-                />
-
-                <TextField
-                  label="Amenities (comma-separated)"
-                  value={formData.amenities}
-                  onChange={(e) => setFormData({ ...formData, amenities: e.target.value.split(',').map((item: string) => item.trim()) })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Air Conditioning, Private Bathrooms, WiFi"
-                />
-
-                <TextField
-                  label="Activities (comma-separated)"
-                  value={formData.activities}
-                  onChange={(e) => setFormData({ ...formData, activities: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Cultural Tours, Cooking Classes, Stargazing"
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <TextField
-                    label="Dining Options (comma-separated)"
-                    value={formData.diningOptions}
-                    onChange={(e) => setFormData({ ...formData, diningOptions: e.target.value })}
-                    fullWidth
-                    placeholder="Fine Dining Restaurant, Sunset Bar"
-                  />
-
-                  <TextField
-                    label="Services (comma-separated)"
-                    value={formData.services}
-                    onChange={(e) => setFormData({ ...formData, services: e.target.value })}
-                    fullWidth
-                    placeholder="24/7 Concierge, Laundry Service"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Tab 5: Itineraries */}
-            {formTab === 5 && (
-              <div className="space-y-6">
-                <Typography variant="h6" gutterBottom>
-                  Select Itineraries for this Dahabiya
-                </Typography>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Choose which itineraries are available for this dahabiya. Guests will be able to select from these options.
-                </Typography>
-
-                <FormControl fullWidth>
-                  <InputLabel>Available Itineraries</InputLabel>
-                  <Select
-                    multiple
-                    value={formData.selectedItineraries}
-                    onChange={(e) => setFormData({ ...formData, selectedItineraries: e.target.value as string[] })}
-                    label="Available Itineraries"
-                    renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {(selected as string[]).map((value) => {
-                          const itinerary = itineraries.find(i => i.id === value);
-                          return (
-                            <Chip key={value} label={itinerary?.name || value} size="small" />
-                          );
-                        })}
-                      </Box>
-                    )}
-                  >
-                    {itineraries.map((itinerary) => (
-                      <MenuItem key={itinerary.id} value={itinerary.id}>
-                        <Checkbox checked={formData.selectedItineraries.indexOf(itinerary.id) > -1} />
-                        <ListItemText
-                          primary={itinerary.name}
-                          secondary={`${itinerary.duration} days - ${itinerary.description}`}
-                        />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                {formData.selectedItineraries.length > 0 && (
-                  <div>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Selected Itineraries Preview:
-                    </Typography>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {formData.selectedItineraries.map((itineraryId) => {
-                        const itinerary = itineraries.find(i => i.id === itineraryId);
-                        return itinerary ? (
-                          <Card key={itinerary.id} variant="outlined">
-                            <CardContent style={{ padding: '12px' }}>
-                              <Typography variant="subtitle2" style={{ fontWeight: 'bold' }}>
-                                {itinerary.name}
-                              </Typography>
-                              <Typography variant="body2" color="textSecondary">
-                                Duration: {itinerary.duration} days
-                              </Typography>
-                              <Typography variant="body2">
-                                {itinerary.description}
-                              </Typography>
-                            </CardContent>
-                          </Card>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab 6: SEO & Marketing */}
-            {formTab === 6 && (
-              <div className="space-y-6">
-                <TextField
-                  label="Meta Title"
-                  value={formData.metaTitle}
-                  onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
-                  fullWidth
-                  placeholder="SEO title for search engines"
-                />
-
-                <TextField
-                  label="Meta Description"
-                  value={formData.metaDescription}
-                  onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="SEO description for search engines"
-                />
-
-                <TextField
-                  label="Tags (comma-separated)"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  fullWidth
-                  placeholder="luxury, nile cruise, egypt, traditional"
-                />
-              </div>
-            )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {dahabiya.category || 'N/A'}
+                      </span>
+                    </TableCell>
+                    <TableCell>{formatPrice(dahabiya.pricePerDay)}</TableCell>
+                    <TableCell>{dahabiya.capacity} guests</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        dahabiya.isActive 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {dahabiya.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                      {dahabiya.isFeatured && (
+                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          Featured
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => router.push(`/dahabiyas/${dahabiya.slug}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditDahabiya(dahabiya)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-600 hover:text-red-800"
+                          onClick={() => handleDeleteDahabiya(dahabiya.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
+        )}
+        
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-6 py-4 border-t">
+          <div className="text-sm text-muted-foreground">
+            Showing <span className="font-medium">
+              {filteredDahabiyas.length === 0 ? 0 : page * rowsPerPage + 1}
+            </span> to{' '}
+            <span className="font-medium">
+              {Math.min((page + 1) * rowsPerPage, filteredDahabiyas.length)}
+            </span>{' '}
+            of <span className="font-medium">{filteredDahabiyas.length}</span> dahabiyas
           </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleChangePage(page - 1)}
+              disabled={page === 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Previous</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleChangePage(page + 1)}
+              disabled={page >= Math.ceil(filteredDahabiyas.length / rowsPerPage) - 1}
+            >
+              <span>Next</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+      
+      {/* Filter Dialog */}
+      <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Filter Dahabiyas</DialogTitle>
+            <DialogDescription>
+              Narrow down the list of dahabiyas by applying filters.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={filters.category}
+                onValueChange={(value) => handleFilterChange('category', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="LUXURY">Luxury</SelectItem>
+                  <SelectItem value="DELUXE">Deluxe</SelectItem>
+                  <SelectItem value="PREMIUM">Premium</SelectItem>
+                  <SelectItem value="BOUTIQUE">Boutique</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    className="h-4 w-4 text-primary"
+                    checked={filters.status === ''}
+                    onChange={() => handleFilterChange('status', '')}
+                  />
+                  <span>All</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    className="h-4 w-4 text-primary"
+                    checked={filters.status === 'active'}
+                    onChange={() => handleFilterChange('status', 'active')}
+                  />
+                  <span>Active</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    className="h-4 w-4 text-primary"
+                    checked={filters.status === 'inactive'}
+                    onChange={() => handleFilterChange('status', 'inactive')}
+                  />
+                  <span>Inactive</span>
+                </label>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="featured"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-primary"
+                  checked={filters.featured === 'featured'}
+                  onChange={(e) => 
+                    handleFilterChange('featured', e.target.checked ? 'featured' : '')
+                  }
+                />
+                <Label htmlFor="featured">Featured Only</Label>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={clearFilters}>
+              Clear Filters
+            </Button>
+            <Button onClick={() => setIsFilterDialogOpen(false)}>
+              Apply Filters
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions style={{
-          backgroundColor: '#ffffff',
-          borderTop: '1px solid #e0e0e0',
-          padding: '16px 24px'
-        }}>
-          <Button
-            onClick={handleCloseDialog}
-            style={{
-              color: '#666666',
-              backgroundColor: 'transparent'
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={submitting}
-            style={{
-              backgroundColor: '#0080ff',
-              color: 'white',
-              boxShadow: '0 2px 8px rgba(0, 128, 255, 0.3)'
-            }}
-          >
-            {submitting ? <CircularProgress size={20} color="inherit" /> : (editingDahabiya ? 'Update' : 'Create')}
-          </Button>
-        </DialogActions>
+      </Dialog>
+      
+      {/* Edit/Create Dahabiya Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {currentDahabiya ? 'Edit Dahabiya' : 'Add New Dahabiya'}
+            </DialogTitle>
+            <DialogDescription>
+              {currentDahabiya 
+                ? 'Update the dahabiya details below.' 
+                : 'Fill in the details to add a new dahabiya to your fleet.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter dahabiya name"
+                  value={currentDahabiya?.name || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      name: e.target.value
+                    }))
+                  }
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  placeholder="dahabiya-name"
+                  value={currentDahabiya?.slug || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      slug: e.target.value
+                        .toLowerCase()
+                        .replace(/\s+/g, '-')
+                        .replace(/[^\w-]+/g, '')
+                    }))
+                  }
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={currentDahabiya?.category || ''}
+                  onValueChange={(value) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      category: value as Dahabiya['category']
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LUXURY">Luxury</SelectItem>
+                    <SelectItem value="DELUXE">Deluxe</SelectItem>
+                    <SelectItem value="PREMIUM">Premium</SelectItem>
+                    <SelectItem value="BOUTIQUE">Boutique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="pricePerDay">Price per day (USD)</Label>
+                <Input
+                  id="pricePerDay"
+                  type="number"
+                  placeholder="0.00"
+                  value={currentDahabiya?.pricePerDay || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      pricePerDay: Number(e.target.value)
+                    }))
+                  }
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="capacity">Capacity</Label>
+                <Input
+                  id="capacity"
+                  type="number"
+                  placeholder="Number of guests"
+                  value={currentDahabiya?.capacity || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      capacity: Number(e.target.value)
+                    }))
+                  }
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="cabins">Number of Cabins</Label>
+                <Input
+                  id="cabins"
+                  type="number"
+                  placeholder="e.g., 5"
+                  value={currentDahabiya?.cabins || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      cabins: Number(e.target.value)
+                    }))
+                  }
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="mainImage">Main Image URL</Label>
+                <Input
+                  id="mainImage"
+                  placeholder="https://example.com/image.jpg"
+                  value={currentDahabiya?.mainImage || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      mainImage: e.target.value
+                    }))
+                  }
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="videoUrl">Video URL (optional)</Label>
+                <Input
+                  id="videoUrl"
+                  placeholder="https://youtube.com/embed/..."
+                  value={currentDahabiya?.videoUrl || ''}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      videoUrl: e.target.value
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="shortDescription">Short Description</Label>
+              <Input
+                id="shortDescription"
+                placeholder="A brief description (max 200 characters)"
+                maxLength={200}
+                value={currentDahabiya?.shortDescription || ''}
+                onChange={(e) => 
+                  setCurrentDahabiya(prev => ({
+                    ...prev!,
+                    shortDescription: e.target.value
+                  }))
+                }
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="description">Full Description</Label>
+              <textarea
+                id="description"
+                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Detailed description of the dahabiya..."
+                value={currentDahabiya?.description || ''}
+                onChange={(e) => 
+                  setCurrentDahabiya(prev => ({
+                    ...prev!,
+                    description: e.target.value
+                  }))
+                }
+                required
+              />
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="isActive"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-primary"
+                  checked={currentDahabiya?.isActive ?? true}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      isActive: e.target.checked
+                    }))
+                  }
+                />
+                <Label htmlFor="isActive">Active</Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  id="isFeatured"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-primary"
+                  checked={currentDahabiya?.isFeatured ?? false}
+                  onChange={(e) => 
+                    setCurrentDahabiya(prev => ({
+                      ...prev!,
+                      isFeatured: e.target.checked
+                    }))
+                  }
+                />
+                <Label htmlFor="isFeatured">Featured</Label>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsEditDialogOpen(false);
+                  setCurrentDahabiya(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {currentDahabiya ? 'Save Changes' : 'Create Dahabiya'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
       </Dialog>
     </div>
   );
