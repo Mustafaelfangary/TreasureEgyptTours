@@ -1,0 +1,33 @@
+[
+  {
+    "id": "test-model",
+    "name": "Test Model",
+    "description": "A test content model",
+    "icon": "FileText",
+    "fields": [
+      {
+        "id": "title",
+        "type": "string",
+        "label": "Title",
+        "required": true,
+        "validation": {
+          "minLength": 3,
+          "maxLength": 100
+        }
+      },
+      {
+        "id": "description",
+        "type": "textarea",
+        "label": "Description",
+        "required": false
+      },
+      {
+        "id": "isFeatured",
+        "type": "boolean",
+        "label": "Featured",
+        "required": false
+      }
+    ],
+    "searchFields": ["title", "description"]
+  }
+]

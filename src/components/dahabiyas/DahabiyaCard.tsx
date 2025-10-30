@@ -60,12 +60,12 @@ export default function DahabiyaCard({ dahabiya }: DahabiyaCardProps) {
         primaryButton={{
           text: "Book Now",
           href: `/booking?dahabiya=${dahabiya.slug || dahabiya.id}`,
-          icon: "𓈎𓃭𓇋"
+          icon: "𓁍𓁎"
         }}
         secondaryButton={{
           text: "View Details",
-          href: `/dahabiyas/${dahabiya.slug || dahabiya.id}`,
-          icon: "𓄿𓂧𓂋"
+          href: `/dahabiyas/${dahabiya.slug}`,
+          icon: "𓁍"
         }}
       />
 

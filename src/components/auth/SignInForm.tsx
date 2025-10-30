@@ -55,10 +55,27 @@ export default function SignInForm() {
         }
       }
 
+      // Get callback URL from search params
+      const urlParams = new URLSearchParams(window.location.search);
+      let callbackUrl = urlParams.get('callbackUrl') || '/';
+      
+      // Ensure the callback URL is a relative path
+      if (callbackUrl.startsWith('http')) {
+        try {
+          const url = new URL(callbackUrl);
+          callbackUrl = url.pathname + url.search;
+        } catch (e) {
+          console.error('Invalid callback URL:', callbackUrl);
+          callbackUrl = '/';
+        }
+      }
+
+      // Sign in with credentials
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false, // Handle redirect manually to avoid baseUrl issues
+        redirect: false,
+        callbackUrl: callbackUrl
       });
 
       if (result?.error) {
@@ -66,34 +83,21 @@ export default function SignInForm() {
         return;
       }
 
-      if (result?.ok) {
-        toast.success("Signed in successfully!");
-
-        // Wait for session to be established
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Get callback URL from search params or determine based on role
-        const urlParams = new URLSearchParams(window.location.search);
-        const callbackUrl = urlParams.get('callbackUrl');
-
-        if (callbackUrl) {
-          // Use the callback URL but ensure it's relative
-          const targetUrl = callbackUrl.startsWith('/') ? callbackUrl : `/${callbackUrl}`;
-          window.location.href = targetUrl;
-        } else {
-          // Get session to determine role-based redirect
-          const session = await getSession();
-
-          if (session?.user?.role === 'ADMIN') {
-            window.location.href = '/admin';
-          } else if (session?.user?.role === 'MANAGER') {
-            window.location.href = '/admin/dashboard';
-          } else if (session?.user?.role === 'GUIDE') {
-            window.location.href = '/guide/dashboard';
-          } else {
-            window.location.href = '/profile';
-          }
-        }
+      // Force a session refresh before redirecting
+      await getSession();
+      
+      // Use window.location.replace to prevent the back button from going back to login
+      if (result?.url) {
+        window.location.replace(result.url);
+      } else {
+        // Fallback to role-based redirect
+        const session = await getSession();
+        const targetUrl = session?.user?.role === 'ADMIN' ? '/admin' :
+                         session?.user?.role === 'MANAGER' ? '/admin/dashboard' :
+                         session?.user?.role === 'GUIDE' ? '/guide/dashboard' :
+                         '/profile';
+        window.location.replace(targetUrl);
+      }
       }
     } catch (error) {
       console.error('Sign in error:', error);

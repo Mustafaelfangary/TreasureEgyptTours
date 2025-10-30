@@ -2,6 +2,7 @@
 
 import React from 'react';
 import UnifiedCard from '@/components/ui/UnifiedCard';
+import { ViewDetailsButton } from '@/components/ui/ViewDetailsButton';
 
 interface BlogPost {
   id: string;
@@ -44,7 +45,7 @@ export function BlogCard({ post }: BlogCardProps) {
       secondaryButton={{
         text: "Read Article",
         href: `/blogs/${post.slug}`,
-        icon: "𓂋"
+        icon: <span className="text-lg">𓂋</span>
       }}
     />
   );

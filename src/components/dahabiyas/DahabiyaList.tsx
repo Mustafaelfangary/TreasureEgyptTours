@@ -273,7 +273,7 @@ export default function DahabiyaList({ activeOnly = true, limit = 12 }: ServiceL
                         </button>
                       </Link>
                       
-                      <Link href={`/services/${service.slug || service.id}`}>
+                      <Link href={`/dahabiyas/${service.slug || service.id}`}>
                         <button className={`w-full border-2 ${config.gradientFrom.replace('from-', 'border-')} ${config.hoverColor.replace('group-hover:', '').replace('text-', 'text-')} px-6 py-3 text-sm font-semibold hover:bg-opacity-10 rounded-xl transition-all duration-300 transform hover:scale-105`}>
                           View Details
                         </button>

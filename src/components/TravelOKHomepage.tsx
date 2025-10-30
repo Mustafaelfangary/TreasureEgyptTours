@@ -19,15 +19,32 @@ export default function TravelOKHomepage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <div className="relative h-screen sm:h-screen lg:h-screen bg-gradient-to-b from-blue-900 to-blue-700" style={{ minHeight: 'calc(100vh - 4rem)' }}>
+        {/* Background Image/Video */}
         <div className="absolute inset-0">
-          <Image
-            src={getContent('hero_video_poster', '/images/cultural&historical/DSC_8401.JPG')}
-            alt={getContent('hero_video_title', 'Discover Egypt')}
-            fill
-            className="object-cover opacity-60"
-            priority
-          />
+          {getContent('hero_video_url') ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster={getContent('hero_video_poster', '/images/cultural&historical/DSC_8401.JPG')}
+              className="w-full h-full object-cover opacity-60"
+            >
+              <source src={getContent('hero_video_url')} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <Image
+              src={getContent('hero_video_poster', '/images/cultural&historical/DSC_8401.JPG')}
+              alt={getContent('hero_video_title', 'Discover Egypt')}
+              fill
+              className="object-cover opacity-60"
+              priority
+            />
+          )}
         </div>
+
+        {/* Hero Content */}
         <div className={`relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 transition-all duration-700 ${heroReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
             {getContent('hero_video_title', 'DISCOVER EGYPT')}
@@ -36,8 +53,10 @@ export default function TravelOKHomepage() {
             {getContent('hero_video_subtitle', 'Land of Pharaohs & Ancient Wonders')}
           </h2>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-12 max-w-3xl leading-relaxed px-4 sm:px-0">
-            {getContent('homepage_hero_description', 'Journey through 5,000 years of history. From the Great Pyramids to bustling bazaars, experience the magic and mystery of Egypt with our expertly crafted tours.')}
+            {getContent('homepage_hero_description')}
           </p>
+          
+          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4 sm:px-0">
             <Link 
               href={getContent('hero_video_cta_link', '/tours')}
@@ -46,12 +65,22 @@ export default function TravelOKHomepage() {
               {getContent('hero_video_cta_text', 'EXPLORE TOURS')}
             </Link>
             <Link 
-              href={getContent('hero_video_secondary_cta_link', '/attractions')}
+              href={getContent('hero_video_secondary_cta_link', '/destinations')}
               className="border-2 border-white text-white hover:bg-white hover:text-travelok-blue px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors text-center min-h-[48px] flex items-center justify-center"
             >
-              {getContent('hero_video_secondary_cta_text', 'VIEW ATTRACTIONS')}
+              {getContent('hero_video_secondary_cta_text', 'VIEW DESTINATIONS')}
             </Link>
           </div>
+
+          {/* Scroll Indicator */}
+          {getContent('hero_scroll_text') && (
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+              <p className="text-sm text-white/80 mb-2">{getContent('hero_scroll_text')}</p>
+              <div className="w-8 h-12 border-2 border-white/50 rounded-full flex justify-center p-1">
+                <div className="w-1 h-3 bg-white rounded-full animate-bounce"></div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
