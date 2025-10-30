@@ -70,6 +70,8 @@ export default function SignInForm() {
         }
       }
 
+      console.log('Signing in with callback URL:', callbackUrl);
+
       // Sign in with credentials
       const result = await signIn("credentials", {
         email: data.email,
@@ -78,26 +80,42 @@ export default function SignInForm() {
         callbackUrl: callbackUrl
       });
 
+      console.log('Sign in result:', result);
+
       if (result?.error) {
         toast.error("Invalid email or password");
         return;
       }
 
-      // Force a session refresh before redirecting
-      await getSession();
-      
-      // Use window.location.replace to prevent the back button from going back to login
-      if (result?.url) {
-        window.location.replace(result.url);
-      } else {
-        // Fallback to role-based redirect
-        const session = await getSession();
-        const targetUrl = session?.user?.role === 'ADMIN' ? '/admin' :
-                         session?.user?.role === 'MANAGER' ? '/admin/dashboard' :
-                         session?.user?.role === 'GUIDE' ? '/guide/dashboard' :
-                         '/profile';
-        window.location.replace(targetUrl);
+      if (!result?.ok) {
+        toast.error("Sign in failed. Please try again.");
+        return;
       }
+
+      toast.success("Signed in successfully!");
+
+      // Wait a bit for the session to be established
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Get the session to determine redirect
+      const session = await getSession();
+      console.log('Session after sign in:', session);
+      
+      // Determine the redirect URL
+      let redirectUrl = callbackUrl;
+      
+      // If callback is just '/', redirect based on role
+      if (callbackUrl === '/' && session?.user?.role) {
+        redirectUrl = session.user.role === 'ADMIN' ? '/admin' :
+                     session.user.role === 'MANAGER' ? '/admin/dashboard' :
+                     session.user.role === 'GUIDE' ? '/guide/dashboard' :
+                     '/profile';
+      }
+      
+      console.log('Redirecting to:', redirectUrl);
+      
+      // Use router.push for client-side navigation
+      router.push(redirectUrl);
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error("Something went wrong. Please try again.");

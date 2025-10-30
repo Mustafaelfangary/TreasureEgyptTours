@@ -7,12 +7,7 @@ import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock, RefreshCw, Plus } from 'lucide-react';
-
-// Dynamically import the DahabiyaManager component with no SSR
-const DahabiyaManager = dynamic(
-  () => import('@/components/admin/DahabiyaManager'),
-  { ssr: false }
-);
+import DahabiyaManagerWrapper from '@/components/admin/DahabiyaManagerWrapper';
 
 export default function AdminDahabiyasPage() {
   const { data: session, status } = useSession();
@@ -107,7 +102,7 @@ export default function AdminDahabiyasPage() {
             Add Dahabiya
           </Button>
         </div>
-        <DahabiyaManager />
+        <DahabiyaManagerWrapper />
       </div>
     </div>
   );

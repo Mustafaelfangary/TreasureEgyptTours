@@ -1,6 +1,16 @@
 'use client';
 
-import { FieldType } from '@/lib/content-models';
+// Define field types as a proper enum
+export enum FieldType {
+  TEXT = 'text',
+  RICH_TEXT = 'richText',
+  IMAGE = 'image',
+  NUMBER = 'number',
+  BOOLEAN = 'boolean',
+  SELECT = 'select',
+  DATE = 'date',
+  URL = 'url'
+}
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -51,7 +61,7 @@ export function ContentFormField({ field, value, onChange, disabled = false }: C
           />
         );
       
-      case FieldType.TEXTAREA:
+      case FieldType.RICH_TEXT:
         return (
           <Textarea
             value={value || ''}

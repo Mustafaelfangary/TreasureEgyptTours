@@ -1,11 +1,31 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import DahabiyaDetailClient from '@/components/dahabiyas/DahabiyaDetailClient';
+import DahabiyaDetailWrapper from '@/components/dahabiyas/DahabiyaDetailWrapper';
 
-export default async function DahabiyaPage({ params }: { params: { slug: string } }) {
-  // First, try to find a matching package with this slug
+interface ItineraryDay {
+  id: string;
+  day: number;
+  title: string;
+  description: string;
+  activities: Array<{
+    id: string;
+    description: string;
+    time: string;
+  }>;
+}
+
+interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  content: string;
+  date: string;
+  isApproved: boolean;
+}
+
+async function getDahabiyaData(slug: string) {
   const travelService = await prisma.travelService.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
       serviceItineraries: {
         include: {
@@ -29,13 +49,10 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
     }
   });
 
-  if (!travelService) {
-    // If no package found, redirect to packages page
-    return notFound();
-  }
+  if (!travelService) return null;
 
-  // Transform the data to match the DahabiyaDetail component's expected props
-  const dahabiyaData = {
+  // Transform the data to match the expected format
+  return {
     id: travelService.id,
     name: travelService.name,
     slug: travelService.slug,
@@ -43,25 +60,18 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
     shortDescription: travelService.shortDescription || '',
     pricePerDay: travelService.pricePerDay ? Number(travelService.pricePerDay) : 0,
     capacity: travelService.capacity || 0,
-    cabins: Math.ceil((travelService.capacity || 2) / 2), // Assuming 2 people per cabin
-    crew: 6, // Default crew size
-    length: 45, // Default length in meters
-    width: 8, // Default width in meters
-    yearBuilt: 2020, // Default year built
+    cabins: Math.ceil((travelService.capacity || 2) / 2),
+    crew: 6,
+    length: 45,
+    width: 8,
+    yearBuilt: 2020,
     mainImage: travelService.mainImage || '/images/default-dahabiya.jpg',
     gallery: (travelService.gallery || []).map((url: string, index: number) => ({
       id: `img-${index}`,
       url,
       alt: `${travelService.name} - Image ${index + 1}`
     })),
-    features: travelService.highlights || [],
-    amenities: travelService.includes || [],
-    isActive: travelService.isActive || true,
-    createdAt: travelService.createdAt?.toISOString() || new Date().toISOString(),
-    updatedAt: travelService.updatedAt?.toISOString() || new Date().toISOString(),
-    videoUrl: 'https://www.youtube.com/watch?v=example',
-    virtualTourUrl: 'https://example.com/virtual-tour',
-    features: [
+    features: travelService.highlights || [
       'Private balconies in all cabins',
       'Air conditioning',
       'En-suite bathrooms',
@@ -69,7 +79,7 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
       'Luxury linens',
       '24/7 room service'
     ],
-    amenities: [
+    amenities: travelService.includes || [
       'Sun deck with loungers',
       'Jacuzzi',
       'Bar',
@@ -114,33 +124,19 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
     category: 'LUXURY' as const,
     rating: 4.8,
     reviewCount: 42,
-    itineraries: [
-      {
-        id: '1',
-        day: 1,
-        title: 'Arrival in Luxor',
-        description: 'Welcome aboard the Royal Cleopatra. After settling into your luxurious cabin, enjoy a welcome drink and safety briefing. In the evening, enjoy a gourmet dinner on deck as we prepare for our journey.',
-        activities: [
-          { id: '1-1', description: 'Airport transfer', time: '12:00 PM' },
-          { id: '1-2', description: 'Welcome drink and safety briefing', time: '2:00 PM' },
-          { id: '1-3', description: 'Dinner on board', time: '7:00 PM' }
-        ]
-      },
-      {
-        id: '2',
-        day: 2,
-        title: 'Luxor West Bank',
-        description: 'Explore the wonders of the West Bank, including the Valley of the Kings, Temple of Hatshepsut, and the Colossi of Memnon.',
-        activities: [
-          { id: '2-1', description: 'Breakfast on board', time: '7:00 AM' },
-          { id: '2-2', description: 'Guided tour of Valley of the Kings', time: '8:00 AM' },
-          { id: '2-3', description: 'Visit Temple of Hatshepsut', time: '11:00 AM' },
-          { id: '2-4', description: 'Lunch on board', time: '1:00 PM' },
-          { id: '2-5', description: 'Visit Colossi of Memnon', time: '3:00 PM' },
-          { id: '2-6', description: 'Dinner on board', time: '7:00 PM' }
-        ]
-      }
-    ],
+    itineraries: travelService.serviceItineraries?.map(si => ({
+      id: si.itinerary.id,
+      day: si.itinerary.days?.[0]?.dayNumber || 1,
+      title: si.itinerary.name,
+      description: si.itinerary.description || '',
+      activities: si.itinerary.days?.flatMap(day => 
+        day.activities?.map((act, idx) => ({
+          id: `${day.id}-${idx}`,
+          description: act,
+          time: '' // You might want to add time to your activities
+        })) || []
+      ) || []
+    })) || [],
     reviews: [
       {
         id: '1',
@@ -160,13 +156,22 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
       }
     ],
     isFeatured: true,
-    isActive: true,
-    createdAt: '2023-01-15T00:00:00Z',
-    updatedAt: '2023-10-20T00:00:00Z'
+    isActive: travelService.isActive || true,
+    videoUrl: 'https://www.youtube.com/watch?v=example',
+    virtualTourUrl: 'https://example.com/virtual-tour',
+    createdAt: travelService.createdAt?.toISOString() || new Date().toISOString(),
+    updatedAt: travelService.updatedAt?.toISOString() || new Date().toISOString()
   };
+}
 
-  // Pass the dahabiya data to the client component
-  return <DahabiyaDetailClient dahabiya={dahabiyaData} />;
+export default async function DahabiyaPage({ params }: { params: { slug: string } }) {
+  const dahabiyaData = await getDahabiyaData(params.slug);
+  
+  if (!dahabiyaData) {
+    return notFound();
+  }
+
+  return <DahabiyaDetailWrapper dahabiya={dahabiyaData} />;
 }
 
 // Generate static params for all dahabiya slugs
@@ -174,7 +179,6 @@ export async function generateStaticParams() {
   const dahabiyas = await prisma.travelService.findMany({
     where: {
       isActive: true
-      // Removed category filter to avoid type errors
     },
     select: {
       slug: true

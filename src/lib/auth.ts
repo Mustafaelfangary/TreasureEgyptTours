@@ -83,28 +83,25 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       console.log('Auth redirect called with:', { url, baseUrl });
       
-      // For localhost development, ensure we use the correct baseUrl
-      const localhostUrl = 'http://localhost:3000';
-      const isLocalhost = process.env.NODE_ENV === 'development';
-      const correctBaseUrl = isLocalhost ? localhostUrl : baseUrl;
-      
-      // If no callback URL is provided, redirect to the home page
-      if (!url || url === '/') {
-        return `${correctBaseUrl}/`;
-      }
+      // Normalize baseUrl for localhost
+      const normalizedBaseUrl = baseUrl.replace(/:\d+$/, ':3000');
       
       // If url is relative, prepend baseUrl
       if (url.startsWith('/')) {
-        return `${correctBaseUrl}${url}`;
+        const fullUrl = `${normalizedBaseUrl}${url}`;
+        console.log('Redirecting to relative URL:', fullUrl);
+        return fullUrl;
       }
       
-      // If url is absolute and matches our domain, return it
-      if (url.startsWith(correctBaseUrl)) {
+      // If url is absolute and starts with our baseUrl, return it
+      if (url.startsWith(normalizedBaseUrl) || url.startsWith(baseUrl)) {
+        console.log('Redirecting to absolute URL:', url);
         return url;
       }
       
-      // Default to baseUrl if the URL is from a different domain
-      return correctBaseUrl;
+      // If url is from a different domain or invalid, redirect to home
+      console.log('Redirecting to home page');
+      return normalizedBaseUrl;
     },
     async session({ session, token }) {
       if (token) {

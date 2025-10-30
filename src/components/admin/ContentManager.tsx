@@ -50,7 +50,7 @@ export default function ContentManager() {
   const { data: contents = [], isLoading, refetch } = useQuery<PageContent[]>({
     queryKey: ['page-contents'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/content');
+      const res = await fetch('/api/admin/page-content');
       if (!res.ok) throw new Error('Failed to fetch content');
       return res.json();
     },
@@ -80,7 +80,7 @@ export default function ContentManager() {
   const saveContent = useMutation({
     mutationFn: async (content: Partial<PageContent>) => {
       const method = content.id ? 'PUT' : 'POST';
-      const url = content.id ? `/api/admin/content/${content.id}` : '/api/admin/content';
+      const url = content.id ? `/api/admin/page-content/${content.id}` : '/api/admin/page-content';
       
       const response = await fetch(url, {
         method,
@@ -110,7 +110,7 @@ export default function ContentManager() {
   // Delete content
   const deleteContent = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/content/${id}`, {
+      const response = await fetch(`/api/admin/page-content/${id}`, {
         method: 'DELETE',
       });
 

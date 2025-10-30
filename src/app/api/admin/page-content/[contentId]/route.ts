@@ -6,7 +6,7 @@ import prisma from '@/lib/prisma';
 // GET /api/admin/content/[id] - Get content by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { contentId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function GET(
     }
 
     const content = await prisma.pageContent.findUnique({
-      where: { id: params.id },
+      where: { id: params.contentId },
     });
 
     if (!content) {
@@ -30,10 +30,10 @@ export async function GET(
   }
 }
 
-// PUT /api/admin/content/[id] - Update content
+// PUT /api/admin/content/[contentId] - Update content
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { contentId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -46,7 +46,7 @@ export async function PUT(
     
     // Check if content exists
     const existingContent = await prisma.pageContent.findUnique({
-      where: { id: params.id },
+      where: { id: params.contentId },
     });
 
     if (!existingContent) {
@@ -56,7 +56,7 @@ export async function PUT(
     // Check if key is being updated and if it already exists
     if (data.key && data.key !== existingContent.key) {
       const keyExists = await prisma.pageContent.findFirst({
-        where: { key: data.key, id: { not: params.id } },
+        where: { key: data.key, id: { not: params.contentId } },
       });
 
       if (keyExists) {
@@ -71,7 +71,7 @@ export async function PUT(
     }
 
     const updatedContent = await prisma.pageContent.update({
-      where: { id: params.id },
+      where: { id: params.contentId },
       data: {
         key: data.key,
         title: data.title,
@@ -92,10 +92,10 @@ export async function PUT(
   }
 }
 
-// DELETE /api/admin/content/[id] - Delete content
+// DELETE /api/admin/content/[contentId] - Delete content
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { contentId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -106,7 +106,7 @@ export async function DELETE(
 
     // Check if content exists
     const existingContent = await prisma.pageContent.findUnique({
-      where: { id: params.id },
+      where: { id: params.contentId },
     });
 
     if (!existingContent) {
@@ -115,7 +115,7 @@ export async function DELETE(
 
     // Delete the content
     await prisma.pageContent.delete({
-      where: { id: params.id },
+      where: { id: params.contentId },
     });
 
     return new NextResponse(null, { status: 204 });
