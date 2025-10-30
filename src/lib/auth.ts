@@ -104,16 +104,18 @@ export const authOptions: NextAuthOptions = {
       return normalizedBaseUrl;
     },
     async session({ session, token }) {
-      if (token) {
+      console.log('Session callback - token:', token);
+      if (token && session.user) {
         session.user = {
           ...session.user,
           id: token.id as string,
-          name: token.name,
-          email: token.email,
-          image: token.picture,
+          name: token.name as string,
+          email: token.email as string,
+          image: token.picture as string,
           role: token.role as string,
         };
       }
+      console.log('Session callback - returning session:', session);
       return session;
     },
     async jwt({ token, user, account }) {
