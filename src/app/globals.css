@@ -44,12 +44,20 @@ div img {
 }
 
 /* Fix any overlays that might cover images */
-.absolute:not(img) {
+.absolute:not(img):not([role="menu"]):not([data-dropdown]):not(a):not(button):not([class*="dropdown"]):not([class*="menu"]) {
   pointer-events: none;
 }
 
 /* Allow interaction with images */
 img {
+  pointer-events: auto !important;
+}
+
+/* Ensure dropdown menus are always interactive */
+[data-dropdown],
+[role="menu"],
+.dropdown-menu,
+[class*="dropdown"] {
   pointer-events: auto !important;
 }
 

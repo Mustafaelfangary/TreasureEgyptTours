@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ViewDetailsButton } from '@/components/ui/ViewDetailsButton';
 
 // Type definitions for different content types
 export type CardType = 'dahabiya' | 'package' | 'blog' | 'itinerary' | 'destination' | 'experience' | 'custom';
@@ -416,24 +416,29 @@ export default function UnifiedCard({
         
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 mt-auto">
-          {primaryButton && (
-            <Link href={primaryButton.href}>
-              <Button className={`w-full bg-gradient-to-r ${config.buttonGradient} text-white px-6 py-3 text-sm font-semibold ${config.buttonHover} rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105`}>
-                {primaryButton.icon && <span className="mr-2">{primaryButton.icon}</span>}
-                {primaryButton.text}
-                <span className="ml-2">→</span>
-              </Button>
-            </Link>
+          {primaryButton ? (
+            <ViewDetailsButton 
+              href={primaryButton.href}
+              className="w-full"
+              icon={primaryButton.icon}
+            >
+              {primaryButton.text}
+            </ViewDetailsButton>
+          ) : (
+            <ViewDetailsButton 
+              href={href}
+              className="w-full"
+            />
           )}
-          
           {secondaryButton && (
-            <Link href={secondaryButton.href}>
-              <Button variant="outline" className={`w-full border-2 ${config.gradientFrom.replace('from-', 'border-')} ${config.hoverColor.replace('group-hover:', '').replace('text-', 'text-')} px-6 py-3 text-sm font-semibold hover:bg-opacity-10 rounded-xl transition-all duration-300 transform hover:scale-105`}>
-                {secondaryButton.icon && <span className="mr-2">{secondaryButton.icon}</span>}
-                {secondaryButton.text}
-                <span className="ml-2">→</span>
-              </Button>
-            </Link>
+            <ViewDetailsButton 
+              href={secondaryButton.href}
+              variant="outline"
+              className="w-full"
+              icon={secondaryButton.icon}
+            >
+              {secondaryButton.text}
+            </ViewDetailsButton>
           )}
         </div>
       </div>

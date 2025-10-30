@@ -80,17 +80,22 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl, token }) {
-      console.log('Auth redirect called with:', { url, baseUrl, token });
+    async redirect({ url, baseUrl }) {
+      console.log('Auth redirect called with:', { url, baseUrl });
       
       // For localhost development, ensure we use the correct baseUrl
       const localhostUrl = 'http://localhost:3000';
       const isLocalhost = process.env.NODE_ENV === 'development';
       const correctBaseUrl = isLocalhost ? localhostUrl : baseUrl;
       
+      // If no callback URL is provided, redirect to the home page
+      if (!url || url === '/') {
+        return `${correctBaseUrl}/`;
+      }
+      
       // If url is relative, prepend baseUrl
       if (url.startsWith('/')) {
-        return correctBaseUrl + url;
+        return `${correctBaseUrl}${url}`;
       }
       
       // If url is absolute and matches our domain, return it
@@ -98,29 +103,31 @@ export const authOptions: NextAuthOptions = {
         return url;
       }
       
-      // Otherwise return home page
+      // Default to baseUrl if the URL is from a different domain
       return correctBaseUrl;
     },
-    async session({ token, session }) {
+    async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.role = token.role as "ADMIN" | "MANAGER" | "GUIDE" | "USER";
-        session.user.originalRole = token.originalRole as "ADMIN" | "MANAGER" | "GUIDE" | "USER";
-        session.user.image = token.image as string;
+        session.user = {
+          ...session.user,
+          id: token.id as string,
+          name: token.name,
+          email: token.email,
+          image: token.picture,
+          role: token.role as string,
+        };
       }
-
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.originalRole = user.originalRole || user.role;
-        token.image = user.image;
-        token.email = user.email;
-        token.name = user.name;
+    async jwt({ token, user, account }) {
+      // Initial sign in
+      if (account && user) {
+        return {
+          ...token,
+          id: user.id,
+          role: user.role,
+          accessToken: account.access_token,
+        };
       }
       return token;
     },

@@ -1,0 +1,9 @@
+{
+  "user": {
+    "id": "test-user-id",
+    "name": "Test Admin",
+    "email": "admin@example.com",
+    "role": "ADMIN"
+  },
+  "expires": "2099-12-31T23:59:59.999Z"
+}

@@ -38,12 +38,12 @@ export function PackageCard({ package: pkg }: PackageCardProps) {
       primaryButton={{
         text: "Book Now",
         href: `/booking?package=${pkg.slug || pkg.id}`,
-        icon: "𓏛"
+        icon: "\ud80f"
       }}
       secondaryButton={{
         text: "View Details",
         href: `/packages/${pkg.slug || pkg.id}`,
-        icon: "𓂋"
+        icon: "\ud80b"
       }}
     />
   );

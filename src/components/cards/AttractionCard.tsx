@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ViewDetailsButton } from '@/components/ui/ViewDetailsButton';
 
 interface AttractionCardProps {
   id: string;
@@ -27,18 +28,18 @@ export function AttractionCard({
   className
 }: AttractionCardProps) {
   return (
-    <Link href={`/attractions/${id}`}>
-      <div className={cn(
-        'group card-travelok h-full cursor-pointer',
-        className
-      )}>
+    <div className={cn(
+      'group card-travelok h-full cursor-pointer',
+      className
+    )}>
+      <Link href={`/attractions/${id}`} className="block h-full">
         {/* Image */}
         <div className="relative h-56 sm:h-64 overflow-hidden">
           <Image
             src={image}
             alt={name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           
           {/* Category Badge */}
@@ -68,12 +69,19 @@ export function AttractionCard({
           </div>
 
           {/* Description */}
-          <p className="text-sm text-travelok-gray line-clamp-3">
+          <p className="text-sm text-travelok-gray line-clamp-3 mb-4">
             {description}
           </p>
+
+          {/* View Details Button */}
+          <ViewDetailsButton 
+            href={`/attractions/${id}`}
+            className="w-full"
+            icon={<ArrowRight className="w-4 h-4" />}
+          />
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
