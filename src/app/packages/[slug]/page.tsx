@@ -1,7 +1,20 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import type { PackageData } from '@/types/package.types';
-import PackageDetailClient from './PackageDetailClient';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the PackageDetail component to avoid SSR issues
+const PackageDetail = dynamic<{ pkg: PackageData }>(
+  () => import('@/components/package/PackageDetail').then((mod) => mod.PackageDetail),
+  { 
+    ssr: true,
+    loading: () => (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+);
 
 interface PageProps {
   params: { slug: string };
@@ -133,7 +146,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
       updatedAt: travelService.updatedAt
     };
 
-    return <PackageDetailClient pkg={packageData} />;
+    return <PackageDetail pkg={packageData} />;
   } catch (error) {
     console.error('Error fetching package:', error);
     notFound();
@@ -184,3 +197,4 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
   };
 }
+  

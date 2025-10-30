@@ -98,7 +98,6 @@ export default function SignInForm() {
                          '/profile';
         window.location.replace(targetUrl);
       }
-      }
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error("Something went wrong. Please try again.");

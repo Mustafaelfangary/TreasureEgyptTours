@@ -1,40 +1,64 @@
-'use client';
-
 import { notFound } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import Script from 'next/script';
+import { prisma } from '@/lib/prisma';
+import DahabiyaDetailClient from '@/components/dahabiyas/DahabiyaDetailClient';
 
-// Dynamically import the DahabiyaDetail component
-const DahabiyaDetail = dynamic(
-  () => import('@/components/dahabiyas/DahabiyaDetail'),
-  { ssr: true }
-);
+export default async function DahabiyaPage({ params }: { params: { slug: string } }) {
+  // First, try to find a matching package with this slug
+  const travelService = await prisma.travelService.findUnique({
+    where: { slug: params.slug },
+    include: {
+      serviceItineraries: {
+        include: {
+          itinerary: {
+            include: {
+              days: {
+                orderBy: { dayNumber: 'asc' },
+                include: {
+                  images: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: {
+          itinerary: {
+            name: 'asc'
+          }
+        }
+      },
+    }
+  });
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dahabiyatnilecruise.com';
+  if (!travelService) {
+    // If no package found, redirect to packages page
+    return notFound();
+  }
 
-// For now, we'll use a simple approach with client-side data fetching
-// In a real app, you would fetch this data from an API route
-export default function DahabiyaPage({ params }: { params: { slug: string } }) {
-  // Mock data that matches the DahabiyaDetail component's expected props
-  const mockDahabiya = {
-    id: '1',
-    name: 'Royal Cleopatra',
-    slug: 'royal-cleopatra',
-    description: 'Experience the ultimate luxury on the Nile with our flagship dahabiya, featuring elegant cabins, gourmet dining, and personalized service.',
-    shortDescription: 'Luxury dahabiya with private balconies and panoramic views',
-    pricePerDay: 1200,
-    capacity: 12,
-    cabins: 6,
-    crew: 8,
-    length: 50,
-    width: 8,
-    yearBuilt: 2020,
-    mainImage: '/images/royal-cleopatra/main.jpg',
-    gallery: [
-      { id: '1', url: '/images/royal-cleopatra/gallery-1.jpg', alt: 'Luxury Cabin' },
-      { id: '2', url: '/images/royal-cleopatra/gallery-2.jpg', alt: 'Sun Deck' },
-      { id: '3', url: '/images/royal-cleopatra/gallery-3.jpg', alt: 'Dining Area' },
-    ],
+  // Transform the data to match the DahabiyaDetail component's expected props
+  const dahabiyaData = {
+    id: travelService.id,
+    name: travelService.name,
+    slug: travelService.slug,
+    description: travelService.description || '',
+    shortDescription: travelService.shortDescription || '',
+    pricePerDay: travelService.pricePerDay ? Number(travelService.pricePerDay) : 0,
+    capacity: travelService.capacity || 0,
+    cabins: Math.ceil((travelService.capacity || 2) / 2), // Assuming 2 people per cabin
+    crew: 6, // Default crew size
+    length: 45, // Default length in meters
+    width: 8, // Default width in meters
+    yearBuilt: 2020, // Default year built
+    mainImage: travelService.mainImage || '/images/default-dahabiya.jpg',
+    gallery: (travelService.gallery || []).map((url: string, index: number) => ({
+      id: `img-${index}`,
+      url,
+      alt: `${travelService.name} - Image ${index + 1}`
+    })),
+    features: travelService.highlights || [],
+    amenities: travelService.includes || [],
+    isActive: travelService.isActive || true,
+    createdAt: travelService.createdAt?.toISOString() || new Date().toISOString(),
+    updatedAt: travelService.updatedAt?.toISOString() || new Date().toISOString(),
     videoUrl: 'https://www.youtube.com/watch?v=example',
     virtualTourUrl: 'https://example.com/virtual-tour',
     features: [
@@ -141,39 +165,24 @@ export default function DahabiyaPage({ params }: { params: { slug: string } }) {
     updatedAt: '2023-10-20T00:00:00Z'
   };
 
-  // In a real app, you would fetch the dahabiya data here
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-pale-green-50 to-pale-blue-50">
-      <DahabiyaDetail dahabiya={mockDahabiya} />
-
-      {/* Structured Data */}
-      <Script
-        id="dahabiya-breadcrumb-json-ld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
-              { "@type": "ListItem", position: 2, name: "Dahabiyas", item: `${baseUrl}/dahabiyas` },
-              { "@type": "ListItem", position: 3, name: mockDahabiya.name, item: `${baseUrl}/dahabiyas/${mockDahabiya.slug}` }
-            ]
-          })
-        }}
-      />
-    </div>
-  );
+  // Pass the dahabiya data to the client component
+  return <DahabiyaDetailClient dahabiya={dahabiyaData} />;
 }
 
-// For now, we'll return a single static path
-// In a real app, you would fetch this from your database
+// Generate static params for all dahabiya slugs
 export async function generateStaticParams() {
-  return [
-    { slug: 'royal-cleopatra' },
-    { slug: 'princess-cleopatra' },
-    { slug: 'queen-cleopatra' },
-    { slug: 'azhar-i' },
-    { slug: 'azhar-ii' }
-  ];
+  const dahabiyas = await prisma.travelService.findMany({
+    where: {
+      isActive: true
+      // Removed category filter to avoid type errors
+    },
+    select: {
+      slug: true
+    },
+    take: 100 // Limit to 100 dahabiyas to avoid timeout during build
+  });
+
+  return dahabiyas.map((dahabiya) => ({
+    slug: dahabiya.slug
+  }));
 }

@@ -106,7 +106,6 @@ export default function AdminDahabiyasPage() {
             <Plus className="mr-2 h-4 w-4" />
             Add Dahabiya
           </Button>
-          </div>
         </div>
         <DahabiyaManager />
       </div>
