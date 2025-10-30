@@ -16,8 +16,11 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
+    verifyRequest: '/auth/verify-request',
+    newUser: '/admin' // Redirect new users to the admin dashboard
   },
   providers: [
     CredentialsProvider({
@@ -83,39 +86,22 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       console.log('Auth redirect called with:', { url, baseUrl });
       
-      // Normalize baseUrl for localhost
-      const normalizedBaseUrl = baseUrl.replace(/:\d+$/, ':3000');
-      
-      // If url is relative, prepend baseUrl
-      if (url.startsWith('/')) {
-        const fullUrl = `${normalizedBaseUrl}${url}`;
-        console.log('Redirecting to relative URL:', fullUrl);
-        return fullUrl;
+      // If this is a callback from sign in, redirect to the admin dashboard
+      if (url.startsWith(baseUrl) || url.startsWith('/')) {
+        // If it's a relative URL, make it absolute
+        const redirectUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
+        console.log('Redirecting to:', redirectUrl);
+        return redirectUrl;
       }
       
-      // If url is absolute and starts with our baseUrl, return it
-      if (url.startsWith(normalizedBaseUrl) || url.startsWith(baseUrl)) {
-        console.log('Redirecting to absolute URL:', url);
-        return url;
-      }
-      
-      // If url is from a different domain or invalid, redirect to home
-      console.log('Redirecting to home page');
-      return normalizedBaseUrl;
+      // If no redirect URL is provided, default to the admin dashboard
+      console.log('No valid redirect URL, defaulting to admin dashboard');
+      return `${baseUrl}/admin`;
     },
     async session({ session, token }) {
       console.log('Session callback - token:', token);
       if (token && session.user) {
-        session.user = {
-          ...session.user,
-          id: token.id as string,
-          name: token.name as string,
-          email: token.email as string,
-          image: token.picture as string,
-          role: token.role as string,
-        };
       }
-      console.log('Session callback - returning session:', session);
       return session;
     },
     async jwt({ token, user, account }) {
@@ -123,9 +109,8 @@ export const authOptions: NextAuthOptions = {
       if (account && user) {
         return {
           ...token,
-          id: user.id,
           role: user.role,
-          accessToken: account.access_token,
+          id: user.id
         };
       }
       return token;
