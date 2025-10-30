@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Button,
@@ -35,7 +35,7 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import { Edit, Delete, Add, Inventory, Star, Download } from '@mui/icons-material';
+import { Edit, Delete, Add, Search, FilterList, Star, Download, Clear, ArrowBack, ArrowForward } from '@mui/icons-material';
 import MediaPicker from './MediaPicker';
 import { toast } from 'sonner';
 
@@ -137,8 +137,44 @@ const PackageManager: React.FC = () => {
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formTab, setFormTab] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    category: '',
+    isActive: '',
+    featured: ''
+  });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Handler for search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(0); // Reset to first page on new search
+    fetchPackages();
+  };
+
+  // Handler for filter changes
+  const handleFilterChange = (filter: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [filter]: value
+    }));
+  };
+
+  // Clear all filters and search
+  const clearFilters = () => {
+    setFilters({
+      category: '',
+      isActive: '',
+      featured: ''
+    });
+    setSearchQuery('');
+    setPage(0);
+    fetchPackages();
+  };
 
   const [formData, setFormData] = useState({
     name: '',
@@ -173,10 +209,18 @@ const PackageManager: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/packages?limit=100'); // Get more packages for admin view
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.isActive !== '') params.append('isActive', filters.isActive);
+      if (filters.featured !== '') params.append('featured', filters.featured);
+      params.append('page', (page + 1).toString());
+      params.append('limit', rowsPerPage.toString());
+
+      const response = await fetch(`/api/packages?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        console.log('Packages API response:', data); // Debug log
         setPackages(data.packages || data || []);
       } else if (response.status === 401) {
         setError('Unauthorized access. Please check your admin permissions.');
@@ -184,7 +228,6 @@ const PackageManager: React.FC = () => {
         setError('Access forbidden. Admin role required.');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Packages API error:', errorData); // Debug log
         throw new Error(errorData.error || `Failed to fetch packages (${response.status})`);
       }
     } catch (err) {
@@ -385,20 +428,183 @@ const PackageManager: React.FC = () => {
     <div className="admin-container">
       <Card className="admin-card">
         <div className="admin-header">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4" component="h1">
-              <Inventory style={{ marginRight: '8px' }} />
-              Royal Packages Management
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => handleOpenDialog()}
-              className="admin-btn-primary"
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
-            >
-              Add New Package
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <Typography variant="h4" component="h1" className="text-white font-bold">
+                  Package Management
+                </Typography>
+                <Typography variant="subtitle1" className="text-blue-100">
+                  Manage your travel packages
+                </Typography>
+              </div>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => handleOpenDialog()}
+                className="admin-btn-primary"
+              >
+                Add Package
+              </Button>
+            </div>
+            
+            {/* Search and Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search packages..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        fetchPackages();
+                      }}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <Clear />
+                    </button>
+                  )}
+                </div>
+              </form>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterList />}
+                  onClick={() => setFilterDialogOpen(true)}
+                  className="bg-white hover:bg-gray-50"
+                >
+                  Filters
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={clearFilters}
+                  disabled={!searchQuery && !Object.values(filters).some(Boolean)}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Filter Dialog */}
+        <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} fullWidth maxWidth="sm">
+          <DialogTitle>Filter Packages</DialogTitle>
+          <DialogContent className="space-y-4 pt-4">
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={filters.category}
+                onChange={(e) => handleFilterChange('category', e.target.value as string)}
+                label="Category"
+              >
+                <MenuItem value="">All Categories</MenuItem>
+                <MenuItem value="LUXURY">Luxury</MenuItem>
+                <MenuItem value="DELUXE">Deluxe</MenuItem>
+                <MenuItem value="PREMIUM">Premium</MenuItem>
+                <MenuItem value="BOUTIQUE">Boutique</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filters.isActive}
+                onChange={(e) => handleFilterChange('isActive', e.target.value as string)}
+                label="Status"
+              >
+                <MenuItem value="">All Statuses</MenuItem>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel>Featured</InputLabel>
+              <Select
+                value={filters.featured}
+                onChange={(e) => handleFilterChange('featured', e.target.value as string)}
+                label="Featured"
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="true">Featured Only</MenuItem>
+                <MenuItem value="false">Not Featured</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions className="p-4">
+            <Button onClick={clearFilters} color="secondary">
+              Clear All
             </Button>
+            <Button 
+              onClick={() => {
+                setFilterDialogOpen(false);
+                fetchPackages();
+              }} 
+              variant="contained"
+              color="primary"
+            >
+              Apply Filters
+            </Button>
+          </DialogActions>
+        </Dialog>
+        
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium">
+              {filteredPackages.length === 0 ? 0 : page * rowsPerPage + 1}
+            </span> to{' '}
+            <span className="font-medium">
+              {Math.min((page + 1) * rowsPerPage, filteredPackages.length)}
+            </span>{' '}
+            of <span className="font-medium">{filteredPackages.length}</span> packages
+          </div>
+          <div className="flex items-center space-x-2">
+            <FormControl variant="outlined" size="small" className="w-32">
+              <InputLabel>Rows per page</InputLabel>
+              <Select
+                value={rowsPerPage}
+                onChange={handleChangeRowsPerPage}
+                label="Rows per page"
+              >
+                <MenuItem value={5}>5 per page</MenuItem>
+                <MenuItem value={10}>10 per page</MenuItem>
+                <MenuItem value={25}>25 per page</MenuItem>
+                <MenuItem value={50}>50 per page</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <IconButton
+              onClick={() => handleChangePage(page - 1)}
+              disabled={page === 0}
+              size="small"
+              className="text-gray-600 hover:bg-gray-100"
+            >
+              <ArrowBack />
+            </IconButton>
+            
+            <span className="text-sm text-gray-600">
+              {page + 1} of {Math.ceil(filteredPackages.length / rowsPerPage) || 1}
+            </span>
+            
+            <IconButton
+              onClick={() => handleChangePage(page + 1)}
+              disabled={(page + 1) * rowsPerPage >= filteredPackages.length}
+              size="small"
+              className="text-gray-600 hover:bg-gray-100"
+            >
+              <ArrowForward />
+            </IconButton>
           </div>
         </div>
 
@@ -423,7 +629,7 @@ const PackageManager: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {packages.map((pkg) => (
+                {paginatedPackages.map((pkg) => (
                   <TableRow key={pkg.id} hover>
                     <TableCell>
                       <div>

@@ -121,7 +121,53 @@ interface Itinerary {
 }
 
 interface DahabiyaDetailProps {
-  slug: string;
+  dahabiya: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    shortDescription?: string;
+    pricePerDay: number;
+    capacity: number;
+    cabins?: number;
+    crew?: number;
+    length?: number;
+    width?: number;
+    yearBuilt?: number;
+    mainImage?: string;
+    gallery: Array<{ id: string; url: string; alt?: string }>;
+    videoUrl?: string;
+    virtualTourUrl?: string;
+    features: string[];
+    amenities?: string[];
+    activities?: string[];
+    diningOptions?: string[];
+    services?: string[];
+    routes?: string[];
+    highlights?: string[];
+    category?: 'LUXURY' | 'PREMIUM';
+    rating?: number;
+    reviewCount?: number;
+    itineraries?: Array<{
+      id: string;
+      day: number;
+      title: string;
+      description: string;
+      activities: Array<{
+        id: string;
+        description: string;
+        time?: string;
+      }>;
+    }>;
+    reviews?: Array<{
+      id: string;
+      author: string;
+      rating: number;
+      content: string;
+      date: string;
+      isApproved?: boolean;
+    }>;
+  };
 }
 
 // Helper function to convert YouTube URL to embed format
@@ -147,37 +193,12 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return url;
 };
 
-export default function DahabiyaDetail({ slug }: DahabiyaDetailProps) {
-  const [dahabiya, setDahabiya] = useState<Dahabiya | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string>('');
+export default function DahabiyaDetail({ dahabiya }: DahabiyaDetailProps) {
   const [activeTab, setActiveTab] = useState(0);
-  const [showVideo, setShowVideo] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
-  const [galleryIndex, setGalleryIndex] = useState(0);
-  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
-  const [loadingItineraries, setLoadingItineraries] = useState(false);
-  const [documents, setDocuments] = useState<Array<{ id: string; name: string; type: string; url: string; size: number }>>([]);
-  const [loadingDocuments, setLoadingDocuments] = useState(false);
-
-  // Keyboard navigation for gallery
-  useEffect(() => {
-    if (!showGallery || !dahabiya?.gallery) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setShowGallery(false);
-      } else if (e.key === 'ArrowLeft') {
-        setGalleryIndex(prev => Math.max(0, prev - 1));
-      } else if (e.key === 'ArrowRight') {
-        setGalleryIndex(prev => Math.min(dahabiya.gallery.length - 1, prev + 1));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showGallery, galleryIndex, dahabiya?.gallery]);
+  const [expandedItinerary, setExpandedItinerary] = useState<number | false>(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(null);
 
   useEffect(() => {
     const fetchDahabiya = async () => {

@@ -3,10 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import DahabiyaManager from '@/components/admin/DahabiyaManager';
-import { Card, CardContent } from '@/components/ui/card';
+import dynamic from 'next/dynamic';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lock, RefreshCw } from 'lucide-react';
+import { Lock, RefreshCw, Plus } from 'lucide-react';
+
+// Dynamically import the DahabiyaManager component with no SSR
+const DahabiyaManager = dynamic(
+  () => import('@/components/admin/DahabiyaManager'),
+  { ssr: false }
+);
 
 export default function AdminDahabiyasPage() {
   const { data: session, status } = useSession();
@@ -48,26 +54,30 @@ export default function AdminDahabiyasPage() {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-navy-blue-100">
-        <Card className="w-96">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ocean-blue-50 to-navy-blue-100 p-4">
+        <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <Lock className="w-12 h-12 mx-auto mb-4 text-red-500" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+              <Lock className="h-6 w-6 text-red-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Access Denied</h2>
-            <p className="text-gray-600 mb-4">
-              You need administrator or manager privileges to access dahabiya management.
+            <p className="text-gray-600 mb-6">
+              You don't have sufficient permissions to access the Dahabiyas management section.
+              Please contact an administrator if you believe this is an error.
             </p>
-            <div className="flex gap-2 justify-center">
-              <Button
+            <div className="space-y-3">
+              <Button 
                 onClick={() => router.push('/admin')}
-                variant="outline"
+                className="w-full"
               >
-                Back to Admin
+                Back to Dashboard
               </Button>
-              <Button
+              <Button 
+                variant="outline" 
                 onClick={() => router.push('/')}
-                className="bg-amber-600 hover:bg-blue-700"
+                className="w-full"
               >
-                Go Home
+                Return to Home
               </Button>
             </div>
           </CardContent>
@@ -78,20 +88,24 @@ export default function AdminDahabiyasPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ocean-blue-50 to-navy-blue-100">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto py-8 px-4 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dahabiya Management</h1>
-            <p className="text-gray-600">Manage your fleet of luxury dahabiyas</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dahabiyas Management</h1>
+            <p className="text-muted-foreground">Manage your dahabiya fleet and configurations</p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => window.location.reload()}
-              variant="outline"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
+          <Button 
+            onClick={() => {
+              // This will be handled by the DahabiyaManager component's state
+              const addButton = document.querySelector('button[aria-label="Add Dahabiya"]') as HTMLButtonElement;
+              if (addButton) {
+                addButton.click();
+              }
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Dahabiya
+          </Button>
           </div>
         </div>
         <DahabiyaManager />

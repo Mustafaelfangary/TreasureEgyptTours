@@ -9,6 +9,7 @@ import { LogOut, User, LayoutDashboard, UserCircle, Menu, X, Globe, ChevronDown 
 import { useTranslation } from '@/lib/i18n';
 import { usePathname } from 'next/navigation';
 import { useContent } from '@/hooks/useContent';
+import styles from './Navbar.module.css';
 // Removed pharaonic UI imports for modern theme
 import {
   DropdownMenu,
@@ -211,7 +212,7 @@ export default function Navbar() {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [settings, setSettings] = useState({ siteName: 'Treasure Egypt Tours' });
-  const { language, setLanguage } = useLanguage();
+  const { locale, setLocale } = useLanguage();
   const t = useTranslation();
   const pathname = usePathname();
   const { getContent: getHomepageContent } = useContent({ page: 'homepage' });
@@ -266,8 +267,11 @@ export default function Navbar() {
     };
   }, [getHomepageContent]);
 
-  const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value);
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+
+  const handleLanguageChange = (lang: string) => {
+    setLocale(lang as 'en' | 'ar');
+    setIsLanguageDropdownOpen(false);
   };
 
   const handleSignOut = async () => {
@@ -602,74 +606,91 @@ export default function Navbar() {
                       </DropdownMenuItem>
 
                       {/* Divider */}
-                      <div style={{
-                        height: '1px',
-                        background: 'linear-gradient(90deg, transparent, rgba(0, 128, 255, 0.3), transparent)',
-                        margin: '8px 0'
-                      }} />
-
-                      {/* Dropdown items */}
-                      {link.dropdownItems?.map((item, itemIndex) => (
-                        <DropdownMenuItem key={itemIndex} asChild onClick={(e) => e.stopPropagation()}>
-                          <Link href={item.href} style={{
+                      <div 
+                        key={`divider-${link.href}`}
+                        style={{
+                          height: '1px',
+                          background: 'linear-gradient(90deg, transparent, rgba(0, 128, 255, 0.3), transparent)',
+                          margin: '8px 0'
+                        }}
+                      />
+                      {link.dropdownItems.map((item, index) => (
+                        <Link 
+                          key={index}
+                          href={item.href}
+                          className={styles.navLink}
+                          style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            transition: 'all 0.2s ease',
-                            color: '#555',
-                            textDecoration: 'none',
-                            fontSize: '13px'
-                          }}>
-                            {item.hieroglyph && <span style={{ fontSize: '14px' }}>{item.hieroglyph}</span>}
-                            {item.label}
-                          </Link>
-                        </DropdownMenuItem>
+                            justifyContent: 'center',
+                            minWidth: 'fit-content',
+                            maxWidth: 'none',
+                            textAlign: 'center',
+                            ...(item.special ? {
+                              background: 'linear-gradient(135deg, rgba(59,130,246,1) 0%, rgba(52,211,153,1) 100%)',
+                              boxShadow: '0 6px 18px rgba(59,130,246,0.35)'
+                            } : {})
+                          }}
+                          onMouseEnter={(e) => {
+                            if (item.special) {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.9) 0%, rgba(52,211,153,0.9) 100%)';
+                              e.currentTarget.style.transform = 'translateY(-1px) scale(1.05)';
+                              e.currentTarget.style.boxShadow = '0 12px 28px rgba(59,130,246,0.35)';
+                            } else {
+                              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (item.special) {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,1) 0%, rgba(52,211,153,1) 100%)';
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.boxShadow = '0 6px 18px rgba(59,130,246,0.35)';
+                            } else {
+                              e.currentTarget.style.background = '';
+                              e.currentTarget.style.transform = '';
+                            }
+                          }}
+                        >
+                          {item.label}
+                        </Link>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link
+                  <Link 
                     href={link.href}
+                    className={styles.navLink}
                     style={{
-                      color: link.special ? 'white' : getTextColor(),
-                      fontSize: link.special ? '0.85rem' : '0.85rem',
-                      fontWeight: link.special ? 700 : 600,
-                      padding: link.special ? '0.6rem 1.1rem' : '0.6rem 0.9rem',
-                      borderRadius: '0.75rem',
-                      textDecoration: 'none',
-                      transition: 'all 0.3s ease',
-                      background: link.special ? 'linear-gradient(135deg, rgba(59,130,246,1) 0%, rgba(52,211,153,1) 100%)' : 'transparent',
-                      boxShadow: link.special ? '0 6px 18px rgba(59,130,246,0.35)' : (isActive(link.href) ? 'inset 0 -2px 0 #34d399' : 'none'),
-                      whiteSpace: 'nowrap',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       minWidth: 'fit-content',
                       maxWidth: 'none',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      ...(link.special ? {
+                        background: 'linear-gradient(135deg, rgba(59,130,246,1) 0%, rgba(52,211,153,1) 100%)',
+                        boxShadow: '0 6px 18px rgba(59,130,246,0.35)'
+                      } : {})
                     }}
                     onMouseEnter={(e) => {
-                      if (!link.special) {
-                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.25) 0%, rgba(52,211,153,0.25) 100%)';
-                        e.currentTarget.style.color = 'white';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(59,130,246,0.25), 0 2px 6px rgba(0,0,0,0.08)';
-                      } else {
+                      if (link.special) {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.9) 0%, rgba(52,211,153,0.9) 100%)';
                         e.currentTarget.style.transform = 'translateY(-1px) scale(1.05)';
                         e.currentTarget.style.boxShadow = '0 12px 28px rgba(59,130,246,0.35)';
+                      } else {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (!link.special) {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = getTextColor();
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      } else {
-                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      if (link.special) {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,1) 0%, rgba(52,211,153,1) 100%)';
+                        e.currentTarget.style.transform = 'scale(1)';
                         e.currentTarget.style.boxShadow = '0 6px 18px rgba(59,130,246,0.35)';
+                      } else {
+                        e.currentTarget.style.background = '';
+                        e.currentTarget.style.transform = '';
                       }
                     }}
                   >
@@ -691,30 +712,22 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
+                  className={styles.navButton}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
                     border: isHomepage && !scrolled
                       ? '2px solid rgba(255, 255, 255, 0.4)'
                       : '2px solid transparent',
                     borderImage: !isHomepage || scrolled
                       ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(147, 51, 234, 0.4)) 1'
                       : 'none',
-                    borderRadius: '0.5rem',
-                    padding: '0.35rem 0.5rem',
                     background: isHomepage && !scrolled
                       ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%)'
-                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
-                    backdropFilter: 'blur(15px)',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)'
+                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)'
                   }}
                 >
                   <Image
-                    src={LANGUAGES.find(l => l.code === language)?.flagSvg || '/flags/us.svg'}
-                    alt={LANGUAGES.find(l => l.code === language)?.name || 'Language'}
+                    src={LANGUAGES.find(l => l.code === locale)?.flagSvg || '/flags/us.svg'}
+                    alt={LANGUAGES.find(l => l.code === locale)?.name || 'Language'}
                     width={24}
                     height={16}
                     style={{ borderRadius: '2px', objectFit: 'cover' }}
@@ -736,28 +749,20 @@ export default function Navbar() {
                 }}
               >
                 {LANGUAGES.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      backgroundColor: language === lang.code ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                      transition: 'all 0.2s ease'
-                    }}
+                  <DropdownMenuItem 
+                    key={lang.code} 
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className="flex items-center gap-2 cursor-pointer"
                   >
-                    <Image
-                      src={lang.flagSvg}
-                      alt={lang.name}
-                      width={24}
-                      height={16}
+                    <Image 
+                      src={lang.flagSvg} 
+                      alt={lang.name} 
+                      width={20} 
+                      height={15}
+                      className="rounded-sm"
                       style={{ borderRadius: '2px', objectFit: 'cover' }}
                     />
-                    <span style={{ fontSize: '14px', fontWeight: language === lang.code ? 600 : 400 }}>
+                    <span style={{ fontSize: '14px', fontWeight: locale === lang.code ? 600 : 400 }}>
                       {lang.name}
                     </span>
                   </DropdownMenuItem>
@@ -770,62 +775,99 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
+                    onClick={(e) => e.stopPropagation()} // Prevent event propagation
+                    className={styles.navButton}
                     style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%)',
-                      backdropFilter: 'blur(15px)',
-                      border: '2px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: '0.5rem',
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      color: 'white',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      boxShadow: '0 4px 16px rgba(0, 128, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center'
+                      background: isHomepage && !scrolled
+                        ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%)'
+                        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+                      ':hover': {
+                        background: isHomepage && !scrolled ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.05)'
+                      }
                     }}
                   >
-                    <UserCircle size={14} style={{ marginRight: '0.25rem' }} />
-                    {session.user?.name || session.user?.email}
+                    <UserCircle size={18} />
+                    <span style={{ 
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '150px'
+                    }}>
+                      {session.user?.name || session.user?.email?.split('@')[0]}
+                    </span>
+                    <ChevronDown size={14} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" style={{ background: "white" }}>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
+                <DropdownMenuContent 
+                  align="end" 
+                  style={{ 
+                    background: 'rgba(255, 255, 255, 0.98)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(52, 211, 153, 0.25)',
+                    borderRadius: '12px',
+                    padding: '8px',
+                    minWidth: '220px',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    zIndex: 1000
+                  }}
+                >
+                  <div style={{ 
+                    padding: '8px 12px',
+                    marginBottom: '4px',
+                    borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+                  }}>
+                    <div style={{ 
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
                       color: 'hsl(222.2, 84%, 4.9%)',
-                      textDecoration: 'none'
+                      marginBottom: '4px'
                     }}>
+                      {session.user?.name}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.8rem',
+                      color: 'hsl(215.4, 16.3%, 46.9%)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {session.user?.email}
+                    </div>
+                  </div>
+                  
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/profile" 
+                      onClick={(e) => e.stopPropagation()}
+                      className={styles.dropdownItem}
+                    >
                       <User size={16} />
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   {session.user?.role === 'ADMIN' && (
                     <DropdownMenuItem asChild>
-                      <Link href="/admin" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        color: 'hsl(222.2, 84%, 4.9%)',
-                        textDecoration: 'none'
-                      }}>
+                      <Link 
+                        href="/admin" 
+                        onClick={(e) => e.stopPropagation()}
+                        className={styles.dropdownItem}
+                      >
                         <LayoutDashboard size={16} />
-                        Admin Panel
+                        Admin Dashboard
                       </Link>
-                    </DropdownMenuItem>
+                  </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={handleSignOut} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: 'hsl(222.2, 84%, 4.9%)',
-                    cursor: 'pointer'
-                  }}>
+                  <DropdownMenuSeparator style={{ margin: '4px 0', background: 'rgba(0, 0, 0, 0.05)' }} />
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      signOut({ callbackUrl: '/' });
+                    }}
+                    className={styles.signOutButton}
+                    }}
+                  >
                     <LogOut size={16} />
-                    {t('signOut')}
+                    Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -860,7 +902,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-
     </nav>
 
     {/* Mobile Navigation Component */}
@@ -870,6 +911,6 @@ export default function Navbar() {
         onToggle={() => setMobileOpen(!mobileOpen)}
       />
     </div>
-    </>
+  </>
   );
 }
