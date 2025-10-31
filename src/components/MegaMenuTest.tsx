@@ -104,13 +104,20 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
     setIsClient(true);
     
     // Only run in development and client-side
-    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') return;
-    
+    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') {
+      return;
+    }
+
+    // Check if tests have already run to prevent multiple executions
+    if (testResults.runCount > 0) {
+      return;
+    }
+
     // Use requestAnimationFrame to ensure DOM is ready
     const frameId = requestAnimationFrame(() => {
       const timer = setTimeout(() => {
         runTests();
-      }, 2000);
+      }, 1000);
 
       return () => clearTimeout(timer);
     });
@@ -118,7 +125,7 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, []);
+  }, [testResults.runCount]); // Only re-run if runCount changes
 
   // Don't render anything in production or during SSR
   if (process.env.NODE_ENV !== 'development' || !isClient) {

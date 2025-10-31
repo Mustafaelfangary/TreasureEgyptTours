@@ -70,26 +70,33 @@ export default function LogoLoader({
           variant === 'elegant' && "animate-pulse duration-1000"
         )}
       >
-        <Image
-          src={logoUrl || '/logos/treasureegypttours.svg'}
-          alt="Treasure Egypt Tours Logo"
-          width={width}
-          height={height}
-          className={cn(
-            "mx-auto drop-shadow-lg",
-            variant === 'minimal' && "drop-shadow-none",
-            variant === 'elegant' && "drop-shadow-xl filter brightness-110"
-          )}
-          priority
-          unoptimized={true}
-          onLoad={() => setLoadedOnce(true)}
-          onError={() => {
-            // fallback to default if the provided URL fails
-            if (logoUrl !== '/logos/treasureegypttours.svg') {
-              setLogoUrl('/logos/treasureegypttours.svg');
-            }
-          }}
-        />
+        <div className="relative w-full h-full">
+          <Image
+            src={logoUrl || '/logos/treasureegypttours.svg'}
+            alt="Treasure Egypt Tours Logo"
+            width={width}
+            height={height}
+            className={cn(
+              "mx-auto drop-shadow-lg w-auto h-auto max-w-full max-h-full object-contain",
+              variant === 'minimal' && "drop-shadow-none",
+              variant === 'elegant' && "drop-shadow-xl filter brightness-110"
+            )}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain'
+            }}
+            priority
+            unoptimized={true}
+            onLoad={() => setLoadedOnce(true)}
+            onError={() => {
+              // fallback to default if the provided URL fails
+              if (logoUrl !== '/logos/treasureegypttours.svg') {
+                setLogoUrl('/logos/treasureegypttours.svg');
+              }
+            }}
+          />
+        </div>
       </div>
 
       {/* Loading dots animation */}
