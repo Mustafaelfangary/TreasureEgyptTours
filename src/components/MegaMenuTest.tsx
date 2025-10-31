@@ -9,8 +9,12 @@ interface MegaMenuTestProps {
 export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
   const [testResults, setTestResults] = useState<any>({});
   const [isRunning, setIsRunning] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const runTests = async () => {
+    // Only run in development and client-side
+    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') return;
+    
     setIsRunning(true);
     const results: any = {
       hoverBehavior: false,
@@ -33,22 +37,29 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
 
       // Test 2: Image loading
       console.log('🧪 Testing image loading...');
-      const images = document.querySelectorAll('img');
+      const images = Array.from(document.querySelectorAll('img'));
       let loadedImages = 0;
-      let totalImages = images.length;
       
-      for (const img of images) {
+      // Filter out tracking pixels and other small images
+      const visibleImages = images.filter(img => {
+        const rect = img.getBoundingClientRect();
+        return rect.width > 10 && rect.height > 10; // Only count visible images
+      });
+      
+      const totalImages = visibleImages.length;
+      
+      for (const img of visibleImages) {
         if (img.complete && img.naturalHeight !== 0) {
           loadedImages++;
         }
       }
       
-      results.imageLoading = loadedImages / totalImages > 0.8; // 80% success rate
+      results.imageLoading = totalImages === 0 ? true : loadedImages / totalImages > 0.8;
       console.log(`✅ Images loaded: ${loadedImages}/${totalImages}`);
 
       // Test 3: Navigation links
       console.log('🧪 Testing navigation links...');
-      const links = document.querySelectorAll('a[href]');
+      const links = Array.from(document.querySelectorAll('a[href]'));
       let validLinks = 0;
       
       links.forEach(link => {
@@ -58,7 +69,7 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
         }
       });
       
-      results.navigationLinks = validLinks / links.length > 0.9; // 90% success rate
+      results.navigationLinks = links.length === 0 ? true : validLinks / links.length > 0.9;
       console.log(`✅ Valid navigation links: ${validLinks}/${links.length}`);
 
       // Test 4: Mobile menu
@@ -67,15 +78,16 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
                               document.querySelector('button[aria-label*="menu"]') ||
                               document.querySelector('.mobile-menu-button');
       
+      results.mobileMenu = !!mobileMenuButton;
       if (mobileMenuButton) {
-        results.mobileMenu = true;
         console.log('✅ Mobile menu button found');
       } else {
         results.errors.push('Mobile menu button not found');
       }
 
     } catch (error) {
-      results.errors.push(`Test error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      results.errors.push(`Test error: ${errorMessage}`);
       console.error('❌ Test error:', error);
     }
 
@@ -88,13 +100,30 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
   };
 
   useEffect(() => {
-    // Auto-run tests after component mounts
-    const timer = setTimeout(() => {
-      runTests();
-    }, 2000);
+    // Set client-side flag
+    setIsClient(true);
+    
+    // Only run in development and client-side
+    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') return;
+    
+    // Use requestAnimationFrame to ensure DOM is ready
+    const frameId = requestAnimationFrame(() => {
+      const timer = setTimeout(() => {
+        runTests();
+      }, 2000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
   }, []);
+
+  // Don't render anything in production or during SSR
+  if (process.env.NODE_ENV !== 'development' || !isClient) {
+    return null;
+  }
 
   const getStatusIcon = (status: boolean) => status ? '✅' : '❌';
   const getStatusText = (status: boolean) => status ? 'PASS' : 'FAIL';
@@ -153,9 +182,11 @@ export default function MegaMenuTest({ onTestComplete }: MegaMenuTestProps) {
         )}
       </div>
 
-      <div className="mt-3 text-xs text-gray-500">
-        Last updated: {new Date().toLocaleTimeString()}
-      </div>
+      {isClient && (
+        <div className="mt-3 text-xs text-gray-500">
+          Last updated: {new Date().toLocaleTimeString()}
+        </div>
+      )}
     </div>
   );
 }
