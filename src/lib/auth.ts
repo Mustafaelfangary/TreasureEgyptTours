@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
-          roles: user.roles,
+          role: user.role,  // Changed from roles to role
         };
       },
     }),
@@ -58,14 +58,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.roles = user.roles;
+        token.role = user.role;  // Changed from roles to role
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.roles = token.roles as Role[];
+        session.user.role = token.role as Role;  // Changed from roles to role
       }
       return session;
     },
@@ -77,13 +77,13 @@ export const getAuthSession = () => getServerSession(authOptions);
 // Middleware for protecting API routes
 export const requireAuth = (handler: any, roles?: Role[]) => {
   return async (req: any, res: any) => {
-    const session = await getAuthSession({ req });
+    const session = await getAuthSession();
 
     if (!session) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    if (roles && !roles.some((role) => session.user.roles.includes(role))) {
+    if (roles && !roles.includes(session.user.role)) {
       return res.status(403).json({ error: "Forbidden" });
     }
 
