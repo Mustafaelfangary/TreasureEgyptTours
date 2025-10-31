@@ -54,6 +54,15 @@ export default function TravelOKNavbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { locale, setLocale } = useLanguage();
+  
+  // Debug: Log session data
+  useEffect(() => {
+    console.log('Session data:', session);
+    if (session?.user) {
+      console.log('User role:', session.user.role);
+      console.log('Is admin?', session.user.role === 'ADMIN');
+    }
+  }, [session]);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const portalRef = useRef<HTMLDivElement | null>(null);
@@ -640,6 +649,7 @@ export default function TravelOKNavbar() {
                         <User size={16} />
                         <span>Profile</span>
                       </Link>
+                      {/* Show admin button if user has ADMIN role */}
                       {session.user?.role === 'ADMIN' && (
                         <Link 
                           href="/admin" 

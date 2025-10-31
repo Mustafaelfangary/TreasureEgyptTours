@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
-          role: user.role,  // Changed from roles to role
+          role: user.role,  
         };
       },
     }),
@@ -58,14 +58,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;  // Changed from roles to role
+        token.role = user.role;
+        token.originalRole = user.role; 
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as Role;  // Changed from roles to role
+        session.user.role = token.role as Role;
+        session.user.originalRole = token.originalRole as Role;
       }
       return session;
     },
