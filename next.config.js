@@ -4,6 +4,12 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Server port configuration
+  env: {
+    PORT: '3001',
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3001'
+  },
+  
   // Temporarily ignore TypeScript errors during build
   typescript: {
     ignoreBuildErrors: true,

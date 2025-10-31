@@ -1,119 +1,92 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+// src/lib/auth.ts
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { NextAuthOptions, getServerSession } from "next-auth";
 import { prisma } from "./prisma";
-import { compare } from "bcrypt";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { Role } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
-  debug: process.env.NODE_ENV === 'development',
-  secret: process.env.NEXTAUTH_SECRET,
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
-  },
-  jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/error',
-    verifyRequest: '/auth/verify-request',
-    newUser: '/admin' // Redirect new users to the admin dashboard
+    signIn: "/auth/signin",
+    error: "/auth/error",
   },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log('Missing credentials');
-          return null;
+          throw new Error("Please enter your email and password");
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
+          where: { email: credentials.email },
         });
 
-        console.log('Found user:', user ? 'yes' : 'no');
-
-        if (!user) {
-          console.log('User not found');
-          return null;
+        if (!user || !user.password) {
+          throw new Error("No user found with this email");
         }
 
-        if (!user.password) {
-          console.log('User has no password');
-          return null;
-        }
-
-        const isPasswordValid = await compare(credentials.password, user.password);
-        console.log('Password valid:', isPasswordValid);
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
         if (!isPasswordValid) {
-          console.log('Invalid password');
-          return null;
+          throw new Error("Incorrect password");
         }
 
-        // Check if email is verified (bypass for admin users)
-        if (!user.isEmailVerified && user.role !== 'ADMIN') {
-          console.log('Email not verified for user:', user.email);
-          // Return null instead of throwing error to let the client handle it
-          return null;
-        }
-
-        console.log('Authentication successful for user:', user.email);
-
-        // Keep all roles for proper authorization
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role, // Keep original role: ADMIN, MANAGER, GUIDE, USER
-          originalRole: user.role, // Store original role for reference
-          image: user.image
+          image: user.image,
+          roles: user.roles,
         };
       },
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      console.log('Auth redirect called with:', { url, baseUrl });
-      
-      // If this is a callback from sign in, redirect to the admin dashboard
-      if (url.startsWith(baseUrl) || url.startsWith('/')) {
-        // If it's a relative URL, make it absolute
-        const redirectUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
-        console.log('Redirecting to:', redirectUrl);
-        return redirectUrl;
-      }
-      
-      // If no redirect URL is provided, default to the admin dashboard
-      console.log('No valid redirect URL, defaulting to admin dashboard');
-      return `${baseUrl}/admin`;
-    },
-    async session({ session, token }) {
-      console.log('Session callback - token:', token);
-      if (token && session.user) {
-      }
-      return session;
-    },
-    async jwt({ token, user, account }) {
-      // Initial sign in
-      if (account && user) {
-        return {
-          ...token,
-          role: user.role,
-          id: user.id
-        };
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.roles = user.roles;
       }
       return token;
     },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.roles = token.roles as Role[];
+      }
+      return session;
+    },
   },
+};
+
+export const getAuthSession = () => getServerSession(authOptions);
+
+// Middleware for protecting API routes
+export const requireAuth = (handler: any, roles?: Role[]) => {
+  return async (req: any, res: any) => {
+    const session = await getAuthSession({ req });
+
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (roles && !roles.some((role) => session.user.roles.includes(role))) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    return handler(req, res, session);
+  };
 };

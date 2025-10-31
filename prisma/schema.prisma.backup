@@ -99,10 +99,10 @@ model AvailabilityDate {
   price      Decimal  @db.Decimal(10, 2)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  dahabiyaId String
-  dahabiya   Dahabiya @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
+  travelServiceId String
+  travelService   TravelService @relation(fields: [travelServiceId], references: [id], onDelete: Cascade)
 
-  @@unique([dahabiyaId, date])
+  @@unique([travelServiceId, date])
 }
 
 model ItineraryDay {
@@ -167,13 +167,13 @@ model Booking {
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
   specialRequests  String?
-  dahabiyaId       String?
+  travelServiceId  String?
   packageId        String?
   promotionId      String?
   type             String?
   bookingReference String?
   bookedExcursions BookedExcursion[]
-  dahabiya         Dahabiya?             @relation(fields: [dahabiyaId], references: [id])
+  travelService    TravelService?        @relation(fields: [travelServiceId], references: [id])
   package          Package?              @relation(fields: [packageId], references: [id])
   promotion        Promotion?            @relation(fields: [promotionId], references: [id])
   user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -278,7 +278,7 @@ model Itinerary {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   imageId            String?             @unique
-  dahabiyat          DahabiyaItinerary[]
+  travelServices     TravelServiceItinerary[]
   image              Image?              @relation(fields: [imageId], references: [id])
   pricingTiers       ItineraryPricing[]
   days               ItineraryDay[]
@@ -297,17 +297,18 @@ model ItineraryPricing {
   itinerary        Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
 }
 
-model DahabiyaItinerary {
-  id          String    @id @default(cuid())
-  dahabiyaId  String
-  itineraryId String
-  isDefault   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  dahabiya    Dahabiya  @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
-  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+model TravelServiceItinerary {
+  id               String         @id @default(cuid())
+  travelServiceId  String
+  itineraryId      String
+  isDefault        Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  travelService    TravelService  @relation(fields: [travelServiceId], references: [id], onDelete: Cascade)
+  itinerary        Itinerary      @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
 
-  @@unique([dahabiyaId, itineraryId])
+  @@unique([travelServiceId, itineraryId])
+  @@map("travel_service_itineraries")
 }
 
 model Blog {
@@ -318,7 +319,7 @@ model Blog {
   content        String
   mainImageUrl   String?
   heroImageUrl   String?
-  author         String    @default("Cleopatra Dahabiyat")
+  author         String    @default("AltaVida Tours")
   tags           String[]
   category       String?
   isPublished    Boolean   @default(false)
@@ -559,47 +560,46 @@ model MediaAsset {
   @@map("media_assets")
 }
 
-model Dahabiya {
-  id                  String              @id @default(cuid())
+model TravelService {
+  id                  String                    @id @default(cuid())
   name                String
-  slug                String              @unique
+  slug                String                    @unique
   description         String
   shortDescription    String?
-  pricePerDay         Decimal             @db.Decimal(10, 2)
+  pricePerDay         Decimal                   @db.Decimal(10, 2)
   capacity            Int
-  cabins              Int                 @default(0)
-  crew                Int                 @default(0)
-  length              Float?
-  width               Float?
-  yearBuilt           Int?
+  duration            Int                       @default(1) // Duration in days
+  serviceType         TravelServiceType         @default(TOUR)
+  location            String?
+  country             String?
+  region              String?
   mainImage           String?
   gallery             String[]
-  specificationsImage String?
   videoUrl            String?
   virtualTourUrl      String?
   features            String[]
   amenities           String[]
   activities          String[]
-  diningOptions       String[]
-  services            String[]
-  routes              String[]
+  includes            String[]
+  excludes            String[]
   highlights          String[]
-  rating              Float               @default(0)
-  reviewCount         Int                 @default(0)
-  isActive            Boolean             @default(true)
-  isFeatured          Boolean             @default(false)
-  category            DahabiyaCategory    @default(DELUXE)
+  difficulty          DifficultyLevel           @default(EASY)
+  rating              Float                     @default(0)
+  reviewCount         Int                       @default(0)
+  isActive            Boolean                   @default(true)
+  isFeatured          Boolean                   @default(false)
+  category            ServiceCategory           @default(STANDARD)
   metaTitle           String?
   metaDescription     String?
   tags                String[]
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
   availabilityDates   AvailabilityDate[]
   bookings            Booking[]
-  itineraries         DahabiyaItinerary[]
+  serviceItineraries  TravelServiceItinerary[]
   pdfDocuments        PDFDocument[]
 
-  @@map("dahabiyat")
+  @@map("travel_services")
 }
 
 model BookingModification {
@@ -779,12 +779,12 @@ model PDFDocument {
   category    String?
   url         String
   size        Int
-  dahabiyaId  String?
-  itineraryId String?
-  uploadedAt  DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  dahabiya    Dahabiya?  @relation(fields: [dahabiyaId], references: [id], onDelete: Cascade)
-  itinerary   Itinerary? @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  travelServiceId String?
+  itineraryId     String?
+  uploadedAt      DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  travelService   TravelService? @relation(fields: [travelServiceId], references: [id], onDelete: Cascade)
+  itinerary       Itinerary?     @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
 
   @@map("pdf_documents")
 }
@@ -851,17 +851,28 @@ enum PaymentStatus {
   REFUNDED
 }
 
-enum DahabiyaCategory {
-  LUXURY
+enum ServiceCategory {
+  STANDARD
   DELUXE
+  LUXURY
   PREMIUM
-  BOUTIQUE
+  VIP
 }
 
-enum DahabiyaStatus {
-  ACTIVE
-  INACTIVE
-  MAINTENANCE
+enum TravelServiceType {
+  TOUR
+  ACCOMMODATION
+  TRANSPORTATION
+  ACTIVITY
+  PACKAGE
+  EXPERIENCE
+}
+
+enum DifficultyLevel {
+  EASY
+  MODERATE
+  CHALLENGING
+  EXTREME
 }
 
 enum MealType {
@@ -910,7 +921,146 @@ model Partner {
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  provider = "prisma-client-js"
+}
 
-  @@map("partners")
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  hashedPassword String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  tours         TravelService[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model TravelService {
+  id              String         @id @default(cuid())
+  title           String
+  slug            String         @unique
+  description     String         @db.Text
+  duration        Int
+  maxGroupSize    Int
+  difficulty      DifficultyLevel
+  price           Float
+  priceDiscount   Float?
+  summary         String         @db.Text
+  startLocation   Json
+  locations       Json[]
+  startDates      String[]
+  images          String[]
+  isActive        Boolean        @default(true)
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  categories      Category[]     @relation("TravelServiceCategories")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  bookings        Booking[]
+  availability    AvailabilityDate[]
+}
+
+model Category {
+  id             String          @id @default(cuid())
+  name           String
+  slug           String          @unique
+  description    String?         @db.Text
+  image          String?
+  travelServices TravelService[] @relation("TravelServiceCategories")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Booking {
+  id              String    @id @default(cuid())
+  tourId          String
+  tour            TravelService @relation(fields: [tourId], references: [id])
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  price           Float
+  isPaid          Boolean   @default(false)
+  startDate       DateTime
+  endDate         DateTime
+  numOfPeople     Int
+  specialRequests String?   @db.Text
+  status          BookingStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model AvailabilityDate {
+  id              String   @id @default(cuid())
+  date            DateTime
+  available       Boolean  @default(true)
+  price           Float
+  travelServiceId String
+  travelService   TravelService @relation(fields: [travelServiceId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([travelServiceId, date])
+}
+
+enum Role {
+  USER
+  ADMIN
+  GUIDE
+  LEAD_GUIDE
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  DIFFICULT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }

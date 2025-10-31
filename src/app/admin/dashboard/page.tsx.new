@@ -1,0 +1,323 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+  Calendar, 
+  Users, 
+  Package, 
+  CreditCard, 
+  ArrowUp, 
+  ArrowDown,
+  Loader2,
+  AlertCircle,
+  Plus,
+  Settings
+} from 'lucide-react';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+
+// Utility function to combine class names
+function cn(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: string;
+  changeType?: 'increase' | 'decrease';
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+}
+
+interface RecentBooking {
+  id: string;
+  bookingNumber: string;
+  startDate: string;
+  totalPrice: number;
+  status: string;
+  user: {
+    name: string | null;
+    email: string;
+  };
+}
+
+interface RecentUser {
+  id: string;
+  name: string | null;
+  email: string;
+  createdAt: string;
+}
+
+interface DashboardStats {
+  totalUsers: number;
+  totalBookings: number;
+  totalRevenue: number;
+  activeTours: number;
+  upcomingTours: number;
+  recentBookings: RecentBooking[];
+  recentUsers: RecentUser[];
+  success: boolean;
+  error?: string;
+}
+
+const StatCard = ({ title, value, change, changeType, icon: Icon, href }: StatCardProps) => (
+  <Link href={href} className="group">
+    <Card className="h-full transition-all duration-200 hover:shadow-md">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+          {title}
+        </CardTitle>
+        <div className="h-4 w-4 text-muted-foreground">
+          <Icon className="h-4 w-4" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {change && (
+          <p className={`text-xs ${changeType === 'increase' ? 'text-green-600' : 'text-red-600'} flex items-center mt-1`}>
+            {changeType === 'increase' ? (
+              <ArrowUp className="h-3 w-3 mr-1" />
+            ) : (
+              <ArrowDown className="h-3 w-3 mr-1" />
+            )}
+            {change}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  </Link>
+);
+
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/admin/stats');
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch stats');
+        }
+        
+        setStats(data);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsCards = [
+    { 
+      title: 'Total Bookings', 
+      value: stats?.totalBookings.toLocaleString() || '0', 
+      change: '+12%', // This would come from a comparison with previous period
+      changeType: 'increase' as const,
+      icon: Calendar,
+      href: '/admin/bookings'
+    },
+    { 
+      title: 'Total Revenue', 
+      value: new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD' 
+      }).format(stats?.totalRevenue || 0), 
+      change: '+19%', // This would come from a comparison with previous period
+      changeType: 'increase' as const,
+      icon: CreditCard,
+      href: '/admin/revenue'
+    },
+    { 
+      title: 'Active Tours', 
+      value: stats?.activeTours.toString() || '0',
+      change: stats?.upcomingTours ? `${stats.upcomingTours} upcoming` : undefined,
+      changeType: 'increase' as const,
+      icon: Package,
+      href: '/admin/tours'
+    },
+    { 
+      title: 'Total Users', 
+      value: stats?.totalUsers.toLocaleString() || '0', 
+      change: stats?.recentUsers ? `${stats.recentUsers.length} new this week` : undefined,
+      changeType: 'increase' as const,
+      icon: Users,
+      href: '/admin/users'
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-red-500">Error loading dashboard: {error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Overview of your admin panel</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {statsCards.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Bookings</CardTitle>
+                <CardDescription>Latest bookings from your customers</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push('/admin/bookings')}>
+                View All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {stats?.recentBookings && stats.recentBookings.length > 0 ? (
+              <div className="space-y-6">
+                {stats.recentBookings.map((booking) => (
+                  <div key={booking.id} className="flex items-center">
+                    <div className="ml-4 space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {booking.bookingNumber}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.user?.name || 'Guest'} • {new Date(booking.startDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="ml-auto font-medium">
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                      }).format(booking.totalPrice)}
+                    </div>
+                    <div className="ml-4">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {booking.status.toLowerCase()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent bookings found</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Users</CardTitle>
+                <CardDescription>Newly registered users</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push('/admin/users')}>
+                View All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {stats?.recentUsers && stats.recentUsers.length > 0 ? (
+              <div className="space-y-6">
+                {stats.recentUsers.map((user) => (
+                  <div key={user.id} className="flex items-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                      <span className="text-sm font-medium text-primary">
+                        {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="ml-4 space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.name || 'Anonymous'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                    </div>
+                    <div className="ml-auto text-xs text-muted-foreground">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent users found</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Frequently used actions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link href="/admin/bookings/new">
+              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+                <Plus className="h-6 w-6" />
+                <span>New Booking</span>
+              </Button>
+            </Link>
+            <Link href="/admin/tours/new">
+              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+                <Package className="h-6 w-6" />
+                <span>Add Tour</span>
+              </Button>
+            </Link>
+            <Link href="/admin/users">
+              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+                <Users className="h-6 w-6" />
+                <span>Manage Users</span>
+              </Button>
+            </Link>
+            <Link href="/admin/settings">
+              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+                <Settings className="h-6 w-6" />
+                <span>Settings</span>
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

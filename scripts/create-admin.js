@@ -28,17 +28,14 @@ async function createPermanentAdmin() {
           name: 'System Administrator',
           password: hashedPassword,
           role: 'ADMIN',
-          isEmailVerified: true,
-          emailVerified: new Date(),
-          emailVerificationToken: null,
-          emailVerificationExpires: null,
+          emailVerified: new Date()
         },
         select: {
           id: true,
           name: true,
           email: true,
           role: true,
-          isEmailVerified: true,
+          emailVerified: true,
           createdAt: true
         }
       });
@@ -56,17 +53,14 @@ async function createPermanentAdmin() {
           email: adminEmail,
           password: hashedPassword,
           role: 'ADMIN',
-          isEmailVerified: true,
-          emailVerified: new Date(),
-          emailVerificationToken: null,
-          emailVerificationExpires: null,
+          emailVerified: new Date()
         },
         select: {
           id: true,
           name: true,
           email: true,
           role: true,
-          isEmailVerified: true,
+          emailVerified: true,
           createdAt: true
         }
       });

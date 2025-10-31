@@ -10,11 +10,8 @@ export function AdminSidebar() {
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Tours', href: '/admin/tours', icon: Package },
     { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-    { name: 'Dahabiyas', href: '/admin/dahabiyas', icon: Ship },
-    { name: 'Packages', href: '/admin/packages', icon: Package },
-    { name: 'Email Templates', href: '/admin/email-templates', icon: Mail },
-    { name: 'Notifications', href: '/admin/notifications', icon: Bell },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
     { name: 'Back to Site', href: '/', icon: Home },

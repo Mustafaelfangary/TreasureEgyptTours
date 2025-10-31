@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminLayout } from '@/components/admin/AdminLayout';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,198 +10,319 @@ import {
   CreditCard, 
   ArrowUp, 
   ArrowDown,
+  Loader2,
+  AlertCircle,
   Plus,
   Settings,
-  FileText,
-  MessageSquare
+  UserPlus
 } from 'lucide-react';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 
-const stats = [
-  { 
-    title: 'Total Bookings', 
-    value: '1,234', 
-    change: '+12%', 
-    changeType: 'increase',
-    icon: Calendar,
-    href: '/admin/bookings'
-  },
-  { 
-    title: 'Total Revenue', 
-    value: '$45,231', 
-    change: '+19%', 
-    changeType: 'increase',
-    icon: CreditCard,
-    href: '/admin/revenue'
-  },
-  { 
-    title: 'Active Dahabiyas', 
-    value: '24', 
-    change: '+2', 
-    changeType: 'increase',
-    icon: Package,
-    href: '/admin/dahabiyas'
-  },
-  { 
-    title: 'New Customers', 
-    value: '183', 
-    change: '-3%', 
-    changeType: 'decrease',
-    icon: Users,
-    href: '/admin/customers'
-  },
-];
+// Utility function to combine class names
+function cn(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
-const recentBookings = [
-  { id: 1, customer: 'John Doe', dahabiya: 'Luxury Dahabiya', date: '2023-06-15', amount: '$2,500', status: 'confirmed' },
-  { id: 2, customer: 'Jane Smith', dahabiya: 'Premium Dahabiya', date: '2023-06-14', amount: '$3,200', status: 'pending' },
-  { id: 3, customer: 'Robert Johnson', dahabiya: 'Deluxe Dahabiya', date: '2023-06-13', amount: '$2,800', status: 'confirmed' },
-  { id: 4, customer: 'Emily Davis', dahabiya: 'Luxury Dahabiya', date: '2023-06-12', amount: '$2,500', status: 'cancelled' },
-  { id: 5, customer: 'Michael Wilson', dahabiya: 'Premium Dahabiya', date: '2023-06-11', amount: '$3,200', status: 'confirmed' },
-];
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: string;
+  changeType?: 'increase' | 'decrease';
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+}
 
-const activities = [
-  { id: 1, type: 'booking', user: 'John Doe', action: 'created a new booking', time: '2 hours ago', icon: Calendar },
-  { id: 2, type: 'message', user: 'Jane Smith', action: 'sent a message', time: '3 hours ago', icon: MessageSquare },
-  { id: 3, type: 'booking', user: 'Robert Johnson', action: 'cancelled a booking', time: '5 hours ago', icon: Calendar },
-  { id: 4, type: 'review', user: 'Emily Davis', action: 'left a review', time: '1 day ago', icon: FileText },
-  { id: 5, type: 'booking', user: 'Michael Wilson', action: 'updated booking details', time: '1 day ago', icon: Calendar },
-];
+interface RecentBooking {
+  id: string;
+  bookingNumber: string;
+  startDate: string;
+  totalPrice: number;
+  status: string;
+  user: {
+    name: string | null;
+    email: string;
+  };
+}
+
+interface RecentUser {
+  id: string;
+  name: string | null;
+  email: string;
+  createdAt: string;
+}
+
+interface DashboardStats {
+  totalUsers: number;
+  totalBookings: number;
+  totalRevenue: number;
+  activeTours: number;
+  upcomingTours: number;
+  recentBookings: RecentBooking[];
+  recentUsers: RecentUser[];
+  success: boolean;
+  error?: string;
+}
+
+const StatCard = ({ title, value, change, changeType, icon: Icon, href }: StatCardProps) => (
+  <a href={href} className="group block">
+    <Card className="h-full transition-all duration-200 hover:shadow-md">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+          {title}
+        </CardTitle>
+        <div className="h-4 w-4 text-muted-foreground">
+          <Icon className="h-4 w-4" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {change && (
+          <p className={`text-xs ${changeType === 'increase' ? 'text-green-600' : 'text-red-600'} flex items-center mt-1`}>
+            {changeType === 'increase' ? (
+              <ArrowUp className="h-3 w-3 mr-1" />
+            ) : (
+              <ArrowDown className="h-3 w-3 mr-1" />
+            )}
+            {change}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  </a>
+);
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/admin/stats');
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch stats');
+        }
+        
+        setStats(data);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsCards = [
+    { 
+      title: 'Total Bookings', 
+      value: stats?.totalBookings?.toLocaleString() || '0', 
+      change: '+12%',
+      changeType: 'increase' as const,
+      icon: Calendar,
+      href: '/admin/bookings'
+    },
+    { 
+      title: 'Total Revenue', 
+      value: new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD' 
+      }).format(stats?.totalRevenue || 0), 
+      change: '+19%',
+      changeType: 'increase' as const,
+      icon: CreditCard,
+      href: '/admin/revenue'
+    },
+    { 
+      title: 'Active Tours', 
+      value: stats?.activeTours?.toString() || '0',
+      change: stats?.upcomingTours ? `${stats.upcomingTours} upcoming` : undefined,
+      changeType: 'increase' as const,
+      icon: Package,
+      href: '/admin/tours'
+    },
+    { 
+      title: 'Total Users', 
+      value: stats?.totalUsers?.toLocaleString() || '0', 
+      change: stats?.recentUsers ? `${stats.recentUsers.length} new this week` : undefined,
+      changeType: 'increase' as const,
+      icon: Users,
+      href: '/admin/users'
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-red-500">Error loading dashboard: {error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+
   return (
-    <AdminLayout 
-      title="Dashboard" 
-      description="Welcome back! Here's what's happening with your business today."
-    >
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Link href={stat.href} key={stat.title} className="group">
-            <Card className="h-full transition-all duration-200 group-hover:shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className={cn(
-                  "text-xs flex items-center",
-                  stat.changeType === 'increase' ? 'text-green-500' : 'text-red-500'
-                )}>
-                  {stat.changeType === 'increase' ? (
-                    <ArrowUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3 mr-1" />
-                  )}
-                  {stat.change}
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
+    <div className="container mx-auto py-8 px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Overview of your admin panel</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {statsCards.map((stat, index) => (
+          <StatCard key={index} {...stat} />
         ))}
       </div>
 
-      {/* Main Content */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
-        {/* Recent Bookings */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
-            <CardDescription>Latest 5 bookings from your customers</CardDescription>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Recent Bookings</CardTitle>
+              <CardDescription>Latest bookings from your customers</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => router.push('/admin/bookings')}>
+              View All
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{booking.customer}</p>
-                    <p className="text-sm text-muted-foreground">{booking.dahabiya}</p>
+            {stats?.recentBookings && stats.recentBookings.length > 0 ? (
+              <div className="space-y-4">
+                {stats.recentBookings.map((booking) => (
+                  <div key={booking.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div>
+                      <p className="font-medium">{booking.bookingNumber}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.user?.name || 'Guest'} • {new Date(booking.startDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={booking.status === 'CONFIRMED' ? 'default' : 'secondary'}>
+                        {booking.status}
+                      </Badge>
+                      <span className="font-medium">
+                        {new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: 'USD'
+                        }).format(booking.totalPrice)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{booking.amount}</p>
-                    <p className={`text-xs ${
-                      booking.status === 'confirmed' ? 'text-green-500' : 
-                      booking.status === 'pending' ? 'text-amber-500' : 'text-red-500'
-                    }`}>
-                      {booking.status}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button variant="outline" className="w-full mt-4">
-              View All Bookings
-            </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent bookings</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card>
+        <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest activities in your system</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Users</CardTitle>
+                <CardDescription>Newly registered users</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push('/admin/users')}>
+                View All
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activities.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <activity.icon className="h-4 w-4" />
+            {stats?.recentUsers && stats.recentUsers.length > 0 ? (
+              <div className="space-y-4">
+                {stats.recentUsers.map((user) => (
+                  <div key={user.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <span className="font-medium text-primary">
+                        {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{user.name || user.email}</p>
+                      {user.name && (
+                        <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(user.createdAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">{activity.user}</p>
-                    <p className="text-sm text-muted-foreground">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent users</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Frequently used actions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/admin/bookings/new">
-              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Frequently used actions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Button 
+                variant="outline" 
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => router.push('/admin/bookings/new')}
+              >
                 <Plus className="h-6 w-6" />
                 <span>New Booking</span>
               </Button>
-            </Link>
-            <Link href="/admin/dahabiyas/new">
-              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+              <Button 
+                variant="outline" 
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => router.push('/admin/tours/new')}
+              >
                 <Package className="h-6 w-6" />
-                <span>Add Dahabiya</span>
+                <span>Add Tour</span>
               </Button>
-            </Link>
-            <Link href="/admin/users">
-              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
-                <Users className="h-6 w-6" />
-                <span>Manage Users</span>
+              <Button 
+                variant="outline" 
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => router.push('/admin/users/new')}
+              >
+                <UserPlus className="h-6 w-6" />
+                <span>Add User</span>
               </Button>
-            </Link>
-            <Link href="/admin/settings">
-              <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+              <Button 
+                variant="outline" 
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => router.push('/admin/settings')}
+              >
                 <Settings className="h-6 w-6" />
                 <span>Settings</span>
               </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </AdminLayout>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
-}
-
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
 }

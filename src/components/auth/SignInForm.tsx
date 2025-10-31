@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,9 +55,9 @@ export default function SignInForm() {
         }
       }
 
-      // Get callback URL from search params
+      // Get callback URL from search params or default to admin dashboard
       const urlParams = new URLSearchParams(window.location.search);
-      let callbackUrl = urlParams.get('callbackUrl') || '/';
+      let callbackUrl = urlParams.get('callbackUrl') || '/admin';
       
       // Ensure the callback URL is a relative path
       if (callbackUrl.startsWith('http')) {
@@ -72,50 +72,18 @@ export default function SignInForm() {
 
       console.log('Signing in with callback URL:', callbackUrl);
 
-      // Sign in with credentials
+      // Sign in with credentials and let NextAuth handle redirect atomically to avoid race conditions
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
+        redirect: true,
         callbackUrl: callbackUrl
       });
 
+      // If redirect is true, NextAuth will navigate. This log is mainly for debugging in non-redirect scenarios.
       console.log('Sign in result:', result);
-
-      if (result?.error) {
-        toast.error("Invalid email or password");
-        return;
-      }
-
-      if (!result?.ok) {
-        toast.error("Sign in failed. Please try again.");
-        return;
-      }
-
-      toast.success("Signed in successfully!");
-
-      // Wait a bit for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Get the session to determine redirect
-      const session = await getSession();
-      console.log('Session after sign in:', session);
-      
-      // Determine the redirect URL
-      let redirectUrl = callbackUrl;
-      
-      // If callback is just '/', redirect based on role
-      if (callbackUrl === '/' && session?.user?.role) {
-        redirectUrl = session.user.role === 'ADMIN' ? '/admin' :
-                     session.user.role === 'MANAGER' ? '/admin/dashboard' :
-                     session.user.role === 'GUIDE' ? '/guide/dashboard' :
-                     '/profile';
-      }
-      
-      console.log('Redirecting to:', redirectUrl);
-      
-      // Use router.push for client-side navigation
-      router.push(redirectUrl);
+      // No manual navigation here to prevent loops; errors will be handled by NextAuth or shown above.
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error("Something went wrong. Please try again.");

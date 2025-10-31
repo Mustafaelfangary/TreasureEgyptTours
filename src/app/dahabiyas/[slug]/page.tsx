@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import DahabiyaDetailWrapper from '@/components/dahabiyas/DahabiyaDetailWrapper';
 
 interface ItineraryDay {
@@ -24,54 +24,48 @@ interface Review {
 }
 
 async function getDahabiyaData(slug: string) {
-  const travelService = await prisma.travelService.findUnique({
+  const tour = await prisma['tour'].findUnique({
     where: { slug },
     include: {
-      serviceItineraries: {
+      itineraries: {
         include: {
-          itinerary: {
+          days: {
+            orderBy: { dayNumber: 'asc' },
             include: {
-              days: {
-                orderBy: { dayNumber: 'asc' },
-                include: {
-                  images: true
-                }
-              }
+              images: true
             }
           }
         },
         orderBy: {
-          itinerary: {
-            name: 'asc'
-          }
+          name: 'asc'
         }
       },
     }
   });
 
-  if (!travelService) return null;
+  if (!tour) return null;
 
   // Transform the data to match the expected format
   return {
-    id: travelService.id,
-    name: travelService.name,
-    slug: travelService.slug,
-    description: travelService.description || '',
-    shortDescription: travelService.shortDescription || '',
-    pricePerDay: travelService.pricePerDay ? Number(travelService.pricePerDay) : 0,
-    capacity: travelService.capacity || 0,
-    cabins: Math.ceil((travelService.capacity || 2) / 2),
+    id: tour.id,
+    name: tour.title,
+    slug: tour.slug,
+    description: tour.description || '',
+    shortDescription: tour.shortDescription || '',
+    pricePerDay: tour.price ? Number(tour.price) : 0,
+    capacity: tour.maxGroupSize || 0,
+    cabins: Math.ceil((tour.maxGroupSize || 2) / 2),
     crew: 6,
     length: 45,
     width: 8,
     yearBuilt: 2020,
-    mainImage: travelService.mainImage || '/images/default-dahabiya.jpg',
-    gallery: (travelService.gallery || []).map((url: string, index: number) => ({
-      id: `img-${index}`,
-      url,
-      alt: `${travelService.name} - Image ${index + 1}`
-    })),
-    features: travelService.highlights || [
+    mainImage: tour.mainImage || '/images/default-dahabiya.jpg',
+    gallery: tour.images?.map((image, index) => ({
+      id: image.id,
+      url: image.url,
+      alt: `${tour.title} - Image ${index + 1}`
+    })) || [],
+    features: tour.highlights || [
       'Private balconies in all cabins',
       'Air conditioning',
       'En-suite bathrooms',
@@ -79,7 +73,7 @@ async function getDahabiyaData(slug: string) {
       'Luxury linens',
       '24/7 room service'
     ],
-    amenities: travelService.includes || [
+    amenities: tour.includes || [
       'Sun deck with loungers',
       'Jacuzzi',
       'Bar',
@@ -124,18 +118,18 @@ async function getDahabiyaData(slug: string) {
     category: 'LUXURY' as const,
     rating: 4.8,
     reviewCount: 42,
-    itineraries: travelService.serviceItineraries?.map(si => ({
-      id: si.itinerary.id,
-      day: si.itinerary.days?.[0]?.dayNumber || 1,
-      title: si.itinerary.name,
-      description: si.itinerary.description || '',
-      activities: si.itinerary.days?.flatMap(day => 
-        day.activities?.map((act, idx) => ({
+    itineraries: tour.itineraries?.map(itinerary => ({
+      id: itinerary.id,
+      day: 1, // Default day
+      title: itinerary.name || 'Itinerary',
+      description: itinerary.description || '',
+      activities: itinerary.days.flatMap(day => 
+        day.activities?.map((activity, idx) => ({
           id: `${day.id}-${idx}`,
-          description: act,
+          description: activity,
           time: '' // You might want to add time to your activities
         })) || []
-      ) || []
+      )
     })) || [],
     reviews: [
       {
@@ -156,11 +150,11 @@ async function getDahabiyaData(slug: string) {
       }
     ],
     isFeatured: true,
-    isActive: travelService.isActive || true,
-    videoUrl: 'https://www.youtube.com/watch?v=example',
-    virtualTourUrl: 'https://example.com/virtual-tour',
-    createdAt: travelService.createdAt?.toISOString() || new Date().toISOString(),
-    updatedAt: travelService.updatedAt?.toISOString() || new Date().toISOString()
+    isActive: true,
+    videoUrl: tour.videoUrl || 'https://www.youtube.com/watch?v=example',
+    virtualTourUrl: tour.virtualTourUrl || 'https://example.com/virtual-tour',
+    createdAt: tour.createdAt?.toISOString() || new Date().toISOString(),
+    updatedAt: tour.updatedAt?.toISOString() || new Date().toISOString()
   };
 }
 
@@ -176,17 +170,23 @@ export default async function DahabiyaPage({ params }: { params: { slug: string 
 
 // Generate static params for all dahabiya slugs
 export async function generateStaticParams() {
-  const dahabiyas = await prisma.travelService.findMany({
-    where: {
-      isActive: true
-    },
-    select: {
-      slug: true
-    },
-    take: 100 // Limit to 100 dahabiyas to avoid timeout during build
-  });
+  try {
+    const dahabiyas = await prisma['tour'].findMany({
+      where: {
+        // Filter for dahabiyas if needed
+        // type: 'Dahabiya'
+      },
+      select: {
+        slug: true
+      },
+      take: 100 // Limit to 100 dahabiyas to avoid timeout during build
+    });
 
-  return dahabiyas.map((dahabiya) => ({
-    slug: dahabiya.slug
-  }));
+    return dahabiyas.map((dahabiya) => ({
+      slug: dahabiya.slug
+    }));
+  } catch (error) {
+    console.error('Error generating static params for dahabiyas:', error);
+    return [];
+  }
 }

@@ -1,367 +1,305 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { Loader2, Save, Mail, RefreshCw, Code } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { Mail, Plus, Search, Edit, Trash2, Check, X, Clock } from 'lucide-react';
+import { EmailTemplateEditor } from './EmailTemplateEditor';
 
-interface EmailTemplate {
+export interface EmailTemplate {
   id: string;
   name: string;
   subject: string;
   content: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   variables: string[];
-  description: string;
+  version: number;
+  category?: string;
+  lastUsed?: string;
+  tags?: string[];
+  description?: string;
 }
 
+// Default templates for initial state
+const defaultTemplates: EmailTemplate[] = [
+  {
+    id: '1',
+    name: 'Welcome Email',
+    subject: 'Welcome to Our Service!',
+    content: '<p>Hello {{user.name}},</p><p>Welcome to our platform! We\'re excited to have you on board.</p>',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    variables: ['user.name', 'user.email'],
+    version: 1,
+    category: 'Onboarding',
+    tags: ['welcome', 'onboarding']
+  },
+  {
+    id: '2',
+    name: 'Password Reset',
+    subject: 'Reset Your Password',
+    content: '<p>Hello,</p><p>Click <a href="{{resetLink}}">here</a> to reset your password.</p>',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    variables: ['resetLink'],
+    version: 1,
+    category: 'Authentication',
+    tags: ['password', 'security']
+  },
+  {
+    id: '3',
+    name: 'Order Confirmation',
+    subject: 'Your Order #{{orderId}} has been confirmed',
+    content: '<p>Dear {{user.name}},</p><p>Thank you for your order #{{orderId}}.</p>',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    variables: ['user.name', 'orderId', 'orderTotal'],
+    version: 1,
+    category: 'Orders',
+    tags: ['confirmation', 'purchase']
+  }
+];
+
 export default function EmailTemplatesManager() {
-  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  // State
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('editor');
-  const [previewData, setPreviewData] = useState('{\n  "name": "John Doe",\n  "bookingId": "BK123456",\n  "date": "2025-11-15"\n}');
+  const [previewData, setPreviewData] = useState('{"name":"John Doe","email":"test@example.com"}');
+  const [templates, setTemplates] = useState<EmailTemplate[]>(defaultTemplates);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Available template variables
-  const availableVariables = [
-    { name: 'customerName', description: 'Full name of the customer' },
-    { name: 'bookingId', description: 'Unique booking reference number' },
-    { name: 'bookingDate', description: 'Date of booking' },
-    { name: 'tourName', description: 'Name of the booked tour' },
-    { name: 'startDate', description: 'Tour start date' },
-    { name: 'endDate', description: 'Tour end date' },
-    { name: 'totalAmount', description: 'Total booking amount' },
-    { name: 'paymentStatus', description: 'Current payment status' },
-    { name: 'bookingLink', description: 'Link to view booking details' },
-    { name: 'contactEmail', description: 'Customer support email' },
-    { name: 'contactPhone', description: 'Customer support phone' },
-  ];
-
-  // Fetch templates from API
-  const fetchTemplates = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/admin/email-templates');
-      const data = await response.json();
-      setTemplates(data);
-      if (data.length > 0 && !selectedTemplate) {
-        setSelectedTemplate(data[0]);
-      }
-    } catch (error) {
-      console.error('Error fetching templates:', error);
-      toast.error('Failed to load email templates');
-    } finally {
-      setIsLoading(false);
-    }
+  // Handler for creating a new template
+  const handleNewTemplate = () => {
+    setSelectedTemplate({
+      id: '',
+      name: 'New Email Template',
+      subject: 'New Email',
+      content: '<p>Start writing your email here...</p>',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      variables: ['user.name', 'user.email'],
+      version: 1,
+    });
   };
 
-  // Save template
-  const saveTemplate = async () => {
-    if (!selectedTemplate) return;
-    
+  // Handler for saving a template
+  const handleSaveTemplate = async (template: EmailTemplate) => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      const response = await fetch(`/api/admin/email-templates/${selectedTemplate.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedTemplate),
-      });
-
-      if (response.ok) {
-        toast.success('Template saved successfully');
-        fetchTemplates();
-      } else {
-        throw new Error('Failed to save template');
-      }
+      // Add your save logic here
+      console.log('Saving template:', template);
+      // Example API call:
+      // const response = await fetch('/api/email-templates', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(template),
+      // });
+      // const savedTemplate = await response.json();
+      // setSelectedTemplate(savedTemplate);
+      // Update your templates list if needed
+      
+      // For now, just update the local state
+      const updatedTemplates = templates.filter(t => t.id !== template.id);
+      setTemplates([...updatedTemplates, template]);
+      setSelectedTemplate(template);
     } catch (error) {
       console.error('Error saving template:', error);
-      toast.error('Failed to save template');
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Send test email
-  const sendTestEmail = async () => {
-    if (!selectedTemplate) return;
-    
+  // Handler for deleting a template
+  const handleDeleteTemplate = async (templateId: string) => {
     try {
-      const response = await fetch('/api/admin/email-templates/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          templateId: selectedTemplate.id,
-          to: 'test@example.com',
-          data: JSON.parse(previewData),
-        }),
-      });
-
-      if (response.ok) {
-        toast.success('Test email sent successfully');
-      } else {
-        throw new Error('Failed to send test email');
+      // Add your delete logic here
+      console.log('Deleting template:', templateId);
+      // Example API call:
+      // await fetch(`/api/email-templates/${templateId}`, {
+      //   method: 'DELETE',
+      // });
+      
+      // Update local state
+      const updatedTemplates = templates.filter(t => t.id !== templateId);
+      setTemplates(updatedTemplates);
+      if (selectedTemplate?.id === templateId) {
+        setSelectedTemplate(null);
       }
     } catch (error) {
-      console.error('Error sending test email:', error);
-      toast.error('Failed to send test email');
+      console.error('Error deleting template:', error);
     }
   };
 
-  // Initialize component
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  // Handle template change
-  const handleTemplateChange = (templateId: string) => {
-    const template = templates.find(t => t.id === templateId);
-    if (template) {
-      setSelectedTemplate({...template});
-    }
-  };
-
-  // Insert variable into content
-  const insertVariable = (variable: string) => {
-    if (!selectedTemplate) return;
-    
-    const textarea = document.getElementById('template-content') as HTMLTextAreaElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const before = text.substring(0, start);
-    const after = text.substring(end, text.length);
-    
-    setSelectedTemplate({
-      ...selectedTemplate,
-      content: `${before}{{${variable}}}${after}`,
+  // Filter templates based on search query and category
+  const filteredTemplates = useMemo(() => {
+    return templates.filter(template => {
+      const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          template.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
+      return matchesSearch && matchesCategory;
     });
-    
-    // Focus back on the textarea
-    setTimeout(() => {
-      const newPosition = start + variable.length + 4; // +4 for {{}}
-      textarea.focus();
-      textarea.setSelectionRange(newPosition, newPosition);
-    }, 0);
-  };
+  }, [templates, searchQuery, selectedCategory]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+  // Get unique categories for filter
+  const categories = useMemo(() => {
+    const cats = new Set(templates.map(t => t.category).filter(Boolean));
+    return Array.from(cats).sort();
+  }, [templates]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Email Templates</h2>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={fetchTemplates} disabled={isLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          {selectedTemplate && (
-            <Button onClick={saveTemplate} disabled={isSaving}>
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+    <div className="container mx-auto p-6 space-y-6">
+      {selectedTemplate ? (
+        <EmailTemplateEditor
+          template={selectedTemplate}
+          onSave={handleSaveTemplate}
+          onCancel={() => setSelectedTemplate(null)}
+          isSaving={isSaving}
+          previewData={previewData}
+          onPreviewDataChange={setPreviewData}
+        />
+      ) : (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle className="text-2xl font-bold">Email Templates</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Manage your email templates and create new ones
+              </p>
+            </div>
+            <Button onClick={handleNewTemplate}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Template
             </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Template List */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Available Templates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className={`p-3 rounded-md cursor-pointer transition-colors ${
-                      selectedTemplate?.id === template.id
-                        ? 'bg-blue-50 border border-blue-200'
-                        : 'hover:bg-gray-50 border border-transparent'
-                    }`}
-                    onClick={() => handleTemplateChange(template.id)}
-                  >
-                    <div className="font-medium">{template.name}</div>
-                    <div className="text-sm text-gray-500 truncate">{template.description}</div>
-                  </div>
-                ))}
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search templates..."
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="w-full md:w-48">
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-        {/* Template Editor */}
-        {selectedTemplate && (
-          <div className="lg:col-span-3 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>{selectedTemplate.name}</CardTitle>
-                  <Button variant="outline" size="sm" onClick={sendTestEmail}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Send Test Email
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-500">{selectedTemplate.description}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="template-subject">Email Subject</Label>
-                    <Input
-                      id="template-subject"
-                      value={selectedTemplate.subject}
-                      onChange={(e) =>
-                        setSelectedTemplate({ ...selectedTemplate, subject: e.target.value })
-                      }
-                      placeholder="Enter email subject"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <Label>Email Content</Label>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant={activeTab === 'editor' ? 'secondary' : 'ghost'}
-                          size="sm"
-                          onClick={() => setActiveTab('editor')}
+            {filteredTemplates.length > 0 ? (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Last Updated</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTemplates.map((template) => (
+                      <TableRow key={template.id} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell 
+                          className="font-medium"
+                          onClick={() => setSelectedTemplate(template)}
                         >
-                          <Code className="w-4 h-4 mr-1" />
-                          Editor
-                        </Button>
-                        <Button
-                          variant={activeTab === 'preview' ? 'secondary' : 'ghost'}
-                          size="sm"
-                          onClick={() => setActiveTab('preview')}
+                          {template.name}
+                        </TableCell>
+                        <TableCell 
+                          className="text-muted-foreground"
+                          onClick={() => setSelectedTemplate(template)}
                         >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Preview
-                        </Button>
-                      </div>
-                    </div>
-
-                    {activeTab === 'editor' ? (
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          <span className="text-sm text-gray-500 self-center mr-2">Insert:</span>
-                          {availableVariables.map((variable) => (
+                          {template.subject}
+                        </TableCell>
+                        <TableCell>
+                          {template.category && (
+                            <Badge variant="outline">{template.category}</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {format(new Date(template.updatedAt), 'MMM d, yyyy')}
+                        </TableCell>
+                        <TableCell>
+                          {template.isActive ? (
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                              <Check className="h-3 w-3 mr-1" /> Active
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              <Clock className="h-3 w-3 mr-1" /> Draft
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end space-x-2">
                             <Button
-                              key={variable.name}
-                              variant="outline"
-                              size="sm"
-                              className="text-xs"
-                              onClick={() => insertVariable(variable.name)}
-                              title={variable.description}
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setSelectedTemplate(template)}
                             >
-                              {`{{${variable.name}}}`}
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
                             </Button>
-                          ))}
-                        </div>
-                        <Textarea
-                          id="template-content"
-                          value={selectedTemplate.content}
-                          onChange={(e) =>
-                            setSelectedTemplate({ ...selectedTemplate, content: e.target.value })
-                          }
-                          className="min-h-[400px] font-mono text-sm"
-                          placeholder="Enter email content here..."
-                        />
-                      </div>
-                    ) : (
-                      <div className="border rounded-md p-4 min-h-[400px] bg-white">
-                        <h3 className="text-lg font-semibold mb-2">{selectedTemplate.subject}</h3>
-                        <div
-                          className="prose max-w-none"
-                          dangerouslySetInnerHTML={{
-                            __html: selectedTemplate.content.replace(
-                              /\{\{([^}]+)\}\}/g,
-                              (match, variable) =>
-                                `<span class="bg-yellow-100 text-yellow-800 px-1 rounded border border-yellow-200">${variable}</span>`
-                            ),
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label>Available Variables</Label>
-                    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {availableVariables.map((variable) => (
-                        <div
-                          key={variable.name}
-                          className="p-2 border rounded-md text-sm bg-gray-50"
-                          title={variable.description}
-                        >
-                          <code className="font-mono bg-gray-100 px-1 rounded">
-                            {`{{${variable.name}}}`}
-                          </code>
-                          <p className="text-gray-600 mt-1">{variable.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Test Email</CardTitle>
-                <p className="text-sm text-gray-500">
-                  Send a test email with sample data to verify the template
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteTemplate(template.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
+                <Mail className="w-12 h-12 text-muted-foreground mb-4" />
+                <h4 className="text-lg font-medium mb-2">No templates found</h4>
+                <p className="text-muted-foreground mb-4 text-center">
+                  {searchQuery || selectedCategory !== 'all' 
+                    ? 'No templates match your search. Try adjusting your filters.'
+                    : 'Get started by creating a new template.'}
                 </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="test-email">Recipient Email</Label>
-                    <Input
-                      id="test-email"
-                      type="email"
-                      defaultValue="test@example.com"
-                      placeholder="Enter recipient email"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="test-data">Test Data (JSON)</Label>
-                    <Textarea
-                      id="test-data"
-                      value={previewData}
-                      onChange={(e) => setPreviewData(e.target.value)}
-                      className="min-h-[200px] font-mono text-sm"
-                      placeholder="Enter test data in JSON format"
-                    />
-                  </div>
-                  <Button onClick={sendTestEmail}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Send Test Email
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+                <Button onClick={handleNewTemplate}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Template
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

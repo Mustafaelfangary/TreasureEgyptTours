@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./node_modules/.prisma/client"
+}
+
+// Run 'prisma generate' command to generate the Prisma client after schema changes
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  EDITOR
+  GUIDE
+  MANAGER
+}
+
+model User {
+  id                       String                @id @default(cuid())
+  name                     String?
+  email                    String?               @unique
+  emailVerified            DateTime?
+  image                    String?
+  password                 String?
+  role                     Role                  @default(USER)
+  accounts                 Account[]
+  sessions                 Session[]
+  bookings                 Booking[]
+  reviews                  Review[]
+  memories                 UserMemory[]
+  preferences              UserPreference?
+  loyaltyPoints            LoyaltyPoint[]
+  loyaltyActions           LoyaltyAction[]
+  wishlist                 WishlistItem[]
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  preferredLanguage   String   @default("en")
+  currency           String   @default("USD")
+  notifications      Boolean  @default(true)
+  marketingEmails    Boolean  @default(false)
+  user               User     @relation(fields: [userId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model UserMemory {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  imageUrl    String?
+  date        DateTime?
+  location    String?
+  isPublic    Boolean   @default(false)
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tour {
+  id                  String    @id @default(cuid())
+  title               String
+  slug                String    @unique
+  description         String    @db.Text
+  duration            Int
+  maxGroupSize        Int
+  difficulty          String
+  price               Float
+  priceDiscount       Float?
+  ratingsAverage      Float     @default(0)
+  ratingsQuantity     Int       @default(0)
+  summary             String    @db.Text
+  imageCover          String
+  images              String[]
+  startDates          DateTime[]
+  secretTour          Boolean   @default(false)
+  startLocation       Json      // GeoJSON Point
+  locations           Json[]    // Array of GeoJSON Points
+  guides              User[]    @relation("TourGuides")
+  reviews             Review[]
+  bookings            Booking[]
+  wishlistItems       WishlistItem[]
+  categories          Category[] @relation("TourCategories")
+  tags                Tag[]      @relation("TourTags")
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?   @db.Text
+  image       String?
+  tours       Tour[]    @relation("TourCategories")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  tours     Tour[]   @relation("TourTags")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  review     String   @db.Text
+  rating     Int      @default(5)
+  tourId     String
+  userId     String
+  tour       Tour     @relation(fields: [tourId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([tourId, userId])
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  tourId      String
+  userId      String
+  price       Float
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("pending") // pending, confirmed, cancelled, completed
+  paymentStatus String  @default("pending") // pending, paid, refunded, failed
+  paymentMethod String?
+  tour        Tour     @relation(fields: [tourId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  tourId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tour      Tour     @relation(fields: [tourId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, tourId])
+}
+
+model LoyaltyPoint {
+  id          String   @id @default(cuid())
+  userId      String
+  points      Int
+  description String
+  expiresAt   DateTime?
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LoyaltyAction {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  points      Int
+  description String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model PageContent {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  content     String   @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryImage {
+  id          String   @id @default(cuid())
+  url         String
+  title       String?
+  description String?   @db.Text
+  isFeatured  Boolean   @default(false)
+  order       Int       @default(0)
+  category    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Partner {
+  id          String   @id @default(cuid())
+  name        String
+  logoUrl     String
+  websiteUrl  String
+  description String?   @db.Text
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

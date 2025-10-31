@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import type { PackageData } from '@/types/package.types';
 import dynamic from 'next/dynamic';
+
+// Create a new Prisma client instance
+const prisma = new PrismaClient();
 
 // Dynamically import the PackageDetail component to avoid SSR issues
 const PackageDetail = dynamic<{ pkg: PackageData }>(
@@ -25,176 +28,178 @@ export const revalidate = 3600; // Revalidate every hour
 
 export default async function PackageDetailPage({ params }: PageProps) {
   try {
-    // Fetch travel service data from the database with related itineraries
-    const travelService = await prisma.travelService.findUnique({
+    // Fetch package data from the database
+    const tour = await prisma['tour'].findUnique({
       where: { slug: params.slug },
       include: {
-        serviceItineraries: {
+        itineraries: {
           include: {
-            itinerary: {
+            days: {
+              orderBy: { dayNumber: 'asc' },
               include: {
-                days: {
-                  orderBy: { dayNumber: 'asc' },
-                  include: {
-                    images: true
-                  }
-                }
+                images: true
               }
             }
           },
           orderBy: {
-            itinerary: {
-              name: 'asc'
-            }
+            name: 'asc'
           }
         },
-      }
-    });
-
-    // Fetch reviews separately
-    const reviews = await prisma.review.findMany({
-      where: { 
-        status: 'APPROVED',
-        comment: { not: null },
-      },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true
+        reviews: {
+          where: { 
+            status: 'APPROVED',
+            comment: { not: null },
+          },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: {
+              select: {
+                name: true,
+              }
+            }
           }
         }
       }
     });
 
-    if (!travelService) {
-      notFound();
+    if (!tour) {
+      return notFound();
     }
 
-    // Get the first itinerary (or handle multiple itineraries as needed)
-    const mainItinerary = travelService?.serviceItineraries?.[0]?.itinerary;
-
-    // Transform the data to match the expected PackageDetail props
+    // Transform the data to match the PackageData type
     const packageData: PackageData = {
-      id: travelService.id,
-      name: travelService.name,
-      description: travelService.description,
-      shortDescription: travelService.shortDescription || null,
-      price: travelService.pricePerDay ? Number(travelService.pricePerDay) : 0,
-      duration: travelService.duration,
-      durationDays: travelService.duration,
-      maxPeople: travelService.capacity,
-      mainImageUrl: travelService.mainImage || '/images/default-tour.jpg',
-      isFeaturedOnHomepage: travelService.isFeatured,
+      id: tour.id,
+      name: tour.title,
+      description: tour.description || '',
+      shortDescription: tour.summary || null,
+      price: tour.price ? Number(tour.price) : 0,
+      duration: tour.duration || 0,
+      durationDays: tour.duration || 0,
+      maxPeople: tour.maxGroupSize || 0,
+      mainImageUrl: tour.imageCover || '/images/default-package.jpg',
+      isFeaturedOnHomepage: false,
       homepageOrder: 0,
-      images: [
-        ...(travelService.mainImage ? [{
-          id: 'main',
-          url: travelService.mainImage,
-          alt: travelService.name,
-          order: 0,
-          isActive: true
-        }] : []),
-        ...(travelService.gallery || []).map((url: string, index: number) => ({
-          id: `img-${index}`,
-          url,
-          alt: `${travelService.name} - Image ${index + 1}`,
-          order: index + 1,
-          isActive: true
-        }))
-      ],
-      itineraries: (mainItinerary?.days || []).map(day => ({
-        id: day.id,
-        day: day.dayNumber || 1,
-        title: day.title || `Day ${day.dayNumber || 1}`,
-        description: day.description || '',
-        isActive: true,
-        activities: (Array.isArray(day.activities) ? day.activities : []).map((activity: any, index: number) => {
-          if (typeof activity === 'string') {
-            return {
-              id: `act-${day.id}-${index}`,
-              description: activity,
-              time: 'TBD',
-              order: index
-            };
-          }
-          
-          return {
+      images: Array.isArray(tour.images) ? tour.images.map((url, index) => ({
+        id: `img-${tour.id}-${index}`,
+        url: url,
+        alt: `${tour.title} - Image ${index + 1}`,
+        order: index,
+        isActive: true
+      })) : [],
+      itineraries: (tour.itineraries || []).flatMap(itinerary => 
+        (itinerary.days || []).map(day => ({
+          id: day.id,
+          day: day.dayNumber || 1,
+          title: day.title || `Day ${day.dayNumber || 1}`,
+          description: day.description || '',
+          isActive: true,
+          activities: (Array.isArray(day.activities) ? day.activities : []).map((activity, index) => ({
             id: `act-${day.id}-${index}`,
-            description: activity.description || 'Activity',
-            time: activity.time || 'TBD',
-            order: activity.order || index
-          };
-        })
-      })),
-      reviews: reviews.map(review => ({
+            description: typeof activity === 'string' ? activity : (activity?.description || 'Activity'),
+            time: typeof activity === 'string' ? 'TBD' : (activity?.time || 'TBD'),
+            order: index
+          }))
+        }))
+      ),
+      reviews: (tour.reviews || []).map(review => ({
         id: review.id,
         author: review.user?.name || 'Anonymous',
-        rating: review.rating,
-        content: review.comment,
-        createdAt: review.createdAt,
-        isApproved: review.status === 'APPROVED'
+        rating: review.rating || 5,
+        content: review.comment || '',
+        createdAt: review.createdAt || new Date(),
+        isApproved: true
       })),
-      highlights: travelService.highlights || [],
-      inclusions: travelService.includes || [],
-      exclusions: travelService.excludes || [],
-      category: travelService.category,
-      rating: travelService.rating ? Number(travelService.rating) : undefined,
-      reviewCount: reviews.length,
-      createdAt: travelService.createdAt,
-      updatedAt: travelService.updatedAt
+      highlights: [],
+      inclusions: [],
+      exclusions: [],
+      category: 'STANDARD',
+      rating: tour.ratingsAverage || 0,
+      reviewCount: tour.ratingsQuantity || 0,
+      createdAt: tour.createdAt || new Date(),
+      updatedAt: tour.updatedAt || new Date()
     };
 
     return <PackageDetail pkg={packageData} />;
   } catch (error) {
     console.error('Error fetching package:', error);
-    notFound();
+    return notFound();
   }
 }
 
 export async function generateStaticParams() {
-  const packages = await prisma.travelService.findMany({
-    select: {
-      slug: true
-    },
-    where: {
-      isActive: true
-    }
-  });
+  try {
+    const packages = await prisma['tour'].findMany({
+      select: {
+        slug: true
+      },
+      where: {
+        // Only include published tours if status field exists
+        // status: 'PUBLISHED'
+      },
+      take: 100 // Limit to 100 packages to avoid timeout during build
+    });
 
-  return packages.map((pkg) => ({
-    slug: pkg.slug
-  }));
+    return packages.map((pkg) => ({
+      slug: pkg.slug
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const travelService = await prisma.travelService.findUnique({
-    where: { slug: params.slug }
-  });
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<{
+  title: string;
+  description: string;
+  openGraph?: {
+    title: string;
+    description: string;
+    images: Array<{
+      url: string;
+      width: number;
+      height: number;
+      alt: string;
+    }>;
+  };
+}> {
+  try {
+    const tour = await prisma['tour'].findUnique({
+      where: { slug: params.slug },
+      select: {
+        title: true,
+        summary: true,
+        imageCover: true
+      }
+    });
 
-  if (!travelService) {
+    if (!tour) {
+      return {
+        title: 'Package Not Found',
+        description: 'The requested package could not be found.'
+      };
+    }
+
     return {
-      title: 'Package Not Found',
-      description: 'The requested package could not be found.'
+      title: tour.title,
+      description: tour.summary || '',
+      openGraph: {
+        title: tour.title,
+        description: tour.summary || '',
+        images: [
+          {
+            url: tour.imageCover || '/images/default-package.jpg',
+            width: 1200,
+            height: 630,
+            alt: tour.title
+          }
+        ]
+      }
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Package Details',
+      description: 'View package details'
     };
   }
-
-  return {
-    title: travelService.name,
-    description: travelService.shortDescription || travelService.description.slice(0, 160),
-    openGraph: {
-      title: travelService.name,
-      description: travelService.shortDescription || travelService.description.slice(0, 160),
-      images: [
-        {
-          url: travelService.mainImage || '/images/default-tour.jpg',
-          width: 1200,
-          height: 630,
-          alt: travelService.name
-        }
-      ]
-    }
-  };
 }
-  

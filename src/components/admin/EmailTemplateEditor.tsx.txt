@@ -1,0 +1,25 @@
+'use client';
+
+import { useState } from 'react';
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+// ... (all the imports from the Template Editor code)
+import { EmailTemplate } from './EmailTemplatesManager';
+
+export const EmailTemplateEditor = ({
+  template,
+  onSave,
+  onCancel,
+  isSaving,
+  previewData,
+  onPreviewDataChange,
+}: {
+  template: EmailTemplate;
+  onSave: (template: EmailTemplate) => void;
+  onCancel: () => void;
+  isSaving: boolean;
+  previewData: string;
+  onPreviewDataChange: (data: string) => void;
+}) => {
+  // ... (rest of the TemplateEditor component code)
+};
