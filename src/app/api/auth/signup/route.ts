@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { z } from "zod";
 import crypto from "crypto";
@@ -48,24 +48,18 @@ export async function POST(req: Request) {
 
     // Create the user
     console.log('Creating user in database...');
-    const userData = {
-      name,
-      email,
-      password: hashedPassword,
-      image: image || null,
-      role: "USER" as const, // Default role for new users
-      isEmailVerified: false,
-      emailVerificationToken: verificationCode,
-      emailVerificationExpires: verificationExpires,
-    };
-
-    // Add phone only if it exists
-    if (phone) {
-      (userData as { phone?: string }).phone = phone;
-    }
-
     const user = await prisma.user.create({
-      data: userData,
+      data: {
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+        image: image || null,
+        role: "USER" as const, // Default role for new users
+        emailVerified: null, // Will be set when email is verified
+        emailVerificationToken: verificationCode,
+        emailVerificationExpires: verificationExpires,
+      },
     });
     console.log('User created successfully:', { id: user.id, email: user.email });
 

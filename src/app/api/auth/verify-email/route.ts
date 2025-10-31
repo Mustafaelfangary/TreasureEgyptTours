@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import crypto from 'crypto';
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (user.isEmailVerified) {
+      if (user.emailVerified) {
         return NextResponse.json(
           { error: 'Email already verified' },
           { status: 400 }
@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
       await prisma.user.update({
         where: { email },
         data: {
-          isEmailVerified: true,
           emailVerified: new Date(),
           emailVerificationToken: null,
           emailVerificationExpires: null

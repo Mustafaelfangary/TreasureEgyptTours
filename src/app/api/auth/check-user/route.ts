@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        isEmailVerified: true,
+        emailVerified: true,
         role: true,
       }
     });
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       exists: true,
-      isEmailVerified: user.isEmailVerified,
+      isEmailVerified: !!user.emailVerified,
       role: user.role
     });
 
