@@ -14,12 +14,12 @@ export async function GET(request: Request) {
     const search = searchParams.get('search') || '';
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where = search ? {
       OR: [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: 'insensitive' as const } },
+        { description: { contains: search, mode: 'insensitive' as const } },
       ],
-    };
+    } : {};
 
     const [tours, total] = await Promise.all([
       prisma.tour.findMany({
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user.roles.includes('ADMIN')) {
+    if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }

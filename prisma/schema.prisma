@@ -26,6 +26,7 @@ model User {
   image         String?
   password      String?
   role          Role     @default(USER)
+  phone         String?
   accounts                 Account[]
   sessions                 Session[]
   bookings                 Booking[]
@@ -36,6 +37,7 @@ model User {
   loyaltyActions           LoyaltyAction[]
   wishlist                 WishlistItem[]
   toursGuided              Tour[]                @relation("TourGuides")
+  blogs                    Blog[]
   createdAt                DateTime              @default(now())
   updatedAt                DateTime              @updatedAt
 }
@@ -256,5 +258,235 @@ model Partner {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model WebsiteContent {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  content     String?  @db.Text
+  mediaUrl    String?
+  contentType String   @default("TEXT") // TEXT, IMAGE, VIDEO, RICH_TEXT, etc.
+  page        String?  // Which page this content belongs to
+  section     String?  // Section within the page
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  metadata    Json?    // Additional metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([page])
+  @@index([section])
+  @@index([key])
+}
+
+model Setting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  category    String   @default("general") // general, email, sms, whatsapp, payment, etc.
+  description String?
+  isPublic    Boolean  @default(false) // Whether setting can be accessed publicly
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([key])
+}
+
+model TravelService {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  summary     String?  @db.Text
+  serviceType String   // accommodation, transport, guide, activity, etc.
+  price       Float?
+  duration    Int?     // in minutes
+  imageCover  String?
+  images      String[]
+  features    String[]
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  metadata    Json?    // Additional service details
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([serviceType])
+  @@index([isActive])
+}
+
+model Destination {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?  @db.Text
+  country     String   @default("Egypt")
+  region      String?
+  coordinates Json?    // { lat: number, lng: number }
+  imageCover  String?
+  images      String[]
+  highlights  String[]
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  metadata    Json?    // Additional destination details
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([country])
+}
+
+model Package {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  description       String   @db.Text
+  shortDescription  String?
+  price             Float
+  discountPrice     Float?
+  duration          Int      // in days
+  destination       String
+  mainImage         String?
+  images            String[]
+  includes          String[]
+  excludes          String[]
+  itinerary         Json?    // Detailed day-by-day itinerary
+  category          String?  // luxury, adventure, cultural, family, etc.
+  maxGroupSize      Int?
+  difficulty        String?  // easy, moderate, challenging
+  isActive          Boolean  @default(true)
+  isFeatured        Boolean  @default(false)
+  order             Int      @default(0)
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([isFeatured])
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  excerpt     String?  @db.Text
+  coverImage  String?
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  category    String?
+  tags        String[]
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([isPublished])
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  country     String?
+  rating      Int      @default(5)
+  content     String   @db.Text
+  tourName    String?
+  travelDate  DateTime?
+  image       String?
+  isApproved  Boolean  @default(false)
+  isFeatured  Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isApproved])
+  @@index([isFeatured])
+}
+
+model Inquiry {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  country     String?
+  subject     String?
+  message     String   @db.Text
+  inquiryType String   @default("general") // general, booking, custom, complaint
+  status      String   @default("new") // new, in-progress, resolved, closed
+  assignedTo  String?
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([inquiryType])
+  @@index([email])
+}
+
+model Dahabiya {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  summary     String?  @db.Text
+  capacity    Int
+  cabins      Int
+  crew        Int?
+  length      Float?   // in meters
+  imageCover  String?
+  images      String[]
+  amenities   String[]
+  features    Json?    // Detailed features
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Itinerary {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?  @db.Text
+  duration    Int      // in days
+  days        Json     // Array of day-by-day details
+  tourType    String?  // cruise, land, mixed
+  destination String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Availability {
+  id          String   @id @default(cuid())
+  resourceId  String   // ID of tour, package, dahabiya, etc.
+  resourceType String  // tour, package, dahabiya, etc.
+  date        DateTime
+  slotsTotal  Int
+  slotsBooked Int      @default(0)
+  isAvailable Boolean  @default(true)
+  price       Float?
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([resourceId, resourceType, date])
+  @@index([resourceId, resourceType])
+  @@index([date])
 }
 

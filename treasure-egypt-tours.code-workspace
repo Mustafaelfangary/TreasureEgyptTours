@@ -1,0 +1,277 @@
+{
+  "folders": [
+    {
+      "name": "🏛️ ROOT - Treasure Egypt Tours",
+      "path": "."
+    },
+    {
+      "name": "📱 Frontend - App Structure",
+      "path": "./src/app"
+    },
+    {
+      "name": "🎨 Components Library",
+      "path": "./src/components"
+    },
+    {
+      "name": "🔧 API Routes",
+      "path": "./src/app/api"
+    },
+    {
+      "name": "👑 Admin Panel",
+      "path": "./src/app/admin"
+    },
+    {
+      "name": "🗄️ Database - Prisma",
+      "path": "./prisma"
+    },
+    {
+      "name": "🔌 Utilities & Hooks",
+      "path": "./src"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.next": true,
+      "**/node_modules": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/*.log": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/dist": true,
+      "**/.cache": true,
+      "**/build": true,
+      "**/*.min.js": true
+    },
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "never"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "typescript.preferences.importModuleSpecifier": "non-relative",
+    "javascript.preferences.importModuleSpecifier": "non-relative",
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[prisma]": {
+      "editor.defaultFormatter": "Prisma.prisma",
+      "editor.tabSize": 2
+    },
+    "files.associations": {
+      "*.css": "tailwindcss",
+      ".env*": "dotenv"
+    },
+    "tailwindCSS.experimental.classRegex": [
+      ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+      ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ],
+    "emmet.includeLanguages": {
+      "typescript": "typescriptreact",
+      "javascript": "javascriptreact"
+    },
+    "emmet.showSuggestionsAsSnippets": true,
+    "prisma.showPrismaDataPlatformNotification": false,
+    "sqltools.connections": [
+      {
+        "previewLimit": 50,
+        "driver": "PostgreSQL",
+        "name": "Treasure Egypt Tours DB",
+        "server": "localhost",
+        "port": 5432,
+        "database": "altavida",
+        "username": "postgres",
+        "password": ""
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "prisma.prisma",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "formulahendry.auto-rename-tag",
+      "dsznajder.es7-react-js-snippets",
+      "christian-kohler.path-intellisense",
+      "ms-vscode.vscode-typescript-next",
+      "usernamehw.errorlens",
+      "eamodio.gitlens",
+      "gruntfuggly.todo-tree",
+      "wayou.vscode-todo-highlight",
+      "mikestead.dotenv",
+      "pranaygp.vscode-css-peek",
+      "mtxr.sqltools",
+      "mtxr.sqltools-driver-pg"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "🚀 Next.js Dev Server",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "port": 3001,
+        "serverReadyAction": {
+          "pattern": "started server on .+, url: (https?://.+)",
+          "uriFormat": "%s",
+          "action": "openExternally"
+        },
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+      },
+      {
+        "name": "👑 Admin Panel (Dev)",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "port": 3001,
+        "serverReadyAction": {
+          "pattern": "started server on .+, url: (https?://.+)",
+          "uriFormat": "%s/admin",
+          "action": "openExternally"
+        },
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "🗄️ Prisma Studio",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npx",
+        "runtimeArgs": ["prisma", "studio"],
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "🔨 Build Production",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "build"],
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "🧪 Run Tests",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "test"],
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "🚀 Start Dev Server",
+        "type": "npm",
+        "script": "dev",
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "🔨 Build for Production",
+        "type": "npm",
+        "script": "build",
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "🗄️ Prisma: Generate Client",
+        "type": "shell",
+        "command": "npx prisma generate",
+        "problemMatcher": []
+      },
+      {
+        "label": "🗄️ Prisma: Push Schema",
+        "type": "shell",
+        "command": "npx prisma db push",
+        "problemMatcher": []
+      },
+      {
+        "label": "🗄️ Prisma: Open Studio",
+        "type": "shell",
+        "command": "npx prisma studio",
+        "problemMatcher": []
+      },
+      {
+        "label": "🧹 Clean Build Cache",
+        "type": "shell",
+        "command": "rm -rf .next && npm run build",
+        "windows": {
+          "command": "if exist .next rmdir /s /q .next && npm run build"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "📦 Install Dependencies",
+        "type": "npm",
+        "script": "install",
+        "problemMatcher": []
+      },
+      {
+        "label": "🧪 Run All Tests",
+        "type": "npm",
+        "script": "test",
+        "problemMatcher": [],
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "🔍 Type Check",
+        "type": "npm",
+        "script": "typecheck",
+        "problemMatcher": []
+      },
+      {
+        "label": "✨ Lint Code",
+        "type": "npm",
+        "script": "lint",
+        "problemMatcher": []
+      }
+    ]
+  },
+  "compounds": [
+    {
+      "name": "🎯 Full Dev Environment",
+      "configurations": ["🚀 Next.js Dev Server", "🗄️ Prisma Studio"],
+      "presentation": {
+        "hidden": false,
+        "group": "development",
+        "order": 1
+      }
+    }
+  ]
+}

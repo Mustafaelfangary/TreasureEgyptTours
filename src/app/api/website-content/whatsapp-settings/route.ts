@@ -24,19 +24,19 @@ export async function GET(request: NextRequest) {
     const fields = whatsappSettings.map(setting => ({
       key: setting.key,
       value: setting.value,
-      group: setting.group
+      category: setting.category
     }));
 
     // If no settings found, create default ones
     if (fields.length === 0) {
       const defaultSettings = [
-        { key: 'whatsapp_enabled', value: 'true', group: 'whatsapp' },
-        { key: 'whatsapp_phone', value: '+201234567890', group: 'whatsapp' },
-        { key: 'whatsapp_message', value: 'Hello! I\'m interested in your luxury Nile cruise packages. Could you please provide more information?', group: 'whatsapp' },
-        { key: 'whatsapp_position', value: 'bottom-right', group: 'whatsapp' },
-        { key: 'whatsapp_delay', value: '1', group: 'whatsapp' },
-        { key: 'whatsapp_business_hours', value: 'We typically respond within 1-2 hours during business hours (9 AM - 6 PM GMT+2).', group: 'whatsapp' },
-        { key: 'whatsapp_offline_message', value: 'Thank you for your interest! We\'ll respond to your message as soon as possible during business hours.', group: 'whatsapp' }
+        { key: 'whatsapp_enabled', value: 'true', category: 'whatsapp' },
+        { key: 'whatsapp_phone', value: '+201234567890', category: 'whatsapp' },
+        { key: 'whatsapp_message', value: 'Hello! I\'m interested in your luxury Nile cruise packages. Could you please provide more information?', category: 'whatsapp' },
+        { key: 'whatsapp_position', value: 'bottom-right', category: 'whatsapp' },
+        { key: 'whatsapp_delay', value: '1', category: 'whatsapp' },
+        { key: 'whatsapp_business_hours', value: 'We typically respond within 1-2 hours during business hours (9 AM - 6 PM GMT+2).', category: 'whatsapp' },
+        { key: 'whatsapp_offline_message', value: 'Thank you for your interest! We\'ll respond to your message as soon as possible during business hours.', category: 'whatsapp' }
       ];
 
       // Create default settings in database
@@ -45,12 +45,12 @@ export async function GET(request: NextRequest) {
           where: { key: setting.key },
           update: {
             value: setting.value,
-            group: setting.group
+            category: setting.category
           },
           create: {
             key: setting.key,
             value: setting.value,
-            group: setting.group
+            category: setting.category
           }
         });
       }
@@ -71,13 +71,13 @@ export async function GET(request: NextRequest) {
     
     // Return default settings on error
     const defaultFields = [
-      { key: 'whatsapp_enabled', value: 'true', group: 'whatsapp' },
-      { key: 'whatsapp_phone', value: '+201234567890', group: 'whatsapp' },
-      { key: 'whatsapp_message', value: 'Hello! I\'m interested in your luxury Nile cruise packages. Could you please provide more information?', group: 'whatsapp' },
-      { key: 'whatsapp_position', value: 'bottom-right', group: 'whatsapp' },
-      { key: 'whatsapp_delay', value: '1', group: 'whatsapp' },
-      { key: 'whatsapp_business_hours', value: 'We typically respond within 1-2 hours during business hours (9 AM - 6 PM GMT+2).', group: 'whatsapp' },
-      { key: 'whatsapp_offline_message', value: 'Thank you for your interest! We\'ll respond to your message as soon as possible during business hours.', group: 'whatsapp' }
+      { key: 'whatsapp_enabled', value: 'true', category: 'whatsapp' },
+      { key: 'whatsapp_phone', value: '+201234567890', category: 'whatsapp' },
+      { key: 'whatsapp_message', value: 'Hello! I\'m interested in your luxury Nile cruise packages. Could you please provide more information?', category: 'whatsapp' },
+      { key: 'whatsapp_position', value: 'bottom-right', category: 'whatsapp' },
+      { key: 'whatsapp_delay', value: '1', category: 'whatsapp' },
+      { key: 'whatsapp_business_hours', value: 'We typically respond within 1-2 hours during business hours (9 AM - 6 PM GMT+2).', category: 'whatsapp' },
+      { key: 'whatsapp_offline_message', value: 'Thank you for your interest! We\'ll respond to your message as soon as possible during business hours.', category: 'whatsapp' }
     ];
 
     return NextResponse.json({
@@ -104,12 +104,12 @@ export async function POST(request: NextRequest) {
       where: { key },
       update: {
         value: value || '',
-        group: 'whatsapp'
+        category: 'whatsapp'
       },
       create: {
         key,
         value: value || '',
-        group: 'whatsapp'
+        category: 'whatsapp'
       }
     });
 
